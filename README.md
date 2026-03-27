@@ -5,7 +5,7 @@ A scalable, AI-integrated framework for product and UX design — from research 
 ## What's Inside
 
 ### `/skills` — Claude Skill Files
-Eight structured `.md` skill files — seven organized by phase, plus a cross-cutting Figma Playbook. Each contains workflows, templates, quality checklists, and guidance for integrating AI into that part of the design process.
+Nine structured `.md` skill files — seven organized by phase, plus a cross-cutting Figma Playbook and a Design Systems skill. Each contains workflows, templates, quality checklists, and guidance for integrating AI into that part of the design process.
 
 | Phase | Skill File | What It Does |
 |-------|-----------|--------------|
@@ -16,6 +16,7 @@ Eight structured `.md` skill files — seven organized by phase, plus a cross-cu
 | 04 — Prototype | `prototyping.md` | Functional prototypes, UX copy systems, WCAG audits, design QA |
 | 05 — Validate | `usability-testing.md` | Test plans, task scenarios, findings synthesis, heuristic evaluations |
 | 06 — Deliver | `design-delivery.md` | Component specs, dev handoff packages, design decision records, release notes |
+| 03 / 06 | `design-systems.md` | **Design system audit & token documentation** — M3 naming, cross-system comparison, Figma variable setup |
 | All Phases | `figma-playbook.md` | **Figma MCP integration** — execute design work directly in Figma from Claude |
 
 ### Figma Playbook (MCP Integration)
@@ -32,10 +33,12 @@ The `figma-playbook.md` is a companion skill that works alongside any phase skil
 Use it by reading the phase skill + the playbook together. The phase skill defines *what* to create; the playbook defines *how* to create it in Figma.
 
 ### `/artifacts` — Interactive React Components
-Two JSX artifacts that render as interactive tools:
+Four JSX artifacts that render as interactive tools:
 
 - **`design-process-system.jsx`** — Clickable phase-by-phase system with AI prompts, skill docs, templates, and tool recommendations per phase
 - **`design-tokens-system.jsx`** — Universal starter design system with tunable tokens, live component previews, presets, and AI-powered customization export
+- **`design-system-checklist.jsx`** — Comprehensive audit checklist synthesized from Material Design 3, Atlassian, IBM Carbon, and Apple HIG — with Figma-ready prompts per item
+- **`m3-token-reference.jsx`** — Interactive M3 token documentation for Button, Card, Text Field, and Navigation Bar — covers color roles, elevation, shape, typography, and spacing with Figma variable spec prompts
 
 ### Figma Template
 **[AI × UX Design Process Template](https://www.figma.com/design/mrHuD7sY7h6uKSVndTSIQE)** — A 10-page Figma file you duplicate per project:
