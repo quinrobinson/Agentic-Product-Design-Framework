@@ -1,7 +1,14 @@
 ---
 name: prototyping
 phase: 04 — Prototype
-description: Build functional prototypes, write UX copy, and conduct accessibility audits. Use this skill when the user needs to create working prototypes in React/HTML, generate complete UI copy for screens, audit designs for WCAG accessibility compliance, or specify micro-interactions and component behavior. Also triggers for design QA, responsive design specs, or when translating wireframes/mockups into testable prototypes.
+description: >
+  Build functional prototypes, write UX copy, and validate interaction quality across web and
+  native mobile. Use this skill when creating working prototypes in React/HTML, generating
+  complete UI copy for screens, specifying micro-interactions and component behavior, auditing
+  touch target sizes, verifying animation timing, or checking mobile gesture safety. Also triggers
+  for design QA, responsive design specs, translating wireframes into testable prototypes, or
+  when any question arises about how a component should move, respond, or behave. Always use
+  alongside visual-design-execution for visual system rules and accessibility-audit for a11y checks.
 ai_leverage: high
 ---
 
@@ -9,17 +16,9 @@ ai_leverage: high
 
 Transform concepts into testable, accessible, production-quality prototypes.
 
-## When to Use
+---
 
-- Building a functional prototype for user testing
-- Writing UX copy systematically across screens
-- Auditing a design or prototype for accessibility
-- Specifying component behavior, states, and interactions
-- Preparing a design for QA review
-
-## Functional Prototyping
-
-### Prototype Specification
+## Prototype Specification
 
 Before building, define:
 
@@ -40,15 +39,15 @@ Before building, define:
 ## Scope
 Screens included: [List]
 User flow: [Step 1 → Step 2 → Step 3]
+Platform: [ ] Web  [ ] iOS  [ ] Android  [ ] Cross-platform
 
 ## Requirements
-- Framework: [React / HTML / Figma prototype]
+- Framework: [React / HTML / Figma prototype / SwiftUI / Flutter]
 - Responsive: [Yes — breakpoints: 375, 768, 1280]
 - Interactive elements: [List what needs to actually work]
 - Data: [Static / Mock API / Real data]
 
 ## States to Build
-For each screen:
 - [ ] Default / loaded
 - [ ] Empty state (no data / first use)
 - [ ] Loading (skeleton / spinner)
@@ -57,17 +56,79 @@ For each screen:
 - [ ] Edge cases: [Specify]
 ```
 
-### Building the Prototype
+---
 
-When generating code prototypes:
+## Building the Prototype
 
-1. **Start with structure** — Build the layout skeleton first, verify structure is correct
+1. **Start with structure** — Build the layout skeleton first
 2. **Add real content** — Use realistic data, not "Lorem ipsum." Users react to content.
 3. **Handle all states** — Empty, loading, error, and success states are where UX lives
 4. **Add micro-interactions** — Hover states, transitions, and feedback that make it feel real
-5. **Make it responsive** — Test at mobile (375px), tablet (768px), and desktop (1280px)
+5. **Make it responsive** — Test at 375px (mobile), 768px (tablet), 1280px (desktop)
 
-### Micro-Interaction Specs
+---
+
+## Touch & Interaction Standards
+
+### Touch Target Sizes
+
+| Platform | Minimum | Recommended |
+|---|---|---|
+| iOS | 44 × 44pt | 48 × 48pt |
+| Android | 48 × 48dp | 56 × 56dp |
+| Web (mobile) | 44 × 44px | 48 × 48px |
+
+- Extend hit area beyond visual bounds when icon is smaller than minimum
+- Minimum **8px gap between adjacent touch targets** to prevent mis-taps
+- Keep primary tap targets away from notch, Dynamic Island, gesture bar, and screen edges
+
+### Interaction Timing
+
+| Interaction | Duration | Easing | Platform Note |
+|---|---|---|---|
+| Press/tap feedback | 80–150ms | ease-out | Apple HIG / Material |
+| Hover state (web) | 100–150ms | ease-out | — |
+| Micro-interaction (toggle, checkbox) | 150–200ms | ease-out | — |
+| Dropdown / panel open | 200–250ms | ease-out | — |
+| Dropdown / panel close | 150–200ms | ease-in | — |
+| Modal enter | 250–300ms | ease-out | — |
+| Modal exit | 150–200ms | ease-in | — |
+| Page / screen transition | 200–300ms | ease-in-out | Never > 300ms |
+| Complex animations | ≤ 400ms | cubic-bezier | Never > 500ms |
+
+**Animation rules:**
+- Animate `transform` and `opacity` only — never `width`, `height`, `top`, `left`
+- Ease-out for entering elements; ease-in for exiting elements
+- Max 1–2 animated elements per view — no competing motion
+- Use skeleton screens (not spinners) for loads > 300ms
+- Always respect `prefers-reduced-motion` — provide instant or minimal-motion fallback
+
+### Gesture Safety
+
+- Avoid horizontal swipe on main scroll content — conflicts with iOS swipe-back
+- Provide visible controls for all gesture-only actions (swipe to delete → delete button)
+- Use a movement threshold before starting drag (prevents accidental drags)
+- Do not override system gestures (iOS back swipe, Control Center, Android predictive back)
+- For swipe actions: show clear affordance or hint (chevron, label, hint animation)
+
+### Press Feedback Requirements
+
+- Every tappable element must provide visual feedback within 80–150ms
+- Web: `cursor: pointer` on all clickable elements
+- iOS: opacity change, highlight, or scale (per component)
+- Android: ripple effect at tap point
+- Disabled state: reduced opacity (0.38–0.5) + semantic `disabled` attribute — no tap response
+- Loading state: disable button and show spinner during async operations
+
+### Haptic Feedback (Native Mobile)
+
+- Use for: confirmations, important destructive actions, success completions
+- Avoid overuse — haptics lose meaning if triggered constantly
+- Never use for decorative/ambient triggers
+
+---
+
+## Micro-Interaction Specs
 
 Document each interaction:
 
@@ -75,194 +136,154 @@ Document each interaction:
 ## Interaction: [Name]
 
 ### Trigger
-[What initiates the interaction — click, hover, scroll, load, gesture]
+[click / hover / scroll / load / swipe / gesture]
 
 ### Animation
-- Property: [What changes — opacity, transform, color, size]
-- Duration: [100ms / 200ms / 300ms]
-- Easing: [ease-out / ease-in-out / spring]
-- Delay: [If staggered]
+- Property: [transform / opacity / color / background]
+- Duration: [80–400ms — see timing table above]
+- Easing: [ease-out (enter) / ease-in (exit) / ease-in-out (bidirectional)]
+- Delay: [If staggered — 30–50ms per item]
 
 ### Feedback
-[What the user sees/hears/feels in response]
+[Visual / haptic / sound — what the user perceives]
 
 ### End State
-[What the UI looks like after the interaction completes]
+[What the UI looks like after completion]
+
+### Reduced Motion Fallback
+[Instant change / opacity-only / no animation]
 
 ### Edge Cases
-- Interrupted: [What if user triggers again before completion?]
-- Disabled: [What if the element is disabled?]
-- Reduced motion: [What happens with prefers-reduced-motion?]
+- Interrupted: [What if triggered again before completion?]
+- Disabled: [What if element is disabled?]
 ```
+
+---
 
 ## UX Copy System
 
 ### Screen Copy Audit
 
-For each screen, document all copy systematically:
-
 ```
 # UX Copy: [Screen Name]
 
 ## Headlines & Subheads
-- H1: [Primary heading]
-- Subhead: [Supporting context]
+- H1: [Primary heading — one per screen]
+- Subhead: [Supporting context — optional]
 
 ## Actions
-- Primary CTA: [Button label] — Verb-first, specific
-- Secondary CTA: [Button label]
-- Tertiary: [Link text]
+- Primary CTA: [Verb-first, specific — "Save changes" not "Submit"]
+- Secondary CTA: [Less prominent]
+- Destructive CTA: [Uses danger color — "Delete account"]
 
 ## Form Labels & Help Text
-- [Field]: Label: [X] | Placeholder: [X] | Help: [X] | Error: [X]
+- [Field]: Label | Placeholder | Help text | Error message
 
 ## Empty States
-- Title: [What to say when there's nothing here]
-- Body: [Explain why and what to do]
-- CTA: [Action to populate]
+- Title: [What to say when nothing is here]
+- Body: [Explain why and what to do next]
+- CTA: [Action to get started]
 
-## Error Messages
-- [Error type]: [Specific, helpful message that says what went wrong AND how to fix it]
-- Avoid: "An error occurred" — Say what error and what to do
+## Error Messages (must state cause + fix)
+- [Error type]: [Specific message — "Password must be at least 8 characters"]
+- Avoid: "An error occurred" / "Invalid input"
 
 ## Success / Confirmation
-- [Action completed]: [Confirmation message] — Brief, positive, with clear next step
-
-## Tooltips & Help
-- [Element]: [Tooltip text] — Only when the element isn't self-explanatory
+- [Action]: [Brief confirmation + clear next step]
 
 ## Loading States
-- [What to show]: [Message if loading >2 seconds]
+- [Context]: [Message if loading > 2 seconds]
 ```
 
 ### Copy Principles
+- Verb-first CTAs: "Save changes" not "Changes"
+- Specific errors: state what's wrong AND how to fix it
+- No dead ends: every empty state + error has a next action
+- Consistent voice: define tone (professional, casual, etc.) and maintain it
+- Front-load key info: most important word comes first in every string
 
-- **Clarity over cleverness** — Users are trying to accomplish a task, not read marketing copy
-- **Verb-first CTAs** — "Save changes" not "Changes" / "Create account" not "Submit"
-- **Specific errors** — "Password must be at least 8 characters" not "Invalid input"
-- **No dead ends** — Every empty state, error, and confirmation should tell users what to do next
-- **Consistent voice** — Define and maintain a tone (professional, casual, playful, etc.)
-- **Front-load key info** — The most important word in every string should come first
+---
 
-## Accessibility Audit
+## Accessibility Audit (Quick)
 
-### WCAG 2.1 AA Audit Checklist
+For full audit workflow → use the **accessibility-audit** skill.
 
-Run through each category:
+Quick checks during prototyping:
 
-**Perceivable**
-- [ ] Color contrast: Text meets 4.5:1 ratio (3:1 for large text)
-- [ ] Color not sole indicator: Information isn't conveyed by color alone
-- [ ] Images: All meaningful images have alt text
-- [ ] Video/audio: Captions and transcripts provided
-- [ ] Text resize: Content remains usable at 200% zoom
+- [ ] Color contrast: text ≥ 4.5:1, large text ≥ 3:1
+- [ ] Color not sole indicator (add icons or text)
+- [ ] All images have descriptive alt text
+- [ ] All interactive elements reachable by Tab
+- [ ] Focus indicator visible on all interactive elements
+- [ ] Touch targets ≥ 44×44px
+- [ ] Skip links present (if nav before main content)
+- [ ] `prefers-reduced-motion` respected
 
-**Operable**
-- [ ] Keyboard accessible: All interactive elements reachable via Tab
-- [ ] Focus visible: Clear focus indicator on all interactive elements
-- [ ] Focus order: Logical tab sequence matching visual layout
-- [ ] No keyboard traps: User can always Tab away from any element
-- [ ] Touch targets: Minimum 44x44px on mobile
-- [ ] Skip links: Available for repetitive navigation
-- [ ] Motion: Respects prefers-reduced-motion
+---
 
-**Understandable**
-- [ ] Language: Page language declared
-- [ ] Labels: Form inputs have visible, associated labels
-- [ ] Error identification: Errors clearly described with suggestions to fix
-- [ ] Consistent navigation: Same patterns used throughout
+## Navigation Pattern Standards
 
-**Robust**
-- [ ] Semantic HTML: Proper heading hierarchy, landmarks, lists
-- [ ] ARIA: Used correctly where native HTML isn't sufficient
-- [ ] Name/Role/Value: All interactive elements properly labeled
+| Pattern | Use When | Avoid |
+|---|---|---|
+| Bottom tab bar | iOS: top-level navigation, ≤ 5 items | Sub-navigation, > 5 items |
+| Top app bar | Android: primary structure | iOS primary nav |
+| Sidebar / drawer | Secondary navigation, desktop ≥ 1024px | Primary mobile actions |
+| Breadcrumbs | 3+ level hierarchy (web) | Flat structures |
 
-### Audit Report Format
+**Navigation rules:**
+- Back navigation must be predictable — preserve scroll position and filter state
+- Bottom nav is for top-level screens only — never nest sub-navigation inside it
+- Navigation placement must be consistent across all screens — never change by page type
+- Modals must offer a clear close affordance — swipe-down to dismiss on mobile
+- After page transition: move focus to main content region for screen reader users
+- Deep links: all key screens must be reachable via URL / deep link
 
-```
-# Accessibility Audit: [Screen/Component]
+---
 
-## Summary
-- Critical issues: [N]
-- Major issues: [N]
-- Minor issues: [N]
-- Overall compliance: [Pass / Fail / Partial]
+## Pre-Delivery QA Checklist
 
-## Issues
+### Visual Quality
+- [ ] No emoji as icons — SVG only
+- [ ] Consistent icon library and stroke width
+- [ ] Semantic color tokens — no hardcoded hex in components
+- [ ] Light and dark mode both verified
 
-### [Issue 1]: [Title]
-- Severity: Critical / Major / Minor
-- WCAG Criterion: [e.g., 1.4.3 Contrast]
-- Location: [Where in the UI]
-- Problem: [What's wrong]
-- Impact: [Who is affected and how]
-- Fix: [Specific code or design change]
+### Interaction
+- [ ] All tappable elements have press feedback (≤ 150ms)
+- [ ] Touch targets ≥ 44×44pt (iOS) / 48×48dp (Android)
+- [ ] Animation timing 80–300ms range; complex ≤ 400ms
+- [ ] `transform`/`opacity` only — no layout property animations
+- [ ] Disabled states visually clear and non-interactive
+- [ ] Loading states disable buttons and show progress
 
-### [Issue 2]: [Title]
-...
+### Gesture & Platform
+- [ ] No gesture conflicts with system swipes (back, Control Center)
+- [ ] Gesture-only actions have visible control alternatives
+- [ ] Safe areas respected (notch, Dynamic Island, gesture bar, home indicator)
+- [ ] Horizontal scroll does not conflict with main scroll direction
 
-## Recommendations
-1. [Highest priority fix — address before launch]
-2. [Important improvement]
-3. [Nice-to-have enhancement]
-```
+### Light/Dark Mode
+- [ ] Primary text ≥ 4.5:1 in both modes
+- [ ] Secondary text ≥ 3:1 in dark mode
+- [ ] Dividers and interaction states visible in both modes
+- [ ] Modal scrims 40–60% opacity in both modes
 
-## Design QA Checklist
+### Layout
+- [ ] Verified at 375px, 768px, 1280px (web)
+- [ ] Verified on small phone, large phone, tablet portrait + landscape (native)
+- [ ] Scroll content not hidden behind fixed/sticky bars
+- [ ] 4/8dp spacing rhythm maintained throughout
+- [ ] Long-form text readable on large devices (no edge-to-edge paragraphs)
 
-Before any handoff or user test:
+### Accessibility
+- [ ] All meaningful images/icons have labels
+- [ ] Form fields: labels, hints, and error messages present
+- [ ] Errors use `role="alert"` or `aria-live`
+- [ ] Reduced motion and dynamic text size supported without layout breakage
+- [ ] Keyboard navigation complete and logical
 
-```
-# Design QA: [Screen/Feature]
-
-## Visual Consistency
-- [ ] Colors match design system tokens
-- [ ] Typography follows the type scale
-- [ ] Spacing uses the spacing system
-- [ ] Icons are consistent style and size
-- [ ] Alignment is pixel-perfect
-
-## Responsive Behavior
-- [ ] Tested at 375px (mobile)
-- [ ] Tested at 768px (tablet)
-- [ ] Tested at 1280px (desktop)
-- [ ] Tested at 1920px (large desktop)
-- [ ] No horizontal scroll at any breakpoint
-- [ ] Touch targets adequate on mobile
-
-## Content & Copy
+### Content & Copy
 - [ ] No placeholder text remaining
-- [ ] Strings handle long text gracefully (truncation, wrapping)
-- [ ] Numbers handle extremes (0, 1, 999, 1000000)
-- [ ] Dates handle all formats and time zones
-
-## States
-- [ ] Default state
-- [ ] Empty state
-- [ ] Loading state
-- [ ] Error state
-- [ ] Success state
-- [ ] Hover / Focus / Active states
-- [ ] Disabled state
-
-## Edge Cases
-- [ ] First-time user experience
-- [ ] Power user with maximum data
-- [ ] Slow network / offline
-- [ ] Browser back button behavior
-- [ ] Page refresh mid-flow
-
-## Accessibility
-- [ ] Keyboard navigation complete
-- [ ] Screen reader tested
-- [ ] Color contrast verified
-- [ ] Focus management correct
-```
-
-## Quality Checklist
-
-- [ ] Prototype uses realistic data, not placeholders
-- [ ] All states are accounted for (not just the happy path)
-- [ ] Copy is specific, actionable, and consistent in voice
-- [ ] Accessibility audit has specific fixes, not just "improve contrast"
-- [ ] Responsive behavior is tested, not assumed
-- [ ] Micro-interactions enhance usability, not just aesthetics
+- [ ] Strings handle long text (truncation, wrapping)
+- [ ] Numbers handle extremes (0, 1, 999999)
+- [ ] All states covered: default, empty, loading, error, success, disabled

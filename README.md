@@ -5,17 +5,19 @@ A scalable, AI-integrated framework for product and UX design — from research 
 ## What's Inside
 
 ### `/skills` — Claude Skill Files
-Nine structured `.md` skill files — seven organized by phase, plus a cross-cutting Figma Playbook and a Design Systems skill. Each contains workflows, templates, quality checklists, and guidance for integrating AI into that part of the design process.
+Eleven structured `.md` skill files — nine organized by phase, plus a cross-cutting Figma Playbook and a Design Systems skill. Each contains workflows, templates, quality checklists, and guidance for integrating AI into that part of the design process.
 
 | Phase | Skill File | What It Does |
 |-------|-----------|--------------|
 | 01 — Discover | `user-research.md` | Research synthesis, interview guides, thematic coding, research briefs |
 | 01 — Discover | `competitive-analysis.md` | Landscape mapping, feature benchmarks, UX pattern libraries |
 | 02 — Define | `problem-framing.md` | HMW/JTBD/user stories, journey maps, MoSCoW prioritization, design briefs |
-| 03 — Ideate | `concept-generation.md` | Five-Direction concept method, UI pattern recs, design system scaffolding |
-| 04 — Prototype | `prototyping.md` | Functional prototypes, UX copy systems, WCAG audits, design QA |
+| 03 — Ideate | `concept-generation.md` | Five-Direction concepts, UI patterns, visual system directions, chart type selection |
+| 03 — Ideate | `visual-design-execution.md` | **NEW** — Style selection, color token architecture, typography, spacing, motion, icon standards |
+| 04 — Prototype | `prototyping.md` | Functional prototypes, touch targets, interaction timing, gesture safety, platform QA |
+| 04 — Prototype | `accessibility-audit.md` | **NEW** — WCAG 2.1 AA audit for web + iOS (VoiceOver) + Android (TalkBack) |
 | 05 — Validate | `usability-testing.md` | Test plans, task scenarios, findings synthesis, heuristic evaluations |
-| 06 — Deliver | `design-delivery.md` | Component specs, dev handoff packages, design decision records, release notes |
+| 06 — Deliver | `design-delivery.md` | Component specs, iOS/Android/Web platform handoff packages, DDRs, release notes |
 | 03 / 06 | `design-systems.md` | **Design system audit & token documentation** — M3 naming, cross-system comparison, Figma variable setup |
 | All Phases | `figma-playbook.md` | **Figma MCP integration** — execute design work directly in Figma from Claude |
 
