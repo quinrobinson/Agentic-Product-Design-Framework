@@ -769,7 +769,7 @@ export default function DesignProcessSystem() {
             <div>
               <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: 2, color: "#0D9488", marginBottom: 6 }}>Onboarding Guide</div>
               <div style={{ fontSize: 14, color: "#333", fontWeight: 600, marginBottom: 4 }}>New to the framework? Start here.</div>
-              <div style={{ fontSize: 13, color: "#888", lineHeight: 1.5 }}>An 18-slide deck covering the framework's value, use cases, and step-by-step Figma + Claude setup. Share with your team or use to onboard new collaborators.</div>
+              <div style={{ fontSize: 13, color: "#888", lineHeight: 1.5 }}>An 18-slide deck covering the AI × UX philosophy, 6-phase framework, Figma template setup, Claude integration, and per-phase prompt examples. Share with your team or use to onboard new collaborators.</div>
             </div>
             <a href="https://github.com/quinrobinson/AI-x-UX-Product-Design-Framework/raw/main/artifacts/onboarding-deck.pptx"
               style={{ background: "#0D9488", color: "#fff", padding: "10px 20px", borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: "none", whiteSpace: "nowrap", flexShrink: 0, marginLeft: 24 }}>
