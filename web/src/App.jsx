@@ -4,6 +4,7 @@ import UniversalDesignSystem from "./DesignTokensSystem";
 import DesignSystemChecklist from "./DesignSystemChecklist";
 import M3TokenReference from "./M3TokenReference";
 import AIBriefGenerator from "./AIBriefGenerator";
+import ClientDeckBuilder from "./ClientDeckBuilder";
 
 // ── Design System Tokens (from Onboarding Deck) ────────────────────────────
 const DS = {
@@ -67,6 +68,16 @@ const TOOLS = [
     description: "Structured checklist synthesized from Material Design 3, Atlassian, IBM Carbon, and Apple HIG — with Figma-ready AI prompts per item. Best used at handoff.",
     tags: ["Deliver", "Audit", "Figma prompts"],
     component: DesignSystemChecklist,
+  },
+  {
+    id: "deck",
+    number: "05",
+    phase: "06",
+    name: "Client Deck Builder",
+    subtitle: "Build the right presentation for any stage of the project",
+    description: "Tell Claude your goal, audience, and where you are in the project — it identifies the deck type, writes a slide-by-slide structure with speaker notes, talking points, and an opening hook tailored to your room.",
+    tags: ["Deliver", "AI accelerated", "Client-facing"],
+    component: ClientDeckBuilder,
   },
 ];
 
@@ -593,7 +604,7 @@ Based on my answers, respond with:
         <div style={{ maxWidth: 1160, margin: "0 auto", padding: "64px 60px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 28 }}>
             <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: 3, color: DS.bodyDark }}>
-              AI-Powered Design Tools — 04
+              AI-Powered Design Tools — 05
             </div>
             <span style={{ fontSize: 12, color: DS.bodyDark, opacity: 0.5, fontFamily: "'JetBrains Mono', monospace" }}>No install — runs in the browser</span>
           </div>
