@@ -74,42 +74,75 @@ const ALL_SKILL_FILES = [
 
 export default function SkillsLibrary({ onBack }) {
   const [activeFilter, setActiveFilter] = useState("all");
-  const [zipState, setZipState] = useState("idle"); // idle | loading | done | error
+  const [allState, setAllState] = useState("idle"); // idle | loading | done | error
+  const [skillStates, setSkillStates] = useState({}); // { "user-research.md": "idle|loading|done|error" }
 
-  async function downloadAllSkills() {
-    setZipState("loading");
+  function setSkillState(file, state) {
+    setSkillStates(prev => ({ ...prev, [file]: state }));
+  }
+
+  async function buildSkillZip(JSZip, file, dir) {
+    const slug = file.replace(".md", "");
+    const filePath = dir ? `${dir}/${file}` : file;
+    const res = await fetch(`${RAW}/${filePath}`);
+    if (!res.ok) throw new Error(`Failed to fetch ${filePath}`);
+    const text = await res.text();
+    const zip = new JSZip();
+    zip.folder(slug).file("SKILL.md", text);
+    const blob = await zip.generateAsync({ type: "blob" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${slug}.zip`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function downloadSingleSkill(file, dir) {
+    setSkillState(file, "loading");
     try {
       const JSZip = (await import("https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm")).default;
-      const zip = new JSZip();
-      const folder = zip.folder("agentic-design-framework-skills");
-
-      await Promise.all(
-        ALL_SKILL_FILES.map(async ({ path, zipPath }) => {
-          const res = await fetch(`${RAW}/${path}`);
-          if (!res.ok) throw new Error(`Failed to fetch ${path}`);
-          const text = await res.text();
-          folder.file(zipPath, text);
-        })
-      );
-
-      const blob = await zip.generateAsync({ type: "blob" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "agentic-design-framework-skills.zip";
-      a.click();
-      URL.revokeObjectURL(url);
-      setZipState("done");
-      setTimeout(() => setZipState("idle"), 3000);
+      await buildSkillZip(JSZip, file, dir);
+      setSkillState(file, "done");
+      setTimeout(() => setSkillState(file, "idle"), 3000);
     } catch (e) {
       console.error(e);
-      setZipState("error");
-      setTimeout(() => setZipState("idle"), 3000);
+      setSkillState(file, "error");
+      setTimeout(() => setSkillState(file, "idle"), 3000);
     }
   }
 
-  const zipLabel = { idle: "Download all skills (.zip)", loading: "Preparing zip…", done: "✓ Downloaded", error: "Download failed — retry" }[zipState];
-  const zipDisabled = zipState === "loading";
+  async function downloadAllSkills() {
+    setAllState("loading");
+    try {
+      const JSZip = (await import("https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm")).default;
+      for (const { path, zipPath } of ALL_SKILL_FILES) {
+        const slug = zipPath.split("/")[0];
+        const res = await fetch(`${RAW}/${path}`);
+        if (!res.ok) throw new Error(`Failed to fetch ${path}`);
+        const text = await res.text();
+        const zip = new JSZip();
+        zip.folder(slug).file("SKILL.md", text);
+        const blob = await zip.generateAsync({ type: "blob" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${slug}.zip`;
+        a.click();
+        URL.revokeObjectURL(url);
+        await new Promise(r => setTimeout(r, 400)); // stagger to avoid browser blocking
+      }
+      setAllState("done");
+      setTimeout(() => setAllState("idle"), 4000);
+    } catch (e) {
+      console.error(e);
+      setAllState("error");
+      setTimeout(() => setAllState("idle"), 3000);
+    }
+  }
+
+  const allLabel = { idle: "Download all skills", loading: "Downloading…", done: `✓ All ${ALL_SKILL_FILES.length} downloaded`, error: "Download failed — retry" }[allState];
+  const allDisabled = allState === "loading";
 
   const filteredSkills = SKILLS.filter(row => {
     if (activeFilter === "all") return true;
@@ -132,17 +165,17 @@ export default function SkillsLibrary({ onBack }) {
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 16 }}>
           <button
             onClick={downloadAllSkills}
-            disabled={zipDisabled}
+            disabled={allDisabled}
             style={{
-              background: zipState === "done" ? "#22C55E22" : zipState === "error" ? "#EF444422" : "transparent",
-              border: `1px solid ${zipState === "done" ? "#22C55E" : zipState === "error" ? "#EF4444" : DS.darkBorder}`,
-              borderRadius: 8, padding: "6px 14px", cursor: zipDisabled ? "default" : "pointer",
-              fontSize: 11, color: zipState === "done" ? "#22C55E" : zipState === "error" ? "#EF4444" : DS.bodyLight,
-              fontFamily: "'JetBrains Mono', monospace", opacity: zipDisabled ? 0.6 : 1,
+              background: allState === "done" ? "#22C55E22" : allState === "error" ? "#EF444422" : "transparent",
+              border: `1px solid ${allState === "done" ? "#22C55E" : allState === "error" ? "#EF4444" : DS.darkBorder}`,
+              borderRadius: 8, padding: "6px 14px", cursor: allDisabled ? "default" : "pointer",
+              fontSize: 11, color: allState === "done" ? "#22C55E" : allState === "error" ? "#EF4444" : DS.bodyLight,
+              fontFamily: "'JetBrains Mono', monospace", opacity: allDisabled ? 0.6 : 1,
               transition: "all 0.2s", whiteSpace: "nowrap",
             }}
           >
-            {zipLabel}
+            {allLabel}
           </button>
           <a href={`${REPO}/tree/main/skills`} target="_blank" rel="noopener noreferrer"
             style={{ fontSize: 11, color: DS.bodyLight, textDecoration: "none", fontFamily: "'JetBrains Mono', monospace", opacity: 0.5 }}>
@@ -170,24 +203,24 @@ export default function SkillsLibrary({ onBack }) {
               <div style={{ width: 28, height: 28, borderRadius: 7, background: "#1E293B", border: "1px solid #334155", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 12, color: DS.bodyLight }}>↑</div>
               <div style={{ fontSize: 13, color: DS.bodyLight, lineHeight: 1.65 }}>
                 <span style={{ color: DS.white, fontWeight: 600 }}>How to use: </span>
-                Download all skill files as a zip, or open any file on GitHub and copy the raw content. Paste into a new Claude conversation as your first message.
+                Download individual skills as zips using the ↓ .zip button on each row, or download all 14 at once. Each zip contains one <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, background: "#1E293B", padding: "1px 5px", borderRadius: 4 }}>SKILL.md</code> — upload directly to Claude via Settings → Customize → Skills.
               </div>
             </div>
             <button
               onClick={downloadAllSkills}
-              disabled={zipDisabled}
+              disabled={allDisabled}
               style={{
-                background: zipState === "done" ? "#22C55E18" : zipState === "error" ? "#EF444418" : "#0B1120",
-                border: `1px solid ${zipState === "done" ? "#22C55E55" : zipState === "error" ? "#EF444455" : "#1E293B"}`,
-                borderRadius: 12, padding: "16px 22px", cursor: zipDisabled ? "default" : "pointer",
-                fontSize: 12, color: zipState === "done" ? "#22C55E" : zipState === "error" ? "#EF4444" : DS.white,
+                background: allState === "done" ? "#22C55E18" : allState === "error" ? "#EF444418" : "#0B1120",
+                border: `1px solid ${allState === "done" ? "#22C55E55" : allState === "error" ? "#EF444455" : "#1E293B"}`,
+                borderRadius: 12, padding: "16px 22px", cursor: allDisabled ? "default" : "pointer",
+                fontSize: 12, color: allState === "done" ? "#22C55E" : allState === "error" ? "#EF4444" : DS.white,
                 fontFamily: "'JetBrains Mono', monospace", fontWeight: 600,
-                opacity: zipDisabled ? 0.7 : 1, transition: "all 0.2s",
+                opacity: allDisabled ? 0.7 : 1, transition: "all 0.2s",
                 display: "flex", alignItems: "center", gap: 10, whiteSpace: "nowrap", flexShrink: 0,
               }}
             >
-              <span style={{ fontSize: 16 }}>{zipState === "loading" ? "⟳" : zipState === "done" ? "✓" : zipState === "error" ? "✕" : "↓"}</span>
-              {zipLabel}
+              <span style={{ fontSize: 16 }}>{allState === "loading" ? "⟳" : allState === "done" ? "✓" : allState === "error" ? "✕" : "↓"}</span>
+              {allLabel}
             </button>
           </div>
         </div>
@@ -247,6 +280,7 @@ export default function SkillsLibrary({ onBack }) {
                   {row.files.map((file, fi) => {
                     const meta = SKILL_META[file];
                     const fileColor = p ? p.color : DS.bodyDark;
+                    const sState = skillStates[file] || "idle";
                     return (
                       <div key={file} style={{ marginBottom: fi < row.files.length - 1 ? 22 : 0 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6, flexWrap: "wrap" }}>
@@ -257,6 +291,24 @@ export default function SkillsLibrary({ onBack }) {
                           >
                             {file}
                           </a>
+                          <button
+                            onClick={() => downloadSingleSkill(file, row.dir)}
+                            disabled={sState === "loading"}
+                            title={`Download ${file.replace(".md", "")}.zip`}
+                            style={{
+                              display: "inline-flex", alignItems: "center", gap: 5,
+                              fontSize: 10, padding: "3px 10px", borderRadius: 7,
+                              fontFamily: "'JetBrains Mono', monospace", fontWeight: 500,
+                              cursor: sState === "loading" ? "default" : "pointer",
+                              border: `1px solid ${sState === "done" ? "#22C55E88" : sState === "error" ? "#EF444488" : DS.lightBorder}`,
+                              background: sState === "done" ? "#22C55E12" : sState === "error" ? "#EF444412" : "transparent",
+                              color: sState === "done" ? "#22C55E" : sState === "error" ? "#EF4444" : DS.bodyDark,
+                              opacity: sState === "loading" ? 0.5 : 1,
+                              transition: "all 0.2s", whiteSpace: "nowrap",
+                            }}
+                          >
+                            {sState === "loading" ? "⟳" : sState === "done" ? "✓" : sState === "error" ? "✕" : "↓"} .zip
+                          </button>
                           {meta?.leverage && (
                             <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: DS.bodyDark, opacity: 0.35 }}>
                               {meta.leverage === "high" ? "AI accelerated" : "AI assisted"}
