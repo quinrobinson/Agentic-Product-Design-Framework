@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
 import DesignProcessSystem from "./DesignProcessSystem";
-import UniversalDesignSystem from "./DesignTokensSystem";
-import DesignSystemChecklist from "./DesignSystemChecklist";
-import M3TokenReference from "./M3TokenReference";
 import AIBriefGenerator from "./AIBriefGenerator";
 import ClientDeckBuilder from "./ClientDeckBuilder";
 import FigmaSetupGuide from "./FigmaSetupGuide";
@@ -53,28 +50,8 @@ const TOOLS = [
     component: AIBriefGenerator,
   },
   {
-    id: "tokens",
-    number: "03",
-    phase: "03",
-    name: "Brand Style Builder",
-    subtitle: "Build a client-ready visual identity in minutes",
-    description: "Live token editor with presets, component previews, and CSS export. Set brand colors, type, and spacing — then export a starter design system ready to hand off or drop into Figma.",
-    tags: ["Ideate", "Client deliverable", "Live preview"],
-    component: UniversalDesignSystem,
-  },
-  {
-    id: "checklist",
-    number: "04",
-    phase: "06",
-    name: "Design System Audit",
-    subtitle: "Audit your system against 4 industry standards",
-    description: "Structured checklist synthesized from Material Design 3, Atlassian, IBM Carbon, and Apple HIG — with Figma-ready AI prompts per item. Best used at handoff.",
-    tags: ["Deliver", "Audit", "Figma prompts"],
-    component: DesignSystemChecklist,
-  },
-  {
     id: "deck",
-    number: "05",
+    number: "03",
     phase: null,
     name: "Client Deck Builder",
     subtitle: "Build the right presentation for any stage of the project",
@@ -84,7 +61,7 @@ const TOOLS = [
   },
   {
     id: "design-system-builder",
-    number: "06",
+    number: "04",
     phase: "03",
     name: "Design System Builder",
     subtitle: "Upload, build, or bootstrap a design system for Claude",
@@ -131,6 +108,10 @@ const SKILL_META = {
     leverage: "high",
     desc: "Produces component specs, platform-specific handoff packages for iOS/Android/Web, design decision records, and release notes — everything a developer needs to build it right.",
   },
+  "design-system-audit.md": {
+    leverage: "high",
+    desc: "Validates your design system before handoff — covers foundations, components, patterns, accessibility, documentation, and AI acceleration against Material Design 3, Atlassian, Carbon, and Apple HIG. Run this at Deliver phase.",
+  },
   "design-systems.md": {
     leverage: "high",
     desc: "Audits any product against Material Design 3, Atlassian, IBM Carbon, and Apple HIG — then documents tokens using M3 naming conventions and sets up Figma variable collections.",
@@ -155,7 +136,7 @@ const SKILLS = [
   { phase: "03", dir: "03-ideate", files: ["concept-generation.md", "visual-design-execution.md"] },
   { phase: "04", dir: "04-prototype", files: ["prototyping.md", "accessibility-audit.md"] },
   { phase: "05", dir: "05-validate", files: ["usability-testing.md"] },
-  { phase: "06", dir: "06-deliver", files: ["design-delivery.md"] },
+  { phase: "06", dir: "06-deliver", files: ["design-delivery.md", "design-system-audit.md"] },
   { phase: null, dir: "", files: ["design-systems.md", "figma-playbook.md", "phase-handoff.md", "skill-chaining.md"] },
 ];
 
@@ -656,7 +637,7 @@ Based on my answers, respond with:
 
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 28 }}>
             <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: 3, color: DS.bodyDark }}>
-              AI-Powered Design Tools — 06
+              AI-Powered Design Tools — 04
             </div>
             <span style={{ fontSize: 12, color: DS.bodyDark, opacity: 0.5, fontFamily: "'JetBrains Mono', monospace" }}>No install — runs in the browser</span>
           </div>
