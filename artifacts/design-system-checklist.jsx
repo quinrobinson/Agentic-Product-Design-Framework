@@ -495,6 +495,16 @@ export default function DesignSystemChecklist() {
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", maxWidth: 760, margin: "0 auto", padding: "24px 16px" }}>
 
+      {/* Kickoff Prompt link */}
+      <div style={{ marginBottom: 16, padding: "10px 14px", background: "#F0FDFA", border: "1px solid #99F6E4", borderRadius: 8, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <span style={{ fontSize: 12, color: "#0F766E" }}>New to the framework? Start with the Kickoff Prompt — Claude will route you to the right phase and skill file.</span>
+        <a href="https://github.com/quinrobinson/AI-x-UX-Product-Design-Framework#quick-start--kickoff-prompt"
+          target="_blank" rel="noopener noreferrer"
+          style={{ fontSize: 11, fontWeight: 600, color: "#0F766E", textDecoration: "none", whiteSpace: "nowrap", marginLeft: 16 }}>
+          Kickoff Prompt →
+        </a>
+      </div>
+
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 20, fontWeight: 700, color: "#111827", marginBottom: 4 }}>
