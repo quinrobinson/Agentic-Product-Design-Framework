@@ -10,6 +10,8 @@ import ServiceBlueprintGenerator from "./ServiceBlueprintGenerator";
 import CompetitiveSnapshotBuilder from "./CompetitiveSnapshotBuilder";
 import ProblemFramingTool from "./ProblemFramingTool";
 import JourneyMappingTool from "./JourneyMappingTool";
+import ConceptGenerator from "./ConceptGenerator";
+import IdeaClusteringTool from "./IdeaClusteringTool";
 
 // ── Tokens ──────────────────────────────────────────────────────────────────
 const T = {
@@ -48,6 +50,8 @@ const TOOLS = [
   { id: "competitive-snapshot", number: "07", phase: "01", name: "Competitive Snapshot Builder", subtitle: "Map the landscape, audit competitors, and find differentiation opportunities",    component: CompetitiveSnapshotBuilder },
   { id: "problem-framing",      number: "08", phase: "02", name: "Problem Framing",             subtitle: "Generate, pressure-test, and score problem statements + HMW questions",           component: ProblemFramingTool },
   { id: "journey-mapping",      number: "09", phase: "02", name: "Journey Mapping",             subtitle: "Generate research-grounded journey maps across six lanes with critical moments",  component: JourneyMappingTool },
+  { id: "concept-generator",    number: "10", phase: "03", name: "Concept Generator",          subtitle: "Generate concepts across 5 angles including outside-the-box thinking from unrelated domains", component: ConceptGenerator },
+  { id: "idea-clustering",      number: "11", phase: "03", name: "Idea Clustering",             subtitle: "Transform raw concepts into a strategic landscape — clusters, tensions, and recommendations", component: IdeaClusteringTool },
 ];
 
 // ── Skill registry ───────────────────────────────────────────────────────────
@@ -362,6 +366,8 @@ const DELIVERABLES = [
   { name: "Competitive Analysis",  type: "tool",   ref: "competitive-snapshot",   label: "Competitive Snapshot Builder"  },
   { name: "Problem Statement",       type: "tool",   ref: "problem-framing",        label: "Problem Framing"               },
   { name: "Journey Map",             type: "tool",   ref: "journey-mapping",        label: "Journey Mapping"               },
+  { name: "Concept Set",             type: "tool",   ref: "concept-generator",      label: "Concept Generator"             },
+  { name: "Cluster Map",             type: "tool",   ref: "idea-clustering",        label: "Idea Clustering"               },
 ];
 
 // ── Phase data ────────────────────────────────────────────────────────────────
