@@ -201,12 +201,12 @@ const DELIVERABLES = [
 
 // ── Phase data ────────────────────────────────────────────────────────────────
 const PHASES = [
-  { id: "01", label: "Discover", desc: "Understand users, map the landscape, frame the problem",   guides: 5, tools: 2, prompts: 5 },
-  { id: "02", label: "Define",   desc: "Synthesize findings into a focused problem statement",      guides: 1, tools: 1, prompts: 0 },
-  { id: "03", label: "Ideate",   desc: "Generate concepts, explore visual directions",              guides: 2, tools: 1, prompts: 0 },
-  { id: "04", label: "Prototype",desc: "Build working prototypes and run accessibility audits",     guides: 2, tools: 0, prompts: 0 },
-  { id: "05", label: "Validate", desc: "Test with users, synthesize findings, iterate",             guides: 1, tools: 0, prompts: 0 },
-  { id: "06", label: "Deliver",  desc: "Hand off specs, documentation, and design decisions",       guides: 2, tools: 0, prompts: 0 },
+  { id: "01", label: "Discover", desc: "Understand users, map the landscape, frame the problem",   skills: 5, tools: 2, prompts: 5 },
+  { id: "02", label: "Define",   desc: "Synthesize findings into a focused problem statement",      skills: 1, tools: 1, prompts: 0 },
+  { id: "03", label: "Ideate",   desc: "Generate concepts, explore visual directions",              skills: 2, tools: 1, prompts: 0 },
+  { id: "04", label: "Prototype",desc: "Build working prototypes and run accessibility audits",     skills: 2, tools: 0, prompts: 0 },
+  { id: "05", label: "Validate", desc: "Test with users, synthesize findings, iterate",             skills: 1, tools: 0, prompts: 0 },
+  { id: "06", label: "Deliver",  desc: "Hand off specs, documentation, and design decisions",       skills: 2, tools: 0, prompts: 0 },
 ];
 
 // ── Shared UI ─────────────────────────────────────────────────────────────────
@@ -417,16 +417,16 @@ function SetupBlock({ onOpenFigmaGuide }) {
 }
 
 // ── Path: Phase ───────────────────────────────────────────────────────────────
-function PhasePath({ onOpenTool }) {
+function PhasePath({ onOpenTool, onOpenSkill }) {
   const [selected, setSelected] = useState(null);
 
   const phase = selected ? PHASES.find(p => p.id === selected) : null;
   const p = phase ? T.phases[phase.id] : null;
   const phaseTools = phase ? TOOLS.filter(t => t.phase === phase.id) : [];
-  const phaseGuides = phase ? SKILL_FILES.filter(s => s.phase === phase.id) : [];
+  const phaseSkills = phase ? SKILL_FILES.filter(s => s.phase === phase.id) : [];
 
   // Build correct download URL per phase
-  function guideUrl(skill) {
+  function skillUrl(skill) {
     const phaseLabel = T.phases[skill.phase]?.label?.toLowerCase() || "";
     const dir = skill.phase ? `${skill.phase}-${phaseLabel}` : "";
     return dir ? `${RAW}/${dir}/${skill.file}` : `${RAW}/${skill.file}`;
@@ -496,7 +496,7 @@ function PhasePath({ onOpenTool }) {
                 ))}
               </div>
               <p style={{ fontSize: 14, color: T.muted, textAlign: "center", lineHeight: 1.7, maxWidth: 400, margin: "0 auto 8px" }}>
-                Select a phase above to see its tools, Chat Guides, and prompts.
+                Select a phase above to see its tools, skills, and prompts.
               </p>
               <p style={{ fontSize: 12, color: T.dim, textAlign: "center", lineHeight: 1.6, maxWidth: 380, margin: "0 auto" }}>
                 Each phase builds on the last — from understanding users in Discover through handing off specs in Deliver.
@@ -520,7 +520,7 @@ function PhasePath({ onOpenTool }) {
               </div>
               <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
                 {phase.tools > 0 && <Mono color={T.dim}>{phase.tools} tool{phase.tools > 1 ? "s" : ""}</Mono>}
-                {phase.guides > 0 && <Mono color={T.dim}>{phase.guides} guide{phase.guides > 1 ? "s" : ""}</Mono>}
+                {phase.skills > 0 && <Mono color={T.dim}>{phase.skills} skill{phase.skills > 1 ? "s" : ""}</Mono>}
                 {phase.prompts > 0 && <Mono color={T.dim}>{phase.prompts} prompt{phase.prompts > 1 ? "s" : ""}</Mono>}
               </div>
             </div>
@@ -559,14 +559,14 @@ function PhasePath({ onOpenTool }) {
               </div>
             )}
 
-            {/* Chat Guides section */}
-            {phaseGuides.length > 0 && (
+            {/* Skills section */}
+            {phaseSkills.length > 0 && (
               <div>
                 <div style={{ marginBottom: 10 }}>
-                  <Mono color={T.dim} size={10}>Chat Guides</Mono>
+                  <Mono color={T.dim} size={10}>Skills</Mono>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  {phaseGuides.map(skill => (
+                  {phaseSkills.map(skill => (
                     <div key={skill.file} style={{
                       display: "flex", alignItems: "center", justifyContent: "space-between",
                       padding: "10px 14px", background: T.card, borderRadius: 6,
@@ -579,17 +579,27 @@ function PhasePath({ onOpenTool }) {
                         </div>
                         <div style={{ fontSize: 11, color: T.dim, lineHeight: 1.5 }}>{skill.desc}</div>
                       </div>
-                      <a href={guideUrl(skill)} download style={{
-                        padding: "5px 12px", borderRadius: 5, flexShrink: 0,
-                        fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
-                        letterSpacing: "0.06em", textTransform: "uppercase",
-                        background: "transparent", border: `1px solid ${T.border}`,
-                        color: T.muted, textDecoration: "none", whiteSpace: "nowrap",
-                        transition: "border-color 0.15s, color 0.15s",
-                      }}
-                        onMouseEnter={e => { e.currentTarget.style.borderColor = p.color + "55"; e.currentTarget.style.color = p.color; }}
-                        onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}
-                      >↓ Guide</a>
+                      <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                        <button onClick={() => onOpenSkill(skill)} style={{
+                          padding: "5px 10px", borderRadius: 5,
+                          fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
+                          letterSpacing: "0.06em", textTransform: "uppercase",
+                          background: "transparent", border: `1px solid ${T.border}`,
+                          color: T.muted, cursor: "pointer", whiteSpace: "nowrap",
+                          transition: "all 0.15s",
+                        }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = p.color + "55"; e.currentTarget.style.color = p.color; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}
+                        >Preview →</button>
+                        <a href={skillUrl(skill)} download style={{
+                          padding: "5px 10px", borderRadius: 5,
+                          fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
+                          letterSpacing: "0.06em", textTransform: "uppercase",
+                          background: "transparent", border: `1px solid ${T.border}`,
+                          color: T.muted, textDecoration: "none", whiteSpace: "nowrap",
+                          transition: "all 0.15s",
+                        }}>↓</a>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -597,7 +607,7 @@ function PhasePath({ onOpenTool }) {
             )}
 
             {/* Empty state for phases with no tools/guides yet */}
-            {phaseTools.length === 0 && phaseGuides.length === 0 && (
+            {phaseTools.length === 0 && phaseSkills.length === 0 && (
               <div style={{ padding: "24px 0", textAlign: "center" }}>
                 <Mono color={T.dim}>Tools and guides coming soon for this phase</Mono>
               </div>
@@ -1002,8 +1012,8 @@ function ToolShell({ tool, onHome }) {
 }
 
 
-// ── Chat Guides Overlay ───────────────────────────────────────────────────────
-function ChatGuidesOverlay({ onBack, onOpenTool }) {
+// ── Skills Library Overlay ───────────────────────────────────────────────────
+function SkillsLibraryOverlay({ onBack, onOpenSkill }) {
   const [phaseFilter, setPhaseFilter] = useState("all");
   const [surfaceFilter, setSurfaceFilter] = useState("all");
 
@@ -1095,7 +1105,7 @@ function ChatGuidesOverlay({ onBack, onOpenTool }) {
 
       <div style={{ maxWidth: 780, margin: "0 auto", padding: "40px 32px 80px" }}>
 
-        {/* What is a Chat Guide */}
+        {/* What is a Skill */}
         <div style={{
           background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.2)",
           borderRadius: 10, padding: "20px 24px", marginBottom: 32,
@@ -1105,9 +1115,9 @@ function ChatGuidesOverlay({ onBack, onOpenTool }) {
               <span style={{ fontSize: 14 }}>📎</span>
             </div>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: T.text, marginBottom: 6 }}>What is a Chat Guide?</div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: T.text, marginBottom: 6 }}>What is a Skill file?</div>
               <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.65, marginBottom: 8 }}>
-                Chat Guides are <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, background: T.card, padding: "1px 5px", borderRadius: 3 }}>.md</code> files you attach to a Claude Chat conversation before starting work. They give Claude the full context, methods, templates, and quality standards for a specific design phase — so every response is grounded in the framework rather than generic advice.
+                Skill files are <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, background: T.card, padding: "1px 5px", borderRadius: 3 }}>.md</code> files you attach to a Claude Chat conversation before starting work. They give Claude the full context, methods, templates, and quality standards for a specific design phase — so every response is grounded in the framework rather than generic advice.
               </p>
               <div style={{ display: "flex", gap: 20 }}>
                 {[
@@ -1213,21 +1223,302 @@ function ChatGuidesOverlay({ onBack, onOpenTool }) {
   );
 }
 
+
+// ── Markdown renderer ─────────────────────────────────────────────────────────
+function renderMarkdown(text) {
+  if (!text) return [];
+  const lines = text.split("\n");
+  const elements = [];
+  let i = 0;
+  let inCode = false;
+  let codeLines = [];
+  let codeLang = "";
+  let inTable = false;
+  let tableRows = [];
+
+  function flushTable() {
+    if (!tableRows.length) return;
+    const header = tableRows[0];
+    const body = tableRows.slice(2); // skip separator row
+    elements.push(
+      <div key={`table-${i}`} style={{ overflowX: "auto", marginBottom: 20 }}>
+        <table style={{ borderCollapse: "collapse", width: "100%", fontSize: 12 }}>
+          <thead>
+            <tr>{header.split("|").filter((_, ci) => ci > 0 && ci < header.split("|").length - 1).map((cell, ci) => (
+              <th key={ci} style={{ padding: "8px 14px", borderBottom: `1px solid #2A2A2A`, textAlign: "left", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.05em", textTransform: "uppercase", color: "#888", whiteSpace: "nowrap" }}>{cell.trim()}</th>
+            ))}</tr>
+          </thead>
+          <tbody>
+            {body.map((row, ri) => (
+              <tr key={ri} style={{ borderBottom: `1px solid #1A1A1A` }}>
+                {row.split("|").filter((_, ci) => ci > 0 && ci < row.split("|").length - 1).map((cell, ci) => (
+                  <td key={ci} style={{ padding: "8px 14px", color: "#888", verticalAlign: "top", lineHeight: 1.5 }}>{cell.trim()}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+    tableRows = [];
+    inTable = false;
+  }
+
+  function inlineFormat(text) {
+    // Bold
+    text = text.replace(/\*\*(.*?)\*\*/g, (_, m) => `<strong>${m}</strong>`);
+    // Inline code
+    text = text.replace(/`([^`]+)`/g, (_, m) => `<code style="font-family:'JetBrains Mono',monospace;font-size:11px;background:#1C1C1C;padding:2px 6px;border-radius:3px;color:#F2F2F2">${m}</code>`);
+    // Links
+    text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, href) => `<a href="${href}" target="_blank" style="color:#888;text-decoration:underline">${label}</a>`);
+    return text;
+  }
+
+  while (i < lines.length) {
+    const line = lines[i];
+
+    // Code fence
+    if (line.startsWith("```")) {
+      if (inCode) {
+        elements.push(
+          <pre key={`code-${i}`} style={{
+            background: "#1C1C1C", border: "1px solid #2A2A2A", borderRadius: 6,
+            padding: "14px 16px", marginBottom: 20, overflowX: "auto",
+            fontFamily: "'JetBrains Mono', monospace", fontSize: 11,
+            lineHeight: 1.7, color: "#888", whiteSpace: "pre",
+          }}>{codeLines.join("\n")}</pre>
+        );
+        codeLines = []; inCode = false; codeLang = "";
+      } else {
+        inCode = true; codeLang = line.slice(3).trim();
+      }
+      i++; continue;
+    }
+    if (inCode) { codeLines.push(line); i++; continue; }
+
+    // Table
+    if (line.includes("|")) {
+      if (!inTable) inTable = true;
+      tableRows.push(line);
+      i++; continue;
+    } else if (inTable) {
+      flushTable();
+    }
+
+    // Skip YAML frontmatter
+    if (line === "---" && i === 0) { i++; while (i < lines.length && lines[i] !== "---") i++; i++; continue; }
+    if (line === "---") { elements.push(<hr key={`hr-${i}`} style={{ border: "none", borderTop: "1px solid #2A2A2A", margin: "24px 0" }} />); i++; continue; }
+
+    // H1
+    if (line.startsWith("# ")) {
+      elements.push(<h1 key={`h1-${i}`} style={{ fontFamily: "'DM Serif Display', serif", fontSize: 28, fontWeight: 400, color: "#F2F2F2", marginBottom: 8, marginTop: 8, lineHeight: 1.2 }} dangerouslySetInnerHTML={{ __html: inlineFormat(line.slice(2)) }} />);
+      i++; continue;
+    }
+    // H2
+    if (line.startsWith("## ")) {
+      elements.push(<h2 key={`h2-${i}`} style={{ fontSize: 16, fontWeight: 600, color: "#F2F2F2", marginBottom: 10, marginTop: 28, paddingBottom: 8, borderBottom: "1px solid #2A2A2A" }} dangerouslySetInnerHTML={{ __html: inlineFormat(line.slice(3)) }} />);
+      i++; continue;
+    }
+    // H3
+    if (line.startsWith("### ")) {
+      elements.push(<h3 key={`h3-${i}`} style={{ fontSize: 13, fontWeight: 600, color: "#F2F2F2", marginBottom: 8, marginTop: 20 }} dangerouslySetInnerHTML={{ __html: inlineFormat(line.slice(4)) }} />);
+      i++; continue;
+    }
+    // H4
+    if (line.startsWith("#### ")) {
+      elements.push(<h4 key={`h4-${i}`} style={{ fontSize: 12, fontWeight: 600, color: "#888", marginBottom: 6, marginTop: 16, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase" }} dangerouslySetInnerHTML={{ __html: inlineFormat(line.slice(5)) }} />);
+      i++; continue;
+    }
+    // Blockquote
+    if (line.startsWith("> ")) {
+      elements.push(
+        <blockquote key={`bq-${i}`} style={{ borderLeft: "3px solid #444", paddingLeft: 16, margin: "12px 0", color: "#888", fontStyle: "italic", fontSize: 13, lineHeight: 1.65 }} dangerouslySetInnerHTML={{ __html: inlineFormat(line.slice(2)) }} />
+      );
+      i++; continue;
+    }
+    // Unordered list
+    if (line.match(/^(- |\* )/)) {
+      const listItems = [];
+      while (i < lines.length && lines[i].match(/^(- |\* )/)) {
+        listItems.push(lines[i].replace(/^(- |\* )/, ""));
+        i++;
+      }
+      elements.push(
+        <ul key={`ul-${i}`} style={{ paddingLeft: 20, marginBottom: 16, listStyle: "none" }}>
+          {listItems.map((item, li) => (
+            <li key={li} style={{ fontSize: 13, color: "#888", lineHeight: 1.65, marginBottom: 4, display: "flex", gap: 8, alignItems: "flex-start" }}>
+              <span style={{ color: "#444", flexShrink: 0, marginTop: 2 }}>—</span>
+              <span dangerouslySetInnerHTML={{ __html: inlineFormat(item) }} />
+            </li>
+          ))}
+        </ul>
+      );
+      continue;
+    }
+    // Ordered list
+    if (line.match(/^\d+\. /)) {
+      const listItems = [];
+      let startNum = 1;
+      while (i < lines.length && lines[i].match(/^\d+\. /)) {
+        listItems.push(lines[i].replace(/^\d+\. /, ""));
+        i++;
+      }
+      elements.push(
+        <ol key={`ol-${i}`} style={{ paddingLeft: 20, marginBottom: 16, listStyle: "none", counterReset: "list" }}>
+          {listItems.map((item, li) => (
+            <li key={li} style={{ fontSize: 13, color: "#888", lineHeight: 1.65, marginBottom: 6, display: "flex", gap: 10, alignItems: "flex-start" }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#555", flexShrink: 0, marginTop: 3, minWidth: 16 }}>{li + 1}.</span>
+              <span dangerouslySetInnerHTML={{ __html: inlineFormat(item) }} />
+            </li>
+          ))}
+        </ol>
+      );
+      continue;
+    }
+    // Checkbox list
+    if (line.match(/^- \[[ x]\]/)) {
+      const items = [];
+      while (i < lines.length && lines[i].match(/^- \[[ x]\]/)) {
+        const checked = lines[i].includes("[x]");
+        items.push({ checked, text: lines[i].replace(/^- \[[ x]\] /, "") });
+        i++;
+      }
+      elements.push(
+        <ul key={`check-${i}`} style={{ paddingLeft: 4, marginBottom: 16, listStyle: "none" }}>
+          {items.map((item, li) => (
+            <li key={li} style={{ fontSize: 13, color: "#888", lineHeight: 1.65, marginBottom: 4, display: "flex", gap: 8, alignItems: "flex-start" }}>
+              <span style={{ fontSize: 12, color: item.checked ? "#22C55E" : "#444", flexShrink: 0, marginTop: 1 }}>{item.checked ? "☑" : "☐"}</span>
+              <span dangerouslySetInnerHTML={{ __html: inlineFormat(item.text) }} />
+            </li>
+          ))}
+        </ul>
+      );
+      continue;
+    }
+    // Empty line
+    if (line.trim() === "") { elements.push(<div key={`space-${i}`} style={{ height: 8 }} />); i++; continue; }
+
+    // Paragraph
+    elements.push(
+      <p key={`p-${i}`} style={{ fontSize: 13, color: "#888", lineHeight: 1.7, marginBottom: 10 }} dangerouslySetInnerHTML={{ __html: inlineFormat(line) }} />
+    );
+    i++;
+  }
+
+  if (inTable) flushTable();
+  return elements;
+}
+
+// ── Skill Detail Page ─────────────────────────────────────────────────────────
+function SkillDetailPage({ skill, onBack }) {
+  const [content, setContent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const phaseLabel = skill.phase ? T.phases[skill.phase]?.label?.toLowerCase() : "";
+  const dir = skill.phase ? `${skill.phase}-${phaseLabel}` : "";
+  const url = dir ? `${RAW}/${dir}/${skill.file}` : `${RAW}/${skill.file}`;
+  const phaseColor = skill.phase ? T.phases[skill.phase]?.color : T.dim;
+
+  useState(() => {
+    fetch(url)
+      .then(r => r.ok ? r.text() : Promise.reject())
+      .then(text => { setContent(text); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
+  });
+
+  return (
+    <div style={{ minHeight: "100vh", background: T.bg, fontFamily: "'DM Sans', sans-serif", color: T.text }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+      `}</style>
+
+      {/* Sticky header */}
+      <div style={{
+        position: "sticky", top: 0, zIndex: 50,
+        borderBottom: `1px solid ${T.border}`,
+        padding: "0 40px", height: 52,
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        background: `${T.bg}f0`, backdropFilter: "blur(12px)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <button onClick={onBack} style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            background: "transparent", border: `1px solid ${T.border}`,
+            borderRadius: 6, padding: "5px 12px", cursor: "pointer",
+            fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
+            letterSpacing: "0.06em", textTransform: "uppercase",
+            color: T.muted, transition: "all 0.15s",
+          }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderHover; e.currentTarget.style.color = T.text; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}
+          >← Skills Library</button>
+          <div style={{ width: 1, height: 16, background: T.border }} />
+          {skill.phase && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.07em", textTransform: "uppercase", color: phaseColor }}>
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: phaseColor }} />
+              {skill.phase} — {T.phases[skill.phase]?.label}
+            </span>
+          )}
+          <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", color: T.muted }}>{skill.file}</span>
+        </div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <SkillBadge surface={skill.surface} />
+          <a href={url} download style={{
+            padding: "5px 14px", borderRadius: 5,
+            fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
+            letterSpacing: "0.06em", textTransform: "uppercase",
+            background: "transparent", border: `1px solid ${T.border}`,
+            color: T.muted, textDecoration: "none",
+            transition: "all 0.15s",
+          }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderHover; e.currentTarget.style.color = T.text; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}
+          >↓ Download</a>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div style={{ maxWidth: 760, margin: "0 auto", padding: "48px 32px 80px" }}>
+        {loading && (
+          <div style={{ textAlign: "center", padding: "80px 0" }}>
+            <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", color: T.dim, letterSpacing: "0.08em", textTransform: "uppercase" }}>Loading skill…</span>
+          </div>
+        )}
+        {error && (
+          <div style={{ textAlign: "center", padding: "80px 0" }}>
+            <span style={{ fontSize: 13, color: T.dim }}>Couldn't load this skill file. </span>
+            <a href={url} download style={{ fontSize: 13, color: T.muted, textDecoration: "underline" }}>Download it instead</a>
+          </div>
+        )}
+        {content && (
+          <div>{renderMarkdown(content)}</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── App ───────────────────────────────────────────────────────────────────────
 export default function App() {
   const [mounted, setMounted] = useState(false);
   const [activePath, setActivePath] = useState(null);  // "phase" | "ways" | "deliverable"
   const [activeTool, setActiveTool] = useState(null);
   const [showFigmaGuide, setShowFigmaGuide] = useState(false);
-  const [showChatGuides, setShowChatGuides] = useState(false);
+  const [showSkillsLibrary, setShowSkillsLibrary] = useState(false);
+  const [activeSkill, setActiveSkill] = useState(null);
 
   useEffect(() => { setTimeout(() => setMounted(true), 60); }, []);
 
   // Figma guide
   if (showFigmaGuide) return <FigmaSetupGuide onBack={() => setShowFigmaGuide(false)} />;
 
-  // Chat Guides overlay
-  if (showChatGuides) return <ChatGuidesOverlay onBack={() => setShowChatGuides(false)} onOpenTool={setActiveTool} />;
+  // Skills Library overlay
+  if (activeSkill) return <SkillDetailPage skill={activeSkill} onBack={() => setActiveSkill(null)} />;
+  if (showSkillsLibrary) return <SkillsLibraryOverlay onBack={() => setShowSkillsLibrary(false)} onOpenSkill={setActiveSkill} />;
 
   // Active tool
   if (activeTool) {
@@ -1312,7 +1603,7 @@ export default function App() {
               <em style={{ fontStyle: "italic", color: T.muted }}>across every phase of product design.</em>
             </h1>
             <p style={{ fontSize: 14, color: T.muted, lineHeight: 1.7, maxWidth: 480, marginBottom: 0 }}>
-              From research through delivery — Chat Guides, tools, and prompts that integrate Claude into how your team already works.
+              From research through delivery — skills, tools, and prompts that integrate Claude into how your team already works.
             </p>
           </div>
         )}
@@ -1407,7 +1698,7 @@ export default function App() {
           <div style={{ marginTop: 8 }}>
             <PhasePath
               onOpenTool={setActiveTool}
-              onOpenSkills={() => {}}
+              onOpenSkill={setActiveSkill}
             />
           </div>
         )}
