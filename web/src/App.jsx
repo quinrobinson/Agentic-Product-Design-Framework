@@ -1286,7 +1286,7 @@ export default function App() {
                   padding: "20px 20px 18px", textAlign: "left",
                   cursor: "pointer", transition: "background 0.15s",
                   borderRight: i < 2 ? `1px solid ${T.border}` : "none",
-                  borderBottom: isActive ? `2px solid ${item.color}` : "2px solid transparent",
+                  borderBottom: isActive ? `1px solid ${T.borderHover}` : "1px solid transparent",
                   outline: "none",
                   display: "flex", flexDirection: "column",
                 }}
@@ -1295,14 +1295,14 @@ export default function App() {
               >
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
                   <div style={{
-                    width: 6, height: 6, borderRadius: "50%", background: "#FFFFFF",
-                    boxShadow: isActive ? "0 0 8px rgba(255,255,255,0.8)" : "0 0 6px rgba(255,255,255,0.3)",
-                    transition: "box-shadow 0.15s",
+                    width: 6, height: 6, borderRadius: "50%",
+                    background: isActive ? T.text : T.dim,
+                    transition: "background 0.15s",
                   }} />
                   <span style={{
                     fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
                     letterSpacing: "0.08em", textTransform: "uppercase",
-                    color: isActive ? item.color : T.muted,
+                    color: isActive ? T.text : T.muted,
                     transition: "color 0.15s",
                   }}>{item.label}</span>
                 </div>
@@ -1312,7 +1312,7 @@ export default function App() {
                 <span style={{
                   fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
                   letterSpacing: "0.07em", textTransform: "uppercase",
-                  color: isActive ? item.color : T.dim,
+                  color: isActive ? T.muted : T.dim,
                   transition: "color 0.15s",
                   marginTop: 14, display: "block",
                 }}>{item.cta}</span>
