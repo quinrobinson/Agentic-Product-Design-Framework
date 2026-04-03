@@ -564,16 +564,14 @@ function WaysToWorkPath({ onOpenTool }) {
       <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
         {options.map(opt => {
           const isActive = active === opt.id;
-          const phaseColor = opt.id !== "all" && opt.id !== "cross" && T.phases[opt.id]
-            ? T.phases[opt.id].color : null;
           return (
             <button key={opt.id} onClick={() => onChange(opt.id)} style={{
               padding: "4px 10px", borderRadius: 20, cursor: "pointer",
               fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
               letterSpacing: "0.07em", textTransform: "uppercase",
-              border: `1px solid ${isActive ? (phaseColor || "#22C55E") : T.border}`,
-              background: isActive ? `${phaseColor || "#22C55E"}18` : "transparent",
-              color: isActive ? (phaseColor || "#22C55E") : T.dim,
+              border: `1px solid ${isActive ? T.borderHover : T.border}`,
+              background: isActive ? T.card : "transparent",
+              color: isActive ? T.text : T.dim,
               transition: "all 0.12s",
             }}>{opt.label}</button>
           );
@@ -589,14 +587,13 @@ function WaysToWorkPath({ onOpenTool }) {
         {[
           { id: "tools", label: "Tools" },
           { id: "prompts", label: "Prompts" },
-          { id: "skills", label: "Chat Guides" },
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id)} style={{
             padding: "8px 16px", background: "none", border: "none",
-            borderBottom: `2px solid ${tab === t.id ? "#22C55E" : "transparent"}`,
+            borderBottom: `2px solid ${tab === t.id ? T.text : "transparent"}`,
             fontSize: 12, fontFamily: "'JetBrains Mono', monospace",
             letterSpacing: "0.07em", textTransform: "uppercase",
-            color: tab === t.id ? "#22C55E" : T.muted,
+            color: tab === t.id ? T.text : T.muted,
             cursor: "pointer", transition: "all 0.15s", marginBottom: -1,
           }}>{t.label}</button>
         ))}
@@ -780,15 +777,14 @@ function DeliverablePath({ onOpenTool }) {
           { id: "prompt", label: "Prompt" },
         ].map(f => {
           const isActive = typeFilter === f.id;
-          const color = f.id === "tool" ? "#22C55E" : f.id === "prompt" ? "#8B5CF6" : null;
           return (
             <button key={f.id} onClick={() => setTypeFilter(f.id)} style={{
               padding: "4px 12px", borderRadius: 20, cursor: "pointer",
               fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
               letterSpacing: "0.07em", textTransform: "uppercase",
-              border: `1px solid ${isActive ? (color || "#22C55E") : T.border}`,
-              background: isActive ? `${color || "#22C55E"}18` : "transparent",
-              color: isActive ? (color || "#22C55E") : T.dim,
+              border: `1px solid ${isActive ? T.borderHover : T.border}`,
+              background: isActive ? T.card : "transparent",
+              color: isActive ? T.text : T.dim,
               transition: "all 0.12s",
             }}>{f.label}</button>
           );
@@ -965,9 +961,9 @@ function ChatGuidesOverlay({ onBack, onOpenTool }) {
               padding: "4px 10px", borderRadius: 20, cursor: "pointer",
               fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
               letterSpacing: "0.07em", textTransform: "uppercase",
-              border: `1px solid ${isActive ? activeColor : T.border}`,
-              background: isActive ? `${activeColor}18` : "transparent",
-              color: isActive ? activeColor : T.dim,
+              border: `1px solid ${isActive ? T.borderHover : T.border}`,
+              background: isActive ? T.card : "transparent",
+              color: isActive ? T.text : T.dim,
               transition: "all 0.12s",
             }}>{opt.label}</button>
           );
