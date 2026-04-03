@@ -417,109 +417,194 @@ function SetupBlock({ onOpenFigmaGuide }) {
 }
 
 // ── Path: Phase ───────────────────────────────────────────────────────────────
-function PhasePath({ onOpenTool, onOpenSkills }) {
-  const [expanded, setExpanded] = useState(null);
+function PhasePath({ onOpenTool }) {
+  const [selected, setSelected] = useState(null);
+
+  const phase = selected ? PHASES.find(p => p.id === selected) : null;
+  const p = phase ? T.phases[phase.id] : null;
+  const phaseTools = phase ? TOOLS.filter(t => t.phase === phase.id) : [];
+  const phaseGuides = phase ? SKILL_FILES.filter(s => s.phase === phase.id) : [];
+
+  // Build correct download URL per phase
+  function guideUrl(skill) {
+    const phaseLabel = T.phases[skill.phase]?.label?.toLowerCase() || "";
+    const dir = skill.phase ? `${skill.phase}-${phaseLabel}` : "";
+    return dir ? `${RAW}/${dir}/${skill.file}` : `${RAW}/${skill.file}`;
+  }
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      {PHASES.map(phase => {
-        const p = T.phases[phase.id];
-        const isOpen = expanded === phase.id;
-        const phaseTools = TOOLS.filter(t => t.phase === phase.id);
-        const phaseGuides = SKILL_FILES.filter(s => s.phase === phase.id);
-
-        return (
-          <div key={phase.id} style={{
-            border: `1px solid ${isOpen ? p.color + "44" : T.border}`,
-            borderRadius: 8, overflow: "hidden",
-            transition: "border-color 0.15s",
-          }}>
+    <div>
+      {/* Horizontal phase strip */}
+      <div style={{
+        display: "grid", gridTemplateColumns: "repeat(6, 1fr)",
+        border: `1px solid ${T.border}`, borderRadius: 10,
+        overflow: "hidden", marginBottom: 1,
+      }}>
+        {PHASES.map((ph, i) => {
+          const phColor = T.phases[ph.id].color;
+          const isActive = selected === ph.id;
+          return (
             <button
-              onClick={() => setExpanded(isOpen ? null : phase.id)}
+              key={ph.id}
+              onClick={() => setSelected(selected === ph.id ? null : ph.id)}
               style={{
-                width: "100%", display: "flex", alignItems: "center",
-                padding: "16px 20px", background: isOpen ? T.surface : "transparent",
-                border: "none", cursor: "pointer", textAlign: "left", gap: 14,
-                transition: "background 0.15s",
+                padding: "14px 10px 12px", border: "none",
+                borderRight: i < 5 ? `1px solid ${T.border}` : "none",
+                borderBottom: isActive ? `2px solid ${phColor}` : "2px solid transparent",
+                background: isActive ? T.surface : "transparent",
+                cursor: "pointer", textAlign: "center",
+                transition: "all 0.15s", outline: "none",
               }}
+              onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = T.card; }}
+              onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = "transparent"; }}
             >
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: p.color, flexShrink: 0, boxShadow: isOpen ? `0 0 8px ${p.color}` : "none" }} />
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: p.color, minWidth: 80 }}>{phase.id} — {phase.label}</span>
-              <span style={{ fontSize: 13, color: isOpen ? T.text : T.muted, flex: 1, textAlign: "left", transition: "color 0.15s" }}>{phase.desc}</span>
-              <div style={{ display: "flex", gap: 12, flexShrink: 0 }}>
-                {phase.guides > 0 && <Mono color={T.dim}>{phase.guides} guide{phase.guides > 1 ? "s" : ""}</Mono>}
+              <div style={{
+                width: 6, height: 6, borderRadius: "50%", background: phColor,
+                margin: "0 auto 8px",
+                boxShadow: isActive ? `0 0 8px ${phColor}` : "none",
+                transition: "box-shadow 0.15s",
+              }} />
+              <div style={{
+                fontSize: 9, fontFamily: "'JetBrains Mono', monospace",
+                letterSpacing: "0.08em", textTransform: "uppercase",
+                color: isActive ? phColor : T.dim,
+                marginBottom: 2, transition: "color 0.15s",
+              }}>{ph.id}</div>
+              <div style={{
+                fontSize: 11, fontWeight: 500,
+                color: isActive ? T.text : T.muted,
+                transition: "color 0.15s", lineHeight: 1.2,
+              }}>{ph.label}</div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Detail panel */}
+      <div style={{
+        border: `1px solid ${T.border}`, borderTop: "none",
+        borderRadius: "0 0 10px 10px", overflow: "hidden",
+        minHeight: 280,
+      }}>
+        {!selected ? (
+          /* Default state — no phase selected */
+          <div style={{ padding: "40px 32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 280 }}>
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 20 }}>
+                {PHASES.map(ph => (
+                  <div key={ph.id} style={{ width: 20, height: 2, background: T.phases[ph.id].color, borderRadius: 1 }} />
+                ))}
+              </div>
+              <p style={{ fontSize: 14, color: T.muted, textAlign: "center", lineHeight: 1.7, maxWidth: 400, margin: "0 auto 8px" }}>
+                Select a phase above to see its tools, Chat Guides, and prompts.
+              </p>
+              <p style={{ fontSize: 12, color: T.dim, textAlign: "center", lineHeight: 1.6, maxWidth: 380, margin: "0 auto" }}>
+                Each phase builds on the last — from understanding users in Discover through handing off specs in Deliver.
+              </p>
+            </div>
+          </div>
+        ) : (
+          /* Phase detail panel */
+          <div style={{ padding: "28px 28px 32px" }}>
+
+            {/* Phase header */}
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 28 }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                  <div style={{ width: 8, height: 8, borderRadius: "50%", background: p.color, boxShadow: `0 0 8px ${p.color}` }} />
+                  <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: p.color }}>
+                    {phase.id} — {phase.label}
+                  </span>
+                </div>
+                <p style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, maxWidth: 480 }}>{phase.desc}</p>
+              </div>
+              <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
                 {phase.tools > 0 && <Mono color={T.dim}>{phase.tools} tool{phase.tools > 1 ? "s" : ""}</Mono>}
+                {phase.guides > 0 && <Mono color={T.dim}>{phase.guides} guide{phase.guides > 1 ? "s" : ""}</Mono>}
                 {phase.prompts > 0 && <Mono color={T.dim}>{phase.prompts} prompt{phase.prompts > 1 ? "s" : ""}</Mono>}
               </div>
-              <span style={{ fontSize: 11, color: T.dim, transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s", flexShrink: 0 }}>▾</span>
-            </button>
+            </div>
 
-            {isOpen && (
-              <div style={{ borderTop: `1px solid ${T.border}`, padding: "20px 20px 24px" }}>
-
-                {phaseTools.length > 0 && (
-                  <div style={{ marginBottom: 20 }}>
-                    <Mono color={T.dim} size={10}>Tools</Mono>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
-                      {phaseTools.map(tool => (
-                        <div key={tool.id} style={{
-                          display: "flex", alignItems: "center", justifyContent: "space-between",
-                          padding: "12px 14px", background: T.card, borderRadius: 6,
-                          border: `1px solid ${T.border}`,
-                        }}>
-                          <div>
-                            <div style={{ fontSize: 13, fontWeight: 500, color: T.text, marginBottom: 2 }}>{tool.name}</div>
-                            <div style={{ fontSize: 11, color: T.muted }}>{tool.subtitle}</div>
-                          </div>
-                          <button onClick={() => onOpenTool(tool.id)} style={{
-                            padding: "6px 14px", borderRadius: 5,
-                            fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
-                            letterSpacing: "0.06em", textTransform: "uppercase",
-                            background: "transparent", border: `1px solid ${p.color}55`,
-                            color: p.color, cursor: "pointer",
-                          }}>Open →</button>
-                        </div>
-                      ))}
+            {/* Tools section */}
+            {phaseTools.length > 0 && (
+              <div style={{ marginBottom: 24 }}>
+                <div style={{ marginBottom: 10 }}>
+                  <Mono color={T.dim} size={10}>Tools</Mono>
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: phaseTools.length > 2 ? "1fr 1fr" : "1fr 1fr", gap: 8 }}>
+                  {phaseTools.map(tool => (
+                    <div key={tool.id} style={{
+                      display: "flex", alignItems: "center", justifyContent: "space-between",
+                      padding: "14px 16px", background: T.card, borderRadius: 8,
+                      border: `1px solid ${T.border}`,
+                    }}>
+                      <div style={{ flex: 1, marginRight: 12 }}>
+                        <div style={{ fontSize: 13, fontWeight: 500, color: T.text, marginBottom: 3 }}>{tool.name}</div>
+                        <div style={{ fontSize: 11, color: T.muted, lineHeight: 1.4 }}>{tool.subtitle}</div>
+                      </div>
+                      <button onClick={() => onOpenTool(tool.id)} style={{
+                        padding: "6px 12px", borderRadius: 5, flexShrink: 0,
+                        fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
+                        letterSpacing: "0.06em", textTransform: "uppercase",
+                        background: "transparent", border: `1px solid ${p.color}55`,
+                        color: p.color, cursor: "pointer", whiteSpace: "nowrap",
+                        transition: "border-color 0.15s",
+                      }}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = p.color}
+                        onMouseLeave={e => e.currentTarget.style.borderColor = p.color + "55"}
+                      >Open →</button>
                     </div>
-                  </div>
-                )}
+                  ))}
+                </div>
+              </div>
+            )}
 
-                {phaseGuides.length > 0 && (
-                  <div>
-                    <Mono color={T.dim} size={10}>Chat Guides</Mono>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 10 }}>
-                      {phaseSkills.map(skill => (
-                        <div key={skill.file} style={{
-                          display: "flex", alignItems: "center", justifyContent: "space-between",
-                          padding: "10px 14px", background: T.card, borderRadius: 6,
-                          border: `1px solid ${T.border}`,
-                        }}>
-                          <div style={{ flex: 1, marginRight: 12 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
-                              <Mono color={T.muted} size={11}>{skill.file}</Mono>
-                              <SkillBadge surface={skill.surface} />
-                            </div>
-                            <div style={{ fontSize: 11, color: T.dim, lineHeight: 1.5 }}>{skill.desc}</div>
-                          </div>
-                          <a href={`${RAW}/${phase.id}-discover/${skill.file}`} download
-                            style={{
-                              padding: "5px 12px", borderRadius: 5,
-                              fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
-                              letterSpacing: "0.06em", textTransform: "uppercase",
-                              background: "transparent", border: `1px solid ${T.border}`,
-                              color: T.muted, cursor: "pointer", textDecoration: "none",
-                              whiteSpace: "nowrap",
-                            }}>↓ .md</a>
+            {/* Chat Guides section */}
+            {phaseGuides.length > 0 && (
+              <div>
+                <div style={{ marginBottom: 10 }}>
+                  <Mono color={T.dim} size={10}>Chat Guides</Mono>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {phaseGuides.map(skill => (
+                    <div key={skill.file} style={{
+                      display: "flex", alignItems: "center", justifyContent: "space-between",
+                      padding: "10px 14px", background: T.card, borderRadius: 6,
+                      border: `1px solid ${T.border}`,
+                    }}>
+                      <div style={{ flex: 1, marginRight: 12 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                          <Mono color={T.muted} size={11}>{skill.file}</Mono>
+                          <SkillBadge surface={skill.surface} />
                         </div>
-                      ))}
+                        <div style={{ fontSize: 11, color: T.dim, lineHeight: 1.5 }}>{skill.desc}</div>
+                      </div>
+                      <a href={guideUrl(skill)} download style={{
+                        padding: "5px 12px", borderRadius: 5, flexShrink: 0,
+                        fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
+                        letterSpacing: "0.06em", textTransform: "uppercase",
+                        background: "transparent", border: `1px solid ${T.border}`,
+                        color: T.muted, textDecoration: "none", whiteSpace: "nowrap",
+                        transition: "border-color 0.15s, color 0.15s",
+                      }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor = p.color + "55"; e.currentTarget.style.color = p.color; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}
+                      >↓ Guide</a>
                     </div>
-                  </div>
-                )}
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Empty state for phases with no tools/guides yet */}
+            {phaseTools.length === 0 && phaseGuides.length === 0 && (
+              <div style={{ padding: "24px 0", textAlign: "center" }}>
+                <Mono color={T.dim}>Tools and guides coming soon for this phase</Mono>
               </div>
             )}
           </div>
-        );
-      })}
+        )}
+      </div>
     </div>
   );
 }
