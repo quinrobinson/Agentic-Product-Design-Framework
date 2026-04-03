@@ -7,6 +7,7 @@ import SkillsLibrary from "./SkillsLibrary";
 import DesignSystemBuilder from "./DesignSystemBuilder";
 import ResearchSynthesizer from "./ResearchSynthesizer";
 import ServiceBlueprintGenerator from "./ServiceBlueprintGenerator";
+import CompetitiveSnapshotBuilder from "./CompetitiveSnapshotBuilder";
 
 // ── Tokens ──────────────────────────────────────────────────────────────────
 const T = {
@@ -42,6 +43,7 @@ const TOOLS = [
   { id: "design-system",      number: "04", phase: "03", name: "Design System Builder",       subtitle: "Upload, build, or bootstrap a design system for Claude",                         component: DesignSystemBuilder },
   { id: "research-synthesizer",number:"05", phase: "01", name: "Research Synthesizer",        subtitle: "Turn raw interviews into a structured Research Brief",                           component: ResearchSynthesizer },
   { id: "service-blueprint",  number: "06", phase: "01", name: "Service Blueprint Generator", subtitle: "Map current and future state experiences across five swim lanes",                component: ServiceBlueprintGenerator },
+  { id: "competitive-snapshot", number: "07", phase: "01", name: "Competitive Snapshot Builder", subtitle: "Map the landscape, audit competitors, and find differentiation opportunities",    component: CompetitiveSnapshotBuilder },
 ];
 
 // ── Skill registry ───────────────────────────────────────────────────────────
@@ -194,6 +196,7 @@ const DELIVERABLES = [
   { name: "Interview Guide",      type: "prompt", ref: "interview-guide",       label: "Build an Interview Guide"     },
   { name: "Competitive Analysis", type: "prompt", ref: "competitive-landscape", label: "Map the Competitive Landscape"},
   { name: "HMW Statements",       type: "prompt", ref: "hmw-statements",        label: "Generate HMW Statements"      },
+  { name: "Competitive Analysis",  type: "tool",   ref: "competitive-snapshot",   label: "Competitive Snapshot Builder"  },
 ];
 
 // ── Phase data ────────────────────────────────────────────────────────────────
