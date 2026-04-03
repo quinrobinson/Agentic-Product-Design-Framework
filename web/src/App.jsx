@@ -8,6 +8,8 @@ import DesignSystemBuilder from "./DesignSystemBuilder";
 import ResearchSynthesizer from "./ResearchSynthesizer";
 import ServiceBlueprintGenerator from "./ServiceBlueprintGenerator";
 import CompetitiveSnapshotBuilder from "./CompetitiveSnapshotBuilder";
+import ProblemFramingTool from "./ProblemFramingTool";
+import JourneyMappingTool from "./JourneyMappingTool";
 
 // ── Tokens ──────────────────────────────────────────────────────────────────
 const T = {
@@ -44,6 +46,8 @@ const TOOLS = [
   { id: "research-synthesizer",number:"05", phase: "01", name: "Research Synthesizer",        subtitle: "Turn raw interviews into a structured Research Brief",                           component: ResearchSynthesizer },
   { id: "service-blueprint",  number: "06", phase: "01", name: "Service Blueprint Generator", subtitle: "Map current and future state experiences across five swim lanes",                component: ServiceBlueprintGenerator },
   { id: "competitive-snapshot", number: "07", phase: "01", name: "Competitive Snapshot Builder", subtitle: "Map the landscape, audit competitors, and find differentiation opportunities",    component: CompetitiveSnapshotBuilder },
+  { id: "problem-framing",      number: "08", phase: "02", name: "Problem Framing",             subtitle: "Generate, pressure-test, and score problem statements + HMW questions",           component: ProblemFramingTool },
+  { id: "journey-mapping",      number: "09", phase: "02", name: "Journey Mapping",             subtitle: "Generate research-grounded journey maps across six lanes with critical moments",  component: JourneyMappingTool },
 ];
 
 // ── Skill registry ───────────────────────────────────────────────────────────
@@ -201,6 +205,8 @@ const DELIVERABLES = [
   { name: "Competitive Analysis", type: "prompt", ref: "competitive-landscape", label: "Map the Competitive Landscape"},
   { name: "HMW Statements",       type: "prompt", ref: "hmw-statements",        label: "Generate HMW Statements"      },
   { name: "Competitive Analysis",  type: "tool",   ref: "competitive-snapshot",   label: "Competitive Snapshot Builder"  },
+  { name: "Problem Statement",       type: "tool",   ref: "problem-framing",        label: "Problem Framing"               },
+  { name: "Journey Map",             type: "tool",   ref: "journey-mapping",        label: "Journey Mapping"               },
 ];
 
 // ── Phase data ────────────────────────────────────────────────────────────────
