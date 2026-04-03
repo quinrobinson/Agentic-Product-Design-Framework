@@ -1004,7 +1004,7 @@ function ChatGuidesOverlay({ onBack, onOpenTool }) {
           <div style={{ width: 1, height: 16, background: T.border }} />
           <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
             <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#3B82F6", boxShadow: "0 0 6px #3B82F6" }} />
-            <span style={{ fontSize: 13, fontWeight: 500, color: T.text, fontFamily: "'DM Sans', sans-serif" }}>Chat Guides</span>
+            <span style={{ fontSize: 13, fontWeight: 500, color: T.text, fontFamily: "'DM Sans', sans-serif" }}>Skills Library</span>
           </div>
         </div>
         <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.dim }}>
@@ -1195,7 +1195,7 @@ export default function App() {
           }}
             onMouseEnter={e => e.target.style.color = T.muted}
             onMouseLeave={e => e.target.style.color = T.dim}
-          >Chat Guides</button>
+          >Skills Library</button>
           <div style={{ width: 1, height: 12, background: T.border }} />
           {[["GitHub", REPO], ["Figma", FIGMA_URL], ["Deck", PPTX_URL]].map(([label, href]) => (
             <a key={label} href={href} target="_blank" rel="noopener noreferrer" style={{
@@ -1239,99 +1239,84 @@ export default function App() {
         {/* Setup block — always visible on home, hidden once a path is chosen */}
         {!activePath && <SetupBlock onOpenFigmaGuide={() => setShowFigmaGuide(true)} />}
 
-        {/* How do you want to start? */}
+        {/* Path chooser — styled strip, doubles as entry point */}
         {!activePath && (
           <div style={{ marginBottom: 16 }}>
             <Mono color={T.dim}>How do you want to start?</Mono>
           </div>
         )}
 
-        {/* Artifact type explainer strip — always visible on home */}
-        {!activePath && (
-          <div style={{
-            display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
-            gap: 1, marginBottom: 28,
-            border: `1px solid ${T.border}`, borderRadius: 10, overflow: "hidden",
-          }}>
-            {[
-              {
-                label: "Tools",
-                color: "#22C55E",
-                desc: "Interactive builders that run in the browser. No Claude Chat needed — just open and generate.",
-                cta: "Ways to Work →",
-                action: "ways",
-              },
-              {
-                label: "Prompts",
-                color: "#8B5CF6",
-                desc: "Ready-to-copy briefs that structure your Claude Chat sessions. Paste, fill in your context, run.",
-                cta: "Ways to Work →",
-                action: "ways",
-              },
-              {
-                label: "Chat Guides",
-                color: "#3B82F6",
-                desc: "Attach to any Claude Chat to give Claude full phase context before you start working together.",
-                cta: "Browse Guides →",
-                action: "guides",
-              },
-            ].map((item, i) => (
+        <div style={{
+          display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
+          gap: 1, marginBottom: activePath ? 32 : 0,
+          border: `1px solid ${activePath ? T.border : T.border}`,
+          borderRadius: 10, overflow: "hidden",
+        }}>
+          {[
+            {
+              id: "phase",
+              label: "Start with a Phase",
+              color: "#22C55E",
+              desc: "I know where I am in the project — take me to the tools and guides for that phase.",
+              cta: "Choose a phase →",
+            },
+            {
+              id: "ways",
+              label: "Ways to Work",
+              color: "#8B5CF6",
+              desc: "I know what I need to do right now — show me tools, prompts, and guides by method.",
+              cta: "Browse methods →",
+            },
+            {
+              id: "deliverable",
+              label: "Start with a Deliverable",
+              color: "#F59E0B",
+              desc: "I know what I need to hand off — find the fastest path to that output.",
+              cta: "Find a deliverable →",
+            },
+          ].map((item, i) => {
+            const isActive = activePath === item.id;
+            return (
               <button
-                key={item.label}
-                onClick={() => item.action === "guides" ? setShowChatGuides(true) : setActivePath("ways")}
+                key={item.id}
+                onClick={() => setActivePath(activePath === item.id ? null : item.id)}
                 style={{
-                  background: T.surface, border: "none",
+                  background: isActive ? T.surface : T.surface,
+                  border: "none",
                   padding: "20px 20px 18px", textAlign: "left",
                   cursor: "pointer", transition: "background 0.15s",
                   borderRight: i < 2 ? `1px solid ${T.border}` : "none",
+                  borderBottom: isActive ? `2px solid ${item.color}` : "2px solid transparent",
+                  outline: "none",
                 }}
-                onMouseEnter={e => e.currentTarget.style.background = T.card}
-                onMouseLeave={e => e.currentTarget.style.background = T.surface}
+                onMouseEnter={e => { if (!isActive) e.currentTarget.style.background = T.card; }}
+                onMouseLeave={e => { if (!isActive) e.currentTarget.style.background = T.surface; }}
               >
-                <div style={{
-                  display: "inline-flex", alignItems: "center", gap: 6,
-                  marginBottom: 10,
-                }}>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: item.color, boxShadow: `0 0 6px ${item.color}` }} />
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
+                  <div style={{
+                    width: 6, height: 6, borderRadius: "50%", background: item.color,
+                    boxShadow: isActive ? `0 0 8px ${item.color}` : "none",
+                    transition: "box-shadow 0.15s",
+                  }} />
                   <span style={{
                     fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
                     letterSpacing: "0.08em", textTransform: "uppercase",
-                    color: item.color,
+                    color: isActive ? item.color : T.muted,
+                    transition: "color 0.15s",
                   }}>{item.label}</span>
                 </div>
-                <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.6, marginBottom: 14 }}>
+                <p style={{ fontSize: 12, color: isActive ? T.muted : T.dim, lineHeight: 1.6, marginBottom: 14, transition: "color 0.15s" }}>
                   {item.desc}
                 </p>
                 <span style={{
                   fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
                   letterSpacing: "0.07em", textTransform: "uppercase",
-                  color: T.dim,
+                  color: isActive ? item.color : T.dim,
+                  transition: "color 0.15s",
                 }}>{item.cta}</span>
               </button>
-            ))}
-          </div>
-        )}
-
-        {/* Path cards */}
-        <div style={{ display: "flex", gap: 10, marginBottom: activePath ? 32 : 0 }}>
-          <PathCard
-            title="Start with a Phase"
-            desc="I know where I am in the project"
-            active={activePath === "phase"}
-            onClick={() => setActivePath(activePath === "phase" ? null : "phase")}
-          />
-          <PathCard
-            title="Ways to Work"
-            desc="I know what I need to do right now"
-            active={activePath === "ways"}
-            onClick={() => setActivePath(activePath === "ways" ? null : "ways")}
-          />
-          <PathCard
-            title="Start with a Deliverable"
-            desc="I know what I need to hand off"
-            active={activePath === "deliverable"}
-            onClick={() => setActivePath(activePath === "deliverable" ? null : "deliverable")}
-          />
+            );
+          })}
         </div>
 
         {/* Path content */}
