@@ -350,6 +350,194 @@ Using the assumption-mapping skill:
 
 4. For each Test First assumption: design the cheapest, fastest validation method`,
   },
+  {
+    id: "generate-concepts",
+    name: "Generate Concepts",
+    phase: "03",
+    skill: "concept-generation.md",
+    when: "After locking a problem statement — when you need a broad set of concept directions before committing to one. Use when not running the interactive tool.",
+    text: `Generate a broad set of concept directions from this problem frame.
+
+Problem statement: [paste HMW / JTBD / User + Need + Insight]
+Primary persona: [name, role, context, goal]
+Top HMW questions:
+1. [HMW statement]
+2. [HMW statement]
+3. [HMW statement]
+Key constraints: [technical, business, user constraints]
+
+Using the concept-generation skill, generate across three angles:
+
+ANGLE 1 — From the problem (baseline)
+5 distinct concepts directly from the HMW questions.
+Each needs: 2–4 word name / one-liner (user perspective) /
+core mechanism / assumption it bets on.
+No two concepts should produce the same wireframe.
+
+ANGLE 2 — First principles
+Forget how [product category] works today. What does [persona]
+fundamentally need? Generate 3 concepts that don't resemble any
+current product in this space.
+
+ANGLE 3 — Worst idea first
+Generate the 8 worst possible solutions — terrible, embarrassing,
+user-frustrating. Then reverse each: what does the opposite suggest?
+Develop the 3 most interesting reversals into full concepts.
+
+Do not evaluate during generation. All ideas stay alive until clustering.`,
+  },
+  {
+    id: "outside-the-box",
+    name: "Think Outside Your Domain",
+    phase: "03",
+    skill: "concept-generation.md",
+    when: "When ideas all feel like variations of the same solution. Use to break expert fixedness by importing structural principles from unrelated fields.",
+    text: `Find structural parallels in unrelated domains — then transfer the underlying principle.
+
+Problem statement: [paste]
+Primary persona: [name, role, context, goal]
+
+Step 1 — Find analogous domains
+Identify 5 domains outside [product category] that solved a structurally similar problem.
+Look in: emergency medicine, investigative journalism, aviation safety,
+military logistics, competitive sport coaching, architecture,
+legal discovery, supply chain, game design, financial trading, education.
+
+For each domain:
+1. Name the domain
+2. How they solved the structurally similar problem (be specific)
+3. The underlying principle — stripped of domain-specific details
+
+Step 2 — Transfer the principle
+For the 3 most transferable principles:
+- Translate into a concrete product concept for [persona]
+- Describe what changes in the transfer and what stays the same
+- 2–4 word name + one-liner from the user's perspective
+
+The test: are these concepts different from what you'd generate inside
+the domain? If not — go deeper on the principle extraction.`,
+  },
+  {
+    id: "cluster-ideas",
+    name: "Cluster Ideas into Directions",
+    phase: "03",
+    skill: "idea-clustering.md",
+    when: "After generating 15+ concepts — to see the strategic landscape before deciding what to develop. Use when not running the Idea Clustering tool.",
+    text: `Cluster this concept set into strategic directions.
+
+Problem statement: [paste]
+Primary persona: [paste]
+
+All concepts:
+[PASTE full list — names + one-liners minimum]
+
+Using the idea-clustering skill:
+
+Step 1 — Group by underlying approach
+5–7 clusters. Cluster by mechanism, not surface similarity.
+Each cluster = a different bet about how to solve the problem.
+Every concept in exactly one cluster. Merge variations. Flag outliers.
+
+For each cluster:
+- Working name (3–5 words, action-oriented)
+- Strategic bet (one sentence)
+- Concepts included (names + one-liners)
+
+Step 2 — Name each cluster three ways
+- Descriptive: what the solution does
+- User-centric: the outcome for the user
+- Provocative: the strategic bet or tension
+Recommend one name per cluster — why does it best communicate the
+direction to a stakeholder who wasn't in the session?
+
+Step 3 — Map the landscape
+For each cluster: strategic position (safe/incremental/ambitious/
+transformative), core assumption, key trade-off.
+Which two clusters are most directly in tension?
+What must be decided before prototyping can start?`,
+  },
+  {
+    id: "critique-concept",
+    name: "Critique a Concept",
+    phase: "03",
+    skill: "concept-critique.md",
+    when: "Before committing to prototyping — to surface weaknesses, hidden assumptions, and user risks that enthusiasm obscures. Run before any wireframes exist.",
+    text: `Act as an adversarial reviewer. Find what's wrong before it goes into prototyping.
+
+Concept:
+- Name: [concept name]
+- One-liner: [what it does from the user's perspective]
+- Core mechanism: [what makes it work]
+- Key assumption: [what must be true for this to succeed]
+
+Problem statement: [paste]
+Primary persona: [paste — include current tools and workarounds]
+Research context: [paste key findings]
+
+Using the concept-critique skill, run all five lenses:
+
+LENS 1 — User reality check
+Act as [persona]. Challenge on: mental model fit, workflow integration,
+trust signals, and a realistic scenario where it breaks.
+
+LENS 2 — Assumption audit
+Every assumption across desirability / feasibility / viability / usability.
+For each: state it, rate risk (Critical/Major/Minor),
+evidence (Validated/Partial/None). Rank top 3.
+
+LENS 3 — Adversarial review (make each objection as strong as possible)
+1. Skeptical engineer — technical feasibility and maintenance
+2. Risk-averse PM — scope, timeline, failure scenarios
+3. Resistant user — busiest, most change-averse version of [persona]
+
+LENS 4 — Competitive displacement
+Why would [persona] switch? What's the switching cost?
+At what point does value outweigh cost?
+
+LENS 5 — Failure modes in normal use
+Include: "works as designed but user still doesn't get value."
+
+Verdict: Proceed / Refine / Reframe? If refine — provide the improvement.`,
+  },
+  {
+    id: "write-storyboard",
+    name: "Write a Concept Storyboard",
+    phase: "03",
+    skill: "storyboarding.md",
+    when: "After selecting a concept — to visualize the experience step by step before wireframing. Surfaces forced design decisions and prototype questions before any screens are built.",
+    text: `Generate a scene-by-scene storyboard for this concept.
+
+Selected concept:
+- Name: [concept name]
+- One-liner: [what it does from the user's perspective]
+- Core mechanism: [what makes it work]
+
+Persona: [name, role, context, goal]
+Scenario trigger: [the specific event that starts this experience]
+Goal: [what they need to accomplish]
+Top risk from critique: [the assumption most likely to fail]
+
+Using the storyboarding skill, generate a 6–8 scene storyboard.
+
+For each scene:
+**Scene [N]: [Specific title — e.g. "The realization hits at 4pm"]**
+What happens: [Observable action — what a camera would capture]
+[Persona] thinks: "[First-person internal monologue — specific to their situation]"
+[Persona] feels: [Specific emotion + intensity]
+The interface: [What they see/interact with — functional, not visual]
+
+Rules:
+- Ground every scene in research pain points
+- Scene 3–4 is the highest-risk moment — detail it more than others
+- Final scene shows emotional resolution, not just task completion
+- No visual design — describe function and experience
+
+After all scenes:
+1. Emotional arc table (scene / title / emotional state)
+2. Arc narrative (2–3 sentences)
+3. Forced design decisions — choices the storyboard requires but doesn't make
+4. Three questions for the prototype to answer`,
+  },
 ];
 
 // ── Deliverables map ─────────────────────────────────────────────────────────
@@ -374,7 +562,7 @@ const DELIVERABLES = [
 const PHASES = [
   { id: "01", label: "Discover", desc: "Understand users, map the landscape, frame the problem",   skills: 5, tools: 2, prompts: 5 },
   { id: "02", label: "Define",   desc: "Synthesize findings into a focused problem statement",      skills: 1, tools: 1, prompts: 0 },
-  { id: "03", label: "Ideate",   desc: "Generate concepts, explore visual directions",              skills: 2, tools: 1, prompts: 0 },
+  { id: "03", label: "Ideate",   desc: "Generate concepts, explore visual directions",              skills: 2, tools: 1, prompts: 5 },
   { id: "04", label: "Prototype",desc: "Build working prototypes and run accessibility audits",     skills: 2, tools: 0, prompts: 0 },
   { id: "05", label: "Validate", desc: "Test with users, synthesize findings, iterate",             skills: 1, tools: 0, prompts: 0 },
   { id: "06", label: "Deliver",  desc: "Hand off specs, documentation, and design decisions",       skills: 2, tools: 0, prompts: 0 },
