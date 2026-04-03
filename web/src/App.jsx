@@ -191,6 +191,158 @@ Using the insight-framing skill:
 
 Every HMW must trace to a research finding, not an assumption.`,
   },
+  {
+    id: "frame-the-problem",
+    name: "Frame the Problem",
+    phase: "02",
+    skill: "problem-framing.md",
+    when: "After research synthesis — when you need to generate and compare multiple problem framings before committing to a direction.",
+    text: `I have research outputs and need to frame the design problem.
+
+Research summary:
+[PASTE research synthesis themes, pain points, or Discover handoff block]
+
+Primary user: [persona name, role, context]
+Business goal: [the metric or outcome this design work should move]
+
+Using the problem-framing skill, generate the problem statement in three formats:
+1. HMW — How might we [action] for [user] so that [outcome]?
+2. JTBD — When [situation], I want to [motivation], so I can [outcome].
+3. User + Need + Insight — [User] needs a way to [need] because [surprising insight].
+
+For each format:
+- Apply the calibration test: can I think of 10 meaningfully different solutions?
+- Flag if the framing is too broad, too narrow, or solution-embedded
+
+Then recommend one framing and explain:
+- Why this one over the alternatives
+- What assumptions are baked into it
+- Two alternative framings that would produce completely different solutions`,
+  },
+  {
+    id: "pressure-test-framing",
+    name: "Pressure-Test a Problem Statement",
+    phase: "02",
+    skill: "problem-framing.md",
+    when: "When you already have a problem statement and want to challenge it before committing to ideation.",
+    text: `Act as a skeptical senior PM reviewing this problem statement.
+Do not validate it — find its weaknesses.
+
+Problem statement: "[PASTE YOUR PROBLEM STATEMENT]"
+
+Research context:
+[PASTE research summary or key findings]
+
+Challenge it on four fronts:
+
+1. Calibration — is this too broad (any solution qualifies) or too narrow
+   (solution is already embedded)? Give a specific failure mode example.
+
+2. Hidden assumptions — list 3–5 beliefs baked into this framing that
+   haven't been validated by research, ordered most to least risky.
+
+3. Exclusions — what important user problems does this framing exclude
+   that we might regret ignoring?
+
+4. Alternatives — generate two framings that would produce completely
+   different design solutions. Explain what each prioritizes.
+
+Verdict: Proceed / Refine / Reframe?
+If refine or reframe — provide the improved version.`,
+  },
+  {
+    id: "map-user-journey",
+    name: "Map the User Journey",
+    phase: "02",
+    skill: "journey-mapping.md",
+    when: "When you need to synthesize research into a journey map without the interactive tool — or to generate a quick journey map from existing data.",
+    text: `Generate a research-grounded journey map for this scenario.
+
+Persona: [name — role / context]
+Goal: [what they're trying to accomplish]
+Trigger: [what initiates this experience]
+
+Research data:
+[PASTE session summaries, themes, or pain points]
+
+Using the journey-mapping skill:
+1. Suggest 5–7 stage names specific to this user and scenario
+   (not generic "Awareness → Consideration" — use descriptive phrases
+   grounded in what the research shows actually happens)
+2. For each stage, populate all 6 lanes:
+   - Actions (with 🔧 for workarounds)
+   - Thoughts (use direct quotes where possible)
+   - Emotions (📈/📉 with what drives each)
+   - Touchpoints
+   - Pain Points ⚠️ (with severity: Critical/Major/Minor + source)
+   - Opportunities (leave [TBD] — generate after all pain points are mapped)
+3. Mark anything not directly from research as [inferred] or [unknown]
+4. After all stages: identify the moment of highest friction, highest
+   opportunity, and the moment of truth`,
+  },
+  {
+    id: "create-personas",
+    name: "Create Research-Grounded Personas",
+    phase: "02",
+    skill: "persona-creation.md",
+    when: "After research synthesis — when you need to create behavioral archetypes that anchor design decisions and brief collaborators.",
+    text: `Create [N] research-grounded personas from this data.
+
+Research data:
+[PASTE session summaries, themes, or synthesis outputs]
+
+Design context: [what product or feature these personas will be used to design]
+
+Using the persona-creation skill:
+1. Identify [N] meaningful user segments — segment by behavior, goal,
+   or context. Not by demographics or job title.
+2. For each segment, generate a full persona including:
+   - Who they are (role, context, experience level)
+   - Their primary goal and JTBD statement
+   - Current workflow and tools (observed, not ideal)
+   - Workarounds they've invented (each reveals an unmet need)
+   - Top 3 pain points with severity and research source
+   - Mental model and trust signals
+   - One representative quote (direct, not paraphrased)
+   - Design implications: what to design for and what to never do
+3. Mark anything inferred rather than directly observed as [inferred]
+4. Generate a persona set summary: overlapping needs, conflicting needs,
+   and the primary persona for this project`,
+  },
+  {
+    id: "map-assumptions",
+    name: "Map Assumptions and Risks",
+    phase: "02",
+    skill: "assumption-mapping.md",
+    when: "Before committing to a design direction — to surface what the team is betting on and identify what needs validation before proceeding.",
+    text: `Surface and prioritize the assumptions behind this design direction.
+
+Project context:
+- What we're designing: [product / feature / solution]
+- For whom: [primary user]
+- Problem statement: [paste problem frame]
+- Research context: [what Discover confirmed and what it left open]
+
+Using the assumption-mapping skill:
+1. Generate 5–8 assumptions per category:
+   - Desirability: does the user want this? Do they have the problem we think?
+   - Feasibility: can we build this? Do we have the capability?
+   - Viability: is this good for the business? Regulatory fit?
+   - Usability: can users accomplish their goals with this design?
+   Focus especially on assumptions that seem obvious — these are often riskiest.
+
+2. Score each on two axes:
+   - Importance: High (product fails if wrong) / Low (recoverable)
+   - Evidence: Known (validated) / Unknown (believed but untested)
+
+3. Place in the 2×2 matrix:
+   - Test First (High importance, Unknown) — list in priority order
+   - Build On (High importance, Known) — with evidence sources
+   - Monitor (Low importance, Unknown)
+   - Deprioritize (Low importance, Known)
+
+4. For each Test First assumption: design the cheapest, fastest validation method`,
+  },
 ];
 
 // ── Deliverables map ─────────────────────────────────────────────────────────
