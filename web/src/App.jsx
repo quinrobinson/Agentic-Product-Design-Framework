@@ -14,11 +14,11 @@ const T = {
   bg: "#0F0F0F",
   surface: "#161616",
   card: "#1A1A1A",
-  border: "#242424",
-  borderHover: "#383838",
+  border: "#2C2C2C",
+  borderHover: "#404040",
   text: "#F2F2F2",
-  muted: "#888888",
-  dim: "#444444",
+  muted: "#999999",
+  dim: "#666666",
   white: "#FFFFFF",
   phases: {
     "01": { color: "#22C55E", label: "Discover" },
@@ -436,7 +436,7 @@ function PhasePath({ onOpenTool, onOpenSkill }) {
     <div>
       {/* Horizontal phase strip */}
       <div style={{
-        display: "grid", gridTemplateColumns: "repeat(6, 1fr)",
+        display: "grid", gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
         border: `1px solid ${T.border}`, borderRadius: 10,
         overflow: "hidden", marginBottom: 1,
       }}>
@@ -1155,7 +1155,7 @@ function SkillsLibraryOverlay({ onBack, onOpenSkill }) {
 
       {/* Header */}
       <div style={{
-        borderBottom: `1px solid ${T.border}`, padding: "0 40px", height: 52,
+        borderBottom: `1px solid ${T.border}`, padding: "0 clamp(16px, 4vw, 48px)", height: 52,
         display: "flex", alignItems: "center", justifyContent: "space-between",
         position: "sticky", top: 0, zIndex: 50,
         background: `${T.bg}f0`, backdropFilter: "blur(12px)",
@@ -1183,7 +1183,7 @@ function SkillsLibraryOverlay({ onBack, onOpenSkill }) {
         </div>
       </div>
 
-      <div style={{ maxWidth: 780, margin: "0 auto", padding: "40px 32px 80px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "40px clamp(20px, 5vw, 64px) 80px" }}>
 
         {/* What is a Skill */}
         <div style={{
@@ -1533,7 +1533,7 @@ function SkillDetailPage({ skill, onBack }) {
       <div style={{
         position: "sticky", top: 0, zIndex: 50,
         borderBottom: `1px solid ${T.border}`,
-        padding: "0 40px", height: 52,
+        padding: "0 clamp(16px, 4vw, 48px)", height: 52,
         display: "flex", alignItems: "center", justifyContent: "space-between",
         background: `${T.bg}f0`, backdropFilter: "blur(12px)",
       }}>
@@ -1575,7 +1575,7 @@ function SkillDetailPage({ skill, onBack }) {
       </div>
 
       {/* Content */}
-      <div style={{ maxWidth: 760, margin: "0 auto", padding: "48px 32px 80px" }}>
+      <div style={{ maxWidth: 900, margin: "0 auto", padding: "48px clamp(20px, 5vw, 64px) 80px" }}>
         {loading && (
           <div style={{ textAlign: "center", padding: "80px 0" }}>
             <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", color: T.dim, letterSpacing: "0.08em", textTransform: "uppercase" }}>Loading skill…</span>
@@ -1631,6 +1631,9 @@ export default function App() {
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
         a { color: inherit; }
+        img, video { max-width: 100%; height: auto; }
+        :focus-visible { outline: 2px solid #999999; outline-offset: 2px; border-radius: 4px; }
+        button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
       `}</style>
 
       {/* Header */}
@@ -1676,7 +1679,7 @@ export default function App() {
       </div>
 
       {/* Main content */}
-      <div style={{ maxWidth: 860, margin: "0 auto", padding: "56px 32px 80px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "56px clamp(20px, 5vw, 64px) 80px" }}>
 
         {/* Home pill — only when a path is active */}
         {activePath && <HomePill onClick={() => setActivePath(null)} />}
@@ -1712,7 +1715,7 @@ export default function App() {
         )}
 
         <div style={{
-          display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
+          display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
           gap: 1, marginBottom: activePath ? 32 : 0,
           border: `1px solid ${activePath ? T.border : T.border}`,
           borderRadius: 10, overflow: "hidden",

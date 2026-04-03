@@ -7,8 +7,8 @@ const T = {
   card: "#1C1C1C",
   border: "#2A2A2A",
   text: "#F2F2F2",
-  muted: "#888888",
-  dim: "#555555",
+  muted: "#999999",
+  dim: "#666666",
   discover: "#22C55E",
   discoverDim: "rgba(34,197,94,0.12)",
   discoverBorder: "rgba(34,197,94,0.25)",
@@ -489,13 +489,15 @@ Generate the handoff block using this exact structure:
         @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+        :focus-visible { outline: 2px solid #999999; outline-offset: 2px; border-radius: 4px; }
+        button:focus:not(:focus-visible) { outline: none; }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
       `}</style>
 
       {/* Header */}
       <div style={{
-        borderBottom: `1px solid ${T.border}`, padding: "18px 32px",
+        borderBottom: `1px solid ${T.border}`, padding: "18px clamp(16px, 4vw, 40px)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
