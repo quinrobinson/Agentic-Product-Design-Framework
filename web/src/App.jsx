@@ -2876,7 +2876,7 @@ function SkillsLibraryOverlay({ onBack }) {
               <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.65, marginBottom: 8 }}>
                 Skill files are <code style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, background: T.card, padding: "1px 5px", borderRadius: 3 }}>.md</code> files you attach to a Claude Chat conversation before starting work. They give Claude the full context, methods, templates, and quality standards for a specific design phase — so every response is grounded in the framework rather than generic advice.
               </p>
-              <div style={{ display: "flex", gap: 20 }}>
+              <div className="skill-steps-row">
                 {["Download the .md file", "Attach it to a new Claude Chat", "Start working — Claude has full context"].map((step, i) => (
                   <div key={i} style={{ display: "flex", alignItems: "center", gap: 6 }}>
                     <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", color: "#3B82F6", fontWeight: 700 }}>0{i + 1}</span>
@@ -3385,6 +3385,7 @@ export default function App() {
         .three-ways-badge { display: inline-block; margin-bottom: 8px; }
         .three-ways-row { display: flex; gap: 14px; padding: 12px 14px; }
         .ways-explainer-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+        .skill-steps-row { display: flex; gap: 20px; flex-wrap: wrap; }
         .figma-callout-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: nowrap; }
         .deliverable-row { display: flex; align-items: center; padding: 13px 16px; gap: 14px; }
         .deliverable-label { display: inline; }
@@ -3402,6 +3403,7 @@ export default function App() {
           .three-ways-badge { display: block; margin-bottom: 6px; }
           .ways-explainer-grid { grid-template-columns: 1fr; gap: 14px; }
           .deliverable-info-grid { grid-template-columns: 1fr !important; }
+          .skill-steps-row { flex-direction: column; gap: 10px; }
           .three-ways-row { flex-direction: column; gap: 8px; }
           .three-ways-badge-wrap { background: none !important; border: none !important; padding: 0 !important; font-size: 10px !important; color: #666 !important; }
           .figma-callout-inner { flex-direction: column; align-items: flex-start; gap: 8px; }
