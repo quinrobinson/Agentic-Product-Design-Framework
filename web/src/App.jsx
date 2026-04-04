@@ -1014,6 +1014,241 @@ NEXT PROTOTYPE QUESTIONS
 WHAT'S STABLE (doesn't need re-testing)
 [Elements validated in this round — treat as fixed in next iteration]`,
   },
+  {
+    id: "generate-component-spec",
+    name: "Generate a Component Spec",
+    phase: "06",
+    skill: "component-specs.md",
+    when: "Before any developer handoff — when Figma has the visual design but behavioral documentation is missing. Use when not running the interactive Component Spec Generator tool.",
+    text: `Generate a complete component specification for developer handoff.
+
+Component: [name — e.g. Primary Button]
+Description: [what it does and where it appears]
+Variants: [list all versions — size, style, type]
+Design tokens: [token names if available — e.g. --color-primary-500, --spacing-4]
+
+Using the component-specs skill, document all 8 categories:
+
+1. PURPOSE + USAGE
+One sentence: what job this component does.
+When to use: [condition]
+When not to use: [condition — what to use instead]
+
+2. ANATOMY
+Table of every element (including optional and invisible structure):
+| Element | Type | Required | Notes |
+Every element needs a name, type (text/icon/container/interactive/decorative), required status, and any constraints.
+
+3. VARIANTS
+| Variant | Differs from default in | Use when |
+
+4. STATES (document all that apply)
+For each: Default / Hover / Focus / Active / Disabled / Loading / Error / Success / Empty
+- Trigger: [what causes this state]
+- Visual change: [exactly what changes — color token, opacity, border]
+- Functional change: [what the component can/can't do]
+- Transition: [duration + easing — e.g. 150ms ease-out]
+- Screen reader: [what gets announced]
+
+5. BEHAVIOR
+Interaction table: trigger → response → duration → easing
+Keyboard: Tab / Enter / Space / Arrow keys / Escape — what each does
+Focus management: where does focus go after each action?
+prefers-reduced-motion: what happens when enabled?
+
+6. SPACING + TYPOGRAPHY
+Internal padding and gaps (use token names)
+Typography per text element: font / weight / size / line-height / color token / truncation
+
+7. ACCESSIBILITY
+ARIA role, keyboard bindings, focus ring spec, key screen reader announcements
+
+8. EDGE CASES
+Long content, empty/no content, dark mode, high contrast, nested usage`,
+  },
+  {
+    id: "write-handoff-annotations",
+    name: "Write Handoff Annotations",
+    phase: "06",
+    skill: "handoff-annotation.md",
+    when: "Before the developer handoff meeting — to annotate prototype screens with behavior notes, edge cases, and interaction explanations that aren't visible in the static design.",
+    text: `Write handoff annotation content for these prototype screens.
+
+Feature: [feature name]
+Screens to annotate: [list each screen]
+
+For each screen, generate annotation content a developer needs that isn't visible in the Figma file:
+
+## Screen: [Name]
+
+### Behavior notes
+- [What happens when user taps/clicks [element]]
+- [How [interaction] works — trigger, response, timing]
+- [What state the screen is in when the user arrives here]
+
+### Edge cases
+- [What shows when [content element] is empty]
+- [What happens when [text element] is very long — truncation rule]
+- [How this screen behaves on the smallest supported viewport]
+- [Dark mode — any elements that need special treatment]
+
+### Interaction specifications
+- [Animation: entrance/exit — duration and easing]
+- [Scroll behavior — if applicable]
+- [Touch targets — minimum sizes for interactive elements]
+
+### Open questions for developer
+- [ ] [Design decision not yet made that affects implementation]
+- [ ] [Technical question the designer needs the developer's input on]
+
+### What's NOT in scope
+[Elements or interactions explicitly excluded from this build — to prevent scope creep]
+
+Rules:
+— Annotations describe behavior, not visual design (the Figma file handles visuals)
+— Every open question is a checkbox — trackable, resolvable
+— Flag anything that requires developer input before or during build`,
+  },
+  {
+    id: "log-design-qa",
+    name: "Log Design QA Issues",
+    phase: "06",
+    skill: "design-qa.md",
+    when: "After engineering builds a feature and it's deployed to staging — to structure scattered QA notes into a severity-rated issue log that developers can action directly.",
+    text: `Structure these design QA notes into a prioritized issue log.
+
+Feature: [name]
+Screens reviewed: [list]
+Environment: [e.g. Staging — build 2.4.1]
+
+Raw QA notes:
+[PASTE raw notes in any format — scattered observations, Figma comments, screenshots descriptions, Slack messages]
+
+Using the design-qa skill:
+
+STEP 1 — Structure each issue
+For every discrepancy between spec and implementation:
+
+Issue [N]: [Short title — 5–8 words]
+Screen: [screen name]
+Element: [specific component or element]
+Spec says: [what the approved design specifies]
+Build has: [what was actually implemented]
+Fix: [specific change required — concrete enough to action]
+
+STEP 2 — Rate severity
+P0: Blocks launch — broken functionality, severe a11y failure, or complete deviation that breaks user task
+P1: Must fix before launch — significant visual deviation, wrong copy, missing state, layout broken on supported viewport
+P2: Fix post-launch (within one sprint) — minor visual discrepancy, spacing off by 4–8px
+P3: Polish backlog — preference-level difference, low-visibility element
+
+STEP 3 — Launch recommendation
+Based on P0 count: HOLD / APPROVED WITH CONDITIONS / APPROVED
+
+STEP 4 — What passed
+List screens and elements that correctly match spec — to prevent unnecessary changes
+
+Severity summary at end: P0: [N] / P1: [N] / P2: [N] / P3: [N]`,
+  },
+  {
+    id: "design-decision-record",
+    name: "Write a Design Decision Record",
+    phase: "06",
+    skill: "design-decision-record.md",
+    when: "At handoff and after major design reviews — to permanently document why key design choices were made. Almost never written under time pressure; Claude generates it from a conversation about the decisions.",
+    text: `Generate a design decision record (DDR) for these design choices.
+
+Feature: [name]
+Date: [today's date]
+Designer: [name]
+Stakeholders involved: [list]
+
+For each significant design decision made during this feature:
+
+DECISION [N]: [Short title — what was decided]
+
+Context:
+[Why this decision needed to be made — what problem or constraint forced it]
+
+Alternatives considered:
+1. [Option A] — [brief description] — Rejected because: [reason]
+2. [Option B] — [brief description] — Rejected because: [reason]
+3. [Option C — what was chosen] — [brief description]
+
+Decision: [What was decided — specific and unambiguous]
+
+Rationale: [Why this option over the others — reference user research, technical constraints, or business requirements where relevant]
+
+Tradeoffs accepted: [What this decision gives up — be honest about the downsides]
+
+Future considerations: [When this decision should be revisited — what would trigger a change]
+
+---
+
+After all decisions:
+
+ANTI-PATTERNS DOCUMENTED
+[Design directions explicitly rejected — so future designers don't revisit them without new information]
+- [Pattern] — rejected because: [reason] — would reconsider if: [condition]
+
+OPEN DECISIONS
+[ ] [Design question that was intentionally deferred — what information is needed to resolve it]
+
+Rules:
+— Document why, not what (the Figma file documents what)
+— Be honest about tradeoffs — "we chose speed over completeness" is valid
+— Flag anything that was decided under constraint that should be revisited later`,
+  },
+  {
+    id: "write-accessibility-annotations",
+    name: "Write Accessibility Annotations",
+    phase: "06",
+    skill: "accessibility-annotation.md",
+    when: "Before developer handoff — to document ARIA roles, keyboard navigation, focus order, and screen reader behavior for WCAG 2.1 AA compliance. Systematic application of known standards; Claude generates the annotation content.",
+    text: `Generate WCAG 2.1 AA accessibility annotations for these components and screens.
+
+Feature: [name]
+Components to annotate: [list]
+Target: WCAG 2.1 AA
+
+For each component, document:
+
+COMPONENT: [Name]
+
+ARIA role: [role — e.g. button, combobox, dialog, listbox, menu, navigation, region]
+ARIA label: [if the visible label is insufficient or absent — e.g. aria-label="Close dialog"]
+ARIA described-by: [if additional context is needed — e.g. aria-describedby="error-message-id"]
+ARIA live: [if content updates dynamically — e.g. aria-live="polite" for status messages]
+
+Keyboard behavior:
+| Key | Action |
+| Tab | [what receives focus / what is skipped — not interactive elements] |
+| Enter | [primary action] |
+| Space | [secondary action or toggle] |
+| Arrow keys | [navigation within component — if applicable] |
+| Escape | [dismiss / cancel / return focus] |
+
+Focus management:
+- Focus receives: [visual indicator — e.g. 2px solid #0066CC, 2px offset]
+- After [action]: focus moves to [element]
+- Focus trap: [Yes/No — if modal or dialog, focus must be trapped]
+- Focus restoration: [after dismissal, focus returns to [trigger element]]
+
+Screen reader announcements:
+- On focus: "[what gets read — role + name + state]"
+- On action: "[what gets announced — e.g. 'Dialog opened. Press Escape to close.']"
+- On state change: "[e.g. 'Checkbox checked' / 'Loading' / 'Error: [message]']"
+- On error: "[error message text + how to fix]"
+
+Color and contrast:
+- Text contrast: [minimum 4.5:1 for normal text, 3:1 for large text]
+- UI component contrast: [minimum 3:1 for interactive elements and focus indicators]
+- Information not conveyed by color alone: [confirm — if color is used to convey state, add icon or label]
+
+Touch targets:
+- Minimum size: 44×44px — [confirm or flag if smaller]
+- Spacing between targets: [minimum 8px — flag if closer]`,
+  },
 ];
 
 // ── Deliverables map ─────────────────────────────────────────────────────────
@@ -1047,7 +1282,7 @@ const PHASES = [
   { id: "03", label: "Ideate",   desc: "Generate concepts, explore visual directions",              skills: 2, tools: 1, prompts: 5 },
   { id: "04", label: "Prototype",desc: "Build working prototypes and run accessibility audits",     skills: 2, tools: 2, prompts: 5 },
   { id: "05", label: "Validate", desc: "Test with users, synthesize findings, iterate",             skills: 1, tools: 2, prompts: 5 },
-  { id: "06", label: "Deliver",  desc: "Hand off specs, documentation, and design decisions",       skills: 5, tools: 2, prompts: 0 },
+  { id: "06", label: "Deliver",  desc: "Hand off specs, documentation, and design decisions",       skills: 5, tools: 2, prompts: 5 },
 ];
 
 // ── Shared UI ─────────────────────────────────────────────────────────────────
