@@ -1,46 +1,34 @@
 import { useState } from "react";
 
-// ── Design tokens ─────────────────────────────────────────────────────────────
 const T = {
   bg: "#0F0F0F", surface: "#161616", card: "#1C1C1C", border: "#2A2A2A",
   text: "#F2F2F2", muted: "#999999", dim: "#666666",
-  borderHover: "#3A3A3A", proto: "#3B82F6",
-  phases: {
-    "01": { color: "#22C55E", dim: "rgba(34,197,94,0.12)",  label: "Discover"  },
-    "02": { color: "#8B5CF6", dim: "rgba(139,92,246,0.12)", label: "Define"    },
-    "03": { color: "#F59E0B", dim: "rgba(245,158,11,0.12)", label: "Ideate"    },
-    "04": { color: "#3B82F6", dim: "rgba(59,130,246,0.12)", label: "Prototype" },
-    "05": { color: "#EF4444", dim: "rgba(239,68,68,0.12)",  label: "Validate"  },
-    "06": { color: "#14B8A6", dim: "rgba(20,184,166,0.12)", label: "Deliver"   },
-  },
+  accent: "#3B82F6", accentDim: "rgba(59,130,246,0.12)", accentBorder: "rgba(59,130,246,0.25)",
 };
 
-// ── Skill map by phase ────────────────────────────────────────────────────────
 const PHASE_SKILLS = {
-  discover:  { color: "#22C55E", label: "Discover",  skills: ["user-research.md", "competitive-analysis.md"] },
-  define:    { color: "#8B5CF6", label: "Define",    skills: ["problem-framing.md"] },
-  ideate:    { color: "#F59E0B", label: "Ideate",    skills: ["concept-generation.md", "visual-design-execution.md"] },
-  prototype: { color: "#3B82F6", label: "Prototype", skills: ["prototyping.md", "accessibility-audit.md"] },
-  validate:  { color: "#EF4444", label: "Validate",  skills: ["usability-testing.md"] },
-  deliver:   { color: "#14B8A6", label: "Deliver",   skills: ["design-delivery.md", "design-system-audit.md"] },
-  unsure:    { color: T.muted, label: "Not sure",  skills: ["user-research.md", "problem-framing.md"] },
+  discover:  { color: "#22C55E", dim: "rgba(34,197,94,0.12)",  border: "rgba(34,197,94,0.25)",  label: "Discover",  skills: ["user-research.md", "competitive-analysis.md"] },
+  define:    { color: "#8B5CF6", dim: "rgba(139,92,246,0.12)", border: "rgba(139,92,246,0.25)", label: "Define",    skills: ["problem-framing.md"] },
+  ideate:    { color: "#F59E0B", dim: "rgba(245,158,11,0.12)", border: "rgba(245,158,11,0.25)", label: "Ideate",    skills: ["concept-generation.md", "visual-design-execution.md"] },
+  prototype: { color: "#3B82F6", dim: "rgba(59,130,246,0.12)", border: "rgba(59,130,246,0.25)", label: "Prototype", skills: ["prototyping.md", "accessibility-audit.md"] },
+  validate:  { color: "#EF4444", dim: "rgba(239,68,68,0.12)",  border: "rgba(239,68,68,0.25)",  label: "Validate",  skills: ["usability-testing.md"] },
+  deliver:   { color: "#14B8A6", dim: "rgba(20,184,166,0.12)", border: "rgba(20,184,166,0.25)", label: "Deliver",   skills: ["design-delivery.md", "design-system-audit.md"] },
+  unsure:    { color: "#64748B", dim: "rgba(100,116,139,0.12)",border: "rgba(100,116,139,0.25)",label: "Not sure",  skills: ["user-research.md", "problem-framing.md"] },
 };
 
-// ── Skill rationale ───────────────────────────────────────────────────────────
 const SKILL_WHY = {
-  "user-research.md":         "synthesise interviews, surveys, and analytics into a structured research brief",
-  "competitive-analysis.md":  "map direct, indirect, and aspirational competitors — patterns, gaps, and differentiation opportunities",
-  "problem-framing.md":       "convert research into a sharp HMW or JTBD problem statement with prioritised requirements",
-  "concept-generation.md":    "generate multiple concept directions with UI pattern recommendations and visual scaffolding",
+  "user-research.md":           "synthesise interviews, surveys, and analytics into a structured research brief",
+  "competitive-analysis.md":    "map direct, indirect, and aspirational competitors — patterns, gaps, and opportunities",
+  "problem-framing.md":         "convert research into a sharp HMW or JTBD problem statement with prioritised requirements",
+  "concept-generation.md":      "generate multiple concept directions with UI pattern recommendations and visual scaffolding",
   "visual-design-execution.md": "build a full token system — colour, type, spacing, motion — ready for Figma",
-  "prototyping.md":           "build functional React or HTML prototypes with correct interactions and a QA checklist",
-  "accessibility-audit.md":   "run a WCAG 2.1 AA audit with severity-ranked issues and specific fixes",
-  "usability-testing.md":     "plan test sessions, write task scenarios, and synthesise findings into ranked recommendations",
-  "design-delivery.md":       "produce component specs, platform handoff packages, and decision records for engineering",
-  "design-system-audit.md":   "audit your system against Material Design 3, Carbon, and Atlassian with token documentation",
+  "prototyping.md":             "build functional React or HTML prototypes with correct interactions and a QA checklist",
+  "accessibility-audit.md":     "run a WCAG 2.1 AA audit with severity-ranked issues and specific fixes",
+  "usability-testing.md":       "plan test sessions, write task scenarios, and synthesise findings into ranked recommendations",
+  "design-delivery.md":         "produce component specs, platform handoff packages, and decision records for engineering",
+  "design-system-audit.md":     "audit your system against Material Design 3, Carbon, and Atlassian with token documentation",
 };
 
-// ── Phase-specific first instructions ────────────────────────────────────────
 const PHASE_FIRST_ACTION = {
   discover:  "Start by asking me 3–5 targeted research questions based on my project context that would help frame the most important unknowns. Then propose a research plan: what methods to use, who to recruit, and what we most need to learn.",
   define:    "Review my project context and help me frame the core problem. Produce a sharp HMW statement, a JTBD framing, and a prioritised requirements list (must-have / should-have / out of scope). Flag any assumptions we should validate before moving forward.",
@@ -51,442 +39,264 @@ const PHASE_FIRST_ACTION = {
   unsure:    "Based on my context, recommend which phase I should start in and explain why. Then ask me 3 questions that would help you confirm the recommendation and identify the most important first step.",
 };
 
-// ── Assemble the Claude prompt ────────────────────────────────────────────────
-function buildClaudePrompt(form) {
-  const projectTypeLabel = {
-    "new-product": "a new product built from scratch",
-    "feature": "a feature addition to an existing product",
-    "redesign": "a redesign of an existing product",
-    "internal-tool": "an internal tool built for a team or operational use",
-    "client-work": "a client engagement with external stakeholders",
-  }[form.projectType] || form.projectType;
-
-  const whatYouHaveLabel = {
-    "nothing": "nothing yet — starting completely from scratch",
-    "brief": "a project brief with some direction and goals",
-    "brief-research": "a project brief plus existing user research",
-    "existing-designs": "existing designs to work from",
-  }[form.whatYouHave] || form.whatYouHave;
-
-  const teamLabel = {
-    "solo": "working solo",
-    "small": "working with a small team of 2–5 people",
-    "larger": "working with a larger cross-functional team of 6 or more",
-    "client": "working with a client with external stakeholders involved",
-  }[form.team] || form.team;
-
-  const timelineLabel = {
-    "sprint": "a sprint (1–2 weeks)",
-    "month": "roughly a month (3–4 weeks)",
-    "quarter": "a quarter (approximately 3 months)",
-    "ongoing": "an ongoing engagement with no fixed end date",
-  }[form.timeline] || form.timeline;
-
+function buildPrompt(form) {
   const phase = PHASE_SKILLS[form.phase] || PHASE_SKILLS.unsure;
-  const firstSkill = phase.skills[0];
-  const additionalSkills = phase.skills.slice(1);
-  const firstAction = PHASE_FIRST_ACTION[form.phase] || PHASE_FIRST_ACTION.unsure;
-
+  const projectTypeLabel = { "new-product": "a new product built from scratch", "feature": "a feature addition to an existing product", "redesign": "a redesign of an existing product", "internal-tool": "an internal tool built for a team", "client-work": "a client engagement with external stakeholders" }[form.projectType] || form.projectType;
+  const whatYouHaveLabel = { "nothing": "nothing yet", "brief": "a project brief", "brief-research": "a project brief plus existing research", "existing-designs": "existing designs to work from" }[form.whatYouHave] || form.whatYouHave;
+  const teamLabel = { "solo": "working solo", "small": "a small team (2-5)", "larger": "a larger cross-functional team (6+)", "client": "working with a client / external stakeholders" }[form.team] || form.team;
+  const timelineLabel = { "sprint": "1-2 weeks", "month": "3-4 weeks", "quarter": "~3 months", "ongoing": "ongoing / no fixed end" }[form.timeline] || form.timeline;
   const lines = [];
-
-  lines.push(`I am working on ${form.projectName || "a design project"} — ${projectTypeLabel}.`);
-  lines.push(``);
-
-  if (form.productDescription) {
-    lines.push(`## What I'm designing`);
-    lines.push(form.productDescription);
-    lines.push(``);
-  }
-
-  lines.push(`## Project context`);
+  lines.push(`I am working on ${form.projectName || "a design project"} -- ${projectTypeLabel}.`);
+  lines.push("");
+  if (form.productDescription) { lines.push("## What I'm designing"); lines.push(form.productDescription); lines.push(""); }
+  lines.push("## Project context");
   lines.push(`- **Phase I'm entering:** ${phase.label}`);
   lines.push(`- **What I have:** ${whatYouHaveLabel}`);
   lines.push(`- **Team:** ${teamLabel}`);
   lines.push(`- **Timeline:** ${timelineLabel}`);
-  if (form.goals) {
-    lines.push(`- **Goals & success metrics:** ${form.goals}`);
-  }
-  if (form.constraints) {
-    lines.push(`- **Known constraints:** ${form.constraints}`);
-  }
-  lines.push(``);
-
-  lines.push(`## Skill file`);
-  lines.push(`I have uploaded \`${firstSkill}\` — the ${phase.label} skill for this framework. Use it to guide your outputs, structure, and quality criteria for this phase.`);
-  if (additionalSkills.length > 0) {
-    lines.push(`After this session I will also upload: ${additionalSkills.map(s => `\`${s}\``).join(", ")}.`);
-  }
-  lines.push(``);
-
-  lines.push(`## Framework`);
-  lines.push(`We are using the Agentic Product Design Framework — a six-phase system (Discover → Define → Ideate → Prototype → Validate → Deliver). Each phase produces structured outputs that feed the next. At the end of this session I will ask you to generate a Phase Handoff Block to carry full context into the next conversation.`);
-  lines.push(``);
-
-  lines.push(`## What I need from you now`);
-  lines.push(firstAction);
-
+  if (form.goals) lines.push(`- **Goals & success metrics:** ${form.goals}`);
+  if (form.constraints) lines.push(`- **Known constraints:** ${form.constraints}`);
+  lines.push("");
+  lines.push("## Skill file");
+  lines.push(`I have uploaded ${phase.skills[0]} -- the ${phase.label} skill for this framework. Use it to guide your outputs, structure, and quality criteria for this phase.`);
+  if (phase.skills.length > 1) lines.push(`After this session I will also upload: ${phase.skills.slice(1).join(", ")}.`);
+  lines.push("");
+  lines.push("## Framework");
+  lines.push("We are using the Agentic Product Design Framework -- a six-phase system (Discover to Define to Ideate to Prototype to Validate to Deliver). Each phase produces structured outputs that feed the next.");
+  lines.push("");
+  lines.push("## What I need from you now");
+  lines.push(PHASE_FIRST_ACTION[form.phase] || PHASE_FIRST_ACTION.unsure);
   return lines.join("\n");
 }
 
-// ── Shared UI primitives ──────────────────────────────────────────────────────
-function Chip({ selected, onClick, children, color }) {
-  const [hov, setHov] = useState(false);
-  const c = color || "#22C55E";
+function Label({ children }) {
+  return <div style={{ marginBottom: 8 }}><span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.07em", textTransform: "uppercase", color: T.accent }}>{children}</span></div>;
+}
+
+function Btn({ children, onClick, disabled, variant = "primary", small }) {
+  const p = variant === "primary";
+  return <button onClick={onClick} disabled={disabled} style={{ padding: small ? "7px 14px" : "10px 20px", fontSize: small ? 11 : 13, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, cursor: disabled ? "not-allowed" : "pointer", borderRadius: 6, border: "1.5px solid", borderColor: p ? T.accent : T.border, background: p ? T.accent : "transparent", color: p ? T.bg : T.muted, opacity: disabled ? 0.4 : 1, transition: "all 0.15s" }} onMouseEnter={e => { if (!disabled) e.currentTarget.style.opacity = "0.85"; }} onMouseLeave={e => { if (!disabled) e.currentTarget.style.opacity = "1"; }}>{children}</button>;
+}
+
+function CopyBtn({ text, label = "Copy" }) {
+  const [c, setC] = useState(false);
+  return <Btn small variant="ghost" onClick={() => { navigator.clipboard.writeText(text); setC(true); setTimeout(() => setC(false), 1800); }}>{c ? "✓ Copied" : label}</Btn>;
+}
+
+function Chip({ children, selected, onClick, color, dim, border }) {
   return (
-    <button onClick={onClick} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
-      style={{
-        display: "inline-flex", alignItems: "center", gap: 6,
-        padding: "9px 16px", borderRadius: 999, cursor: "pointer",
-        fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500,
-        border: selected ? `1.5px solid ${c}` : `1px solid ${T.surfaceBorder}`,
-        background: selected ? `${c}12` : T.text,
-        color: selected ? c : T.dim,
-        transition: "all 0.15s ease",
-        transform: hov && !selected ? "translateY(-1px)" : "none",
-        outline: "none",
-      }}
+    <button onClick={onClick} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 6, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 500, border: `1.5px solid ${selected ? (border || T.accentBorder) : T.border}`, background: selected ? (dim || T.accentDim) : "transparent", color: selected ? (color || T.accent) : T.muted, transition: "all 0.15s", outline: "none" }}
+      onMouseEnter={e => { if (!selected) e.currentTarget.style.borderColor = color || T.accent; }}
+      onMouseLeave={e => { if (!selected) e.currentTarget.style.borderColor = T.border; }}
     >{children}</button>
   );
 }
 
-function StepDot({ n, active, done }) {
+function SectionHeader({ step, title, desc }) {
   return (
-    <div style={{
-      width: 28, height: 28, borderRadius: "50%",
-      display: "flex", alignItems: "center", justifyContent: "center",
-      background: done ? "#22C55E" : active ? T.bg : T.surface,
-      border: active || done ? "none" : `1px solid ${T.surfaceBorder}`,
-      fontSize: 11, fontWeight: 700,
-      color: done || active ? T.text : T.dim,
-      flexShrink: 0, transition: "all 0.2s",
-    }}>{done ? "✓" : n}</div>
-  );
-}
-
-function Field({ label, hint, value, onChange, multiline, placeholder }) {
-  const base = {
-    width: "100%", boxSizing: "border-box",
-    border: `1px solid ${T.surfaceBorder}`, borderRadius: 10,
-    padding: "11px 14px", fontSize: 13, fontFamily: "'DM Sans', sans-serif",
-    color: T.text, background: T.text, outline: "none",
-    lineHeight: 1.6, resize: "vertical", transition: "border-color 0.15s",
-  };
-  return (
-    <div style={{ marginBottom: 20 }}>
-      <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: T.text, marginBottom: 4 }}>{label}</label>
-      {hint && <div style={{ fontSize: 11, color: T.dim, marginBottom: 8, lineHeight: 1.5 }}>{hint}</div>}
-      {multiline
-        ? <textarea rows={3} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} style={base}
-            onFocus={e => e.target.style.borderColor = "#22C55E"} onBlur={e => e.target.style.borderColor = T.surfaceBorder} />
-        : <input type="text" value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} style={{ ...base, resize: undefined }}
-            onFocus={e => e.target.style.borderColor = "#22C55E"} onBlur={e => e.target.style.borderColor = T.surfaceBorder} />
-      }
+    <div style={{ marginBottom: 24 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+        <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.accent, background: T.accentDim, border: `1px solid ${T.accentBorder}`, padding: "2px 8px", borderRadius: 4 }}>Step {step}</span>
+        <span style={{ fontSize: 16, fontWeight: 600, fontFamily: "'DM Serif Display', serif", color: T.text }}>{title}</span>
+      </div>
+      {desc && <p style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, margin: 0, maxWidth: 600 }}>{desc}</p>}
     </div>
   );
 }
 
-// ── Result ────────────────────────────────────────────────────────────────────
-function PromptResult({ prompt, form, onReset }) {
-  const [copied, setCopied] = useState(false);
+const STEPS = [
+  { id: 1, label: "Project",  short: "Type + phase"    },
+  { id: 2, label: "Context",  short: "Team + timeline" },
+  { id: 3, label: "Goals",    short: "Details + name"  },
+  { id: 4, label: "Prompt",   short: "Ready to paste"  },
+];
 
-  function copy() {
-    navigator.clipboard.writeText(prompt);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
-  }
-
-  const phase = PHASE_SKILLS[form.phase] || PHASE_SKILLS.unsure;
-
+function StepIndicator({ current, completed }) {
   return (
-    <div style={{ animation: "fadeIn 0.4s ease" }}>
-
-      {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 3, textTransform: "uppercase", color: T.dim, marginBottom: 10 }}>Prompt ready</div>
-        <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 34, fontWeight: 400, color: T.text, margin: "0 0 8px", lineHeight: 1.1 }}>{form.projectName || "Your project"}</h2>
-        <p style={{ fontSize: 14, color: T.dim, margin: 0, lineHeight: 1.6 }}>
-          Starting in <span style={{ color: phase.color, fontWeight: 600 }}>{phase.label}</span> · {phase.skills.length} skill {phase.skills.length === 1 ? "file" : "files"} recommended
-        </p>
-      </div>
-
-      {/* How to use */}
-      <div style={{ background: T.bgCard, border: `1px solid ${T.bgBorder}`, borderRadius: 12, padding: "16px 20px", marginBottom: 12, display: "flex", gap: 14, alignItems: "flex-start" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 13, color: T.muted, lineHeight: 1.6, flex: 1 }}>
-          {[
-            { n: "1", text: `Download and upload ${phase.skills.map(s => `\`${s}\``).join(" and ")} in Claude via Settings → Customize → Skills` },
-            { n: "2", text: "Open a new Claude conversation" },
-            { n: "3", text: "Paste the prompt below as your first message" },
-          ].map(step => (
-            <div key={step.n} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: phase.color, marginTop: 2, flexShrink: 0, minWidth: 14 }}>{step.n}.</span>
-              <span dangerouslySetInnerHTML={{ __html: step.text.replace(/`([^`]+)`/g, `<code style="font-family:'JetBrains Mono',monospace;font-size:11px;background:T.card;color:#22C55E;padding:1px 6px;border-radius:4px">$1</code>`) }} />
+    <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 32 }}>
+      {STEPS.map((s, i) => {
+        const done = completed.includes(s.id), active = current === s.id;
+        return (
+          <div key={s.id} style={{ display: "flex", alignItems: "center", flex: i < STEPS.length - 1 ? 1 : "none" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 56 }}>
+              <div style={{ width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", background: done ? T.accent : active ? T.accentDim : "transparent", border: `1.5px solid ${done ? T.accent : active ? T.accent : T.border}`, color: done ? T.bg : active ? T.accent : T.dim, transition: "all 0.2s" }}>{done ? "✓" : s.id}</div>
+              <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: active ? T.accent : done ? T.muted : T.dim, whiteSpace: "nowrap" }}>{s.label}</span>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* The prompt — hero */}
-      <div style={{ background: T.bg, borderRadius: 16, overflow: "hidden", marginBottom: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 20px", borderBottom: `1px solid ${T.bgBorder}` }}>
-          <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: 3, textTransform: "uppercase", color: phase.color }}>
-            Your Claude prompt
+            {i < STEPS.length - 1 && <div style={{ flex: 1, height: 1, marginBottom: 18, marginLeft: 4, marginRight: 4, background: done ? T.accent : T.border, transition: "background 0.3s" }} />}
           </div>
-          <button onClick={copy} style={{
-            background: copied ? "#0D9488" : "#14B8A6", color: T.bg,
-            border: "none", borderRadius: 7, padding: "8px 18px",
-            fontSize: 12, fontWeight: 700, cursor: "pointer",
-            fontFamily: "'DM Sans', sans-serif", transition: "background 0.2s",
-            whiteSpace: "nowrap",
-          }}>{copied ? "✓ Copied" : "Copy prompt"}</button>
-        </div>
-        <div style={{ padding: "20px 22px" }}>
-          <pre style={{
-            fontFamily: "'JetBrains Mono', monospace", fontSize: 12,
-            color: "#CBD5E1", lineHeight: 1.9, margin: 0,
-            whiteSpace: "pre-wrap", wordBreak: "break-word",
-          }}>{prompt}</pre>
-        </div>
-      </div>
-
-      {/* Skill stack */}
-      <div style={{ background: T.text, border: `1px solid ${T.surfaceBorder}`, borderRadius: 16, padding: "20px 24px", marginBottom: 24 }}>
-        <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", textTransform: "uppercase", letterSpacing: 2, color: T.dim, marginBottom: 16 }}>
-          Skills for this phase
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {phase.skills.map((skill, i) => (
-            <div key={skill} style={{
-              display: "grid", gridTemplateColumns: "auto 1fr",
-              alignItems: "center", gap: 14,
-              background: T.surface, borderRadius: 10, padding: "12px 16px",
-              border: `1px solid ${T.surfaceBorder}`,
-            }}>
-              <div style={{
-                fontFamily: "'JetBrains Mono', monospace", fontSize: 11,
-                color: phase.color, background: `${phase.color}12`,
-                border: `1px solid ${phase.color}44`,
-                padding: "4px 12px", borderRadius: 6, whiteSpace: "nowrap",
-              }}>{skill}</div>
-              <div style={{ fontSize: 12, color: T.dim, lineHeight: 1.5 }}>
-                <span style={{ color: T.text, fontWeight: 500 }}>
-                  {i === 0 ? "Upload first — " : "Upload after — "}
-                </span>
-                {SKILL_WHY[skill] || "activate the structured workflow for this phase"}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Actions */}
-      <div style={{ display: "flex", gap: 10 }}>
-        <button onClick={onReset} style={{
-          background: T.text, border: `1px solid ${T.surfaceBorder}`,
-          borderRadius: 8, padding: "10px 20px", fontSize: 13, fontWeight: 500,
-          color: T.dim, cursor: "pointer", fontFamily: "'DM Sans', sans-serif",
-        }}>← New brief</button>
-        <button onClick={copy} style={{
-          background: copied ? "#0D9488" : "#14B8A6", color: T.bg,
-          border: "none", borderRadius: 8, padding: "10px 20px",
-          fontSize: 13, fontWeight: 700, cursor: "pointer",
-          fontFamily: "'DM Sans', sans-serif", transition: "background 0.2s",
-        }}>{copied ? "✓ Copied" : "Copy prompt"}</button>
-      </div>
+        );
+      })}
     </div>
   );
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
+function FieldLabel({ children, hint }) {
+  return (
+    <div style={{ marginBottom: hint ? 6 : 8 }}>
+      <div style={{ fontSize: 12, fontWeight: 600, color: T.text, marginBottom: hint ? 3 : 0 }}>{children}</div>
+      {hint && <div style={{ fontSize: 11, color: T.dim, lineHeight: 1.5 }}>{hint}</div>}
+    </div>
+  );
+}
+
+function TextInput({ value, onChange, placeholder }) {
+  return <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} style={{ width: "100%", boxSizing: "border-box", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "10px 14px", color: T.text, fontSize: 13, fontFamily: "'DM Sans', sans-serif", outline: "none", transition: "border-color 0.15s" }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />;
+}
+
+function TextArea({ value, onChange, placeholder, rows = 3 }) {
+  return <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows} style={{ width: "100%", boxSizing: "border-box", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "10px 14px", color: T.text, fontSize: 13, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none", transition: "border-color 0.15s" }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />;
+}
+
+function PromptResult({ prompt, form, onReset }) {
+  const phase = PHASE_SKILLS[form.phase] || PHASE_SKILLS.unsure;
+  return (
+    <div>
+      <SectionHeader step={4} title="Prompt ready" desc={`Starting in ${phase.label} · ${phase.skills.length} skill file${phase.skills.length > 1 ? "s" : ""} recommended. Paste this as your first message in Claude.`} />
+      <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 8, padding: "14px 16px", marginBottom: 16 }}>
+        <Label>How to use</Label>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {[
+            `Download and attach ${phase.skills.join(" and ")} to your Claude project or conversation`,
+            "Open a new Claude Chat",
+            "Paste the prompt below as your first message",
+          ].map((step, i) => (
+            <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+              <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", color: T.accent, marginTop: 2, flexShrink: 0 }}>0{i + 1}</span>
+              <span style={{ fontSize: 12, color: T.muted, lineHeight: 1.6 }}>{step}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, overflow: "hidden", marginBottom: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderBottom: `1px solid ${T.border}` }}>
+          <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: phase.color }}>Your Claude prompt</span>
+          <CopyBtn text={prompt} label="Copy prompt" />
+        </div>
+        <pre style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: T.muted, lineHeight: 1.9, margin: 0, padding: "18px 20px", whiteSpace: "pre-wrap", wordBreak: "break-word", maxHeight: 400, overflowY: "auto" }}>{prompt}</pre>
+      </div>
+      <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 8, padding: "14px 16px", marginBottom: 20 }}>
+        <Label>Skills for this phase</Label>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {phase.skills.map((skill, i) => (
+            <div key={skill} style={{ display: "grid", gridTemplateColumns: "auto 1fr", alignItems: "center", gap: 12, background: T.surface, borderRadius: 6, padding: "10px 14px", border: `1px solid ${T.border}` }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: phase.color, background: phase.dim, border: `1px solid ${phase.border}`, padding: "3px 10px", borderRadius: 4, whiteSpace: "nowrap" }}>{skill}</span>
+              <span style={{ fontSize: 12, color: T.dim, lineHeight: 1.5 }}><span style={{ color: T.text, fontWeight: 500 }}>{i === 0 ? "Upload first — " : "Upload after — "}</span>{SKILL_WHY[skill] || "activate the structured workflow for this phase"}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <Btn variant="ghost" onClick={onReset}>← New brief</Btn>
+    </div>
+  );
+}
+
 export default function AIBriefGenerator() {
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState({
-    projectName: "", projectType: "", phase: "", whatYouHave: "",
-    team: "", timeline: "", productDescription: "", goals: "", constraints: "",
-  });
+  const [completed, setCompleted] = useState([]);
+  const [form, setForm] = useState({ projectName: "", projectType: "", phase: "", whatYouHave: "", team: "", timeline: "", productDescription: "", goals: "", constraints: "" });
   const [prompt, setPrompt] = useState(null);
 
   function set(key, val) { setForm(f => ({ ...f, [key]: val })); }
+  function mark(id) { setCompleted(p => [...new Set([...p, id])]); }
 
   const canNext1 = form.projectType && form.phase;
   const canNext2 = form.whatYouHave && form.team && form.timeline;
   const canSubmit = form.projectName.trim().length > 0;
 
-  function generate() {
-    setPrompt(buildClaudePrompt(form));
-  }
-
-  function reset() {
-    setPrompt(null); setStep(1);
-    setForm({ projectName: "", projectType: "", phase: "", whatYouHave: "", team: "", timeline: "", productDescription: "", goals: "", constraints: "" });
-  }
-
-  const progress = prompt ? 100 : ((step - 1) / 3) * 100;
+  function generate() { mark(3); setPrompt(buildPrompt(form)); }
+  function reset() { setPrompt(null); setStep(1); setCompleted([]); setForm({ projectName: "", projectType: "", phase: "", whatYouHave: "", team: "", timeline: "", productDescription: "", goals: "", constraints: "" }); }
 
   return (
-    <div style={{ minHeight: "100vh", background: T.surface, fontFamily: "'DM Sans', sans-serif" }}>
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-
-      {/* Top bar */}
-      <div style={{ background: T.bg, borderBottom: `1px solid ${T.bgBorder}`, padding: "0 40px", display: "flex", alignItems: "center", gap: 14, height: 56, position: "sticky", top: 0, zIndex: 10 }}>
-        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-          <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#3B82F6", display: "block" }} />
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: "#3B82F6", letterSpacing: 2, textTransform: "uppercase" }}>AI Brief Generator</span>
+    <div style={{ background: T.bg, minHeight: "100vh", padding: "40px 32px", fontFamily: "'DM Sans', sans-serif", color: T.text }}>
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+      <div style={{ maxWidth: 760, margin: "0 auto 40px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+          <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.accent, background: T.accentDim, border: `1px solid ${T.accentBorder}`, padding: "3px 10px", borderRadius: 4 }}>Cross-phase · Tool 01</span>
         </div>
-        <div style={{ width: 1, height: 16, background: T.bgBorder }} />
-        <span style={{ fontSize: 13, color: T.muted }}>
-          {prompt ? "Prompt ready — copy and paste into Claude" : "Answer 3 questions. Get a Claude-ready project prompt."}
-        </span>
-        <div style={{ marginLeft: "auto", fontSize: 11, color: T.dim, fontFamily: "'JetBrains Mono', monospace" }}>Agentic Product Design Framework</div>
+        <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 32, fontWeight: 400, margin: "0 0 8px", color: T.text }}>AI Brief Generator</h1>
+        <p style={{ fontSize: 14, color: T.muted, margin: 0, lineHeight: 1.6, maxWidth: 520 }}>Answer three questions about your project and get a Claude-ready prompt — with the right skill files, phase context, and a first action tailored to where you are.</p>
       </div>
-
-      {/* Progress */}
-      <div style={{ height: 2, background: T.bgBorder }}>
-        <div style={{ height: "100%", background: "#3B82F6", width: `${progress}%`, transition: "width 0.4s ease" }} />
-      </div>
-
-      {/* Body */}
-      <div style={{ maxWidth: 780, margin: "0 auto", padding: "48px 40px 80px" }}>
-        <style>{`@keyframes fadeIn { from { opacity:0; transform:translateY(8px) } to { opacity:1; transform:none } }`}</style>
-
+      <div style={{ maxWidth: 760, margin: "0 auto" }}>
+        <StepIndicator current={prompt ? 4 : step} completed={prompt ? [1,2,3,4] : completed} />
         {prompt && <PromptResult prompt={prompt} form={form} onReset={reset} />}
-
         {!prompt && (
           <>
-            {/* Step indicators */}
-            <div style={{ display: "flex", alignItems: "center", marginBottom: 40 }}>
-              {[{ n: 1, label: "Project type" }, { n: 2, label: "Your context" }, { n: 3, label: "Goals & details" }].map((s, i) => (
-                <div key={s.n} style={{ display: "flex", alignItems: "center" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <StepDot n={s.n} active={step === s.n} done={step > s.n} />
-                    <span style={{ fontSize: 12, fontWeight: step === s.n ? 600 : 400, color: step === s.n ? T.text : T.dim }}>{s.label}</span>
-                  </div>
-                  {i < 2 && <div style={{ width: 32, height: 1, background: T.surfaceBorder, margin: "0 12px" }} />}
-                </div>
-              ))}
-            </div>
-
-            {/* Step 1 */}
             {step === 1 && (
-              <div style={{ animation: "fadeIn 0.3s ease" }}>
-                <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 28, fontWeight: 400, color: T.text, margin: "0 0 6px" }}>What kind of project is this?</h2>
-                <p style={{ fontSize: 14, color: T.dim, margin: "0 0 32px", lineHeight: 1.6 }}>This shapes how Claude frames the problem and what it focuses on first.</p>
-
-                <div style={{ marginBottom: 28 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: T.text, marginBottom: 12 }}>Project type</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                    {[
-                      { id: "new-product",   label: "New Product",      icon: "✦" },
-                      { id: "feature",       label: "Feature Addition", icon: "◈" },
-                      { id: "redesign",      label: "Redesign",         icon: "◎" },
-                      { id: "internal-tool", label: "Internal Tool",    icon: "◧" },
-                      { id: "client-work",   label: "Client Work",      icon: "◆" },
-                    ].map(t => (
-                      <Chip key={t.id} selected={form.projectType === t.id} onClick={() => set("projectType", t.id)} color="#3B82F6">
-                        <span style={{ fontSize: 14 }}>{t.icon}</span> {t.label}
-                      </Chip>
-                    ))}
+              <div>
+                <SectionHeader step={1} title="Project type + phase" desc="What kind of project is this and which phase are you entering? This shapes how Claude frames the problem and what it focuses on first." />
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  <div>
+                    <Label>Project type</Label>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {[{ id: "new-product", label: "New product", icon: "✦" }, { id: "feature", label: "Feature addition", icon: "◈" }, { id: "redesign", label: "Redesign", icon: "◎" }, { id: "internal-tool", label: "Internal tool", icon: "◧" }, { id: "client-work", label: "Client work", icon: "◆" }].map(t => (
+                        <Chip key={t.id} selected={form.projectType === t.id} onClick={() => set("projectType", t.id)}><span style={{ fontSize: 13 }}>{t.icon}</span> {t.label}</Chip>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Phase entering</Label>
+                    <p style={{ fontSize: 12, color: T.dim, margin: "0 0 10px", lineHeight: 1.5 }}>Pick your starting point — or "Not sure" and Claude will recommend.</p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {Object.entries(PHASE_SKILLS).map(([id, p]) => (
+                        <Chip key={id} selected={form.phase === id} onClick={() => set("phase", id)} color={p.color} dim={p.dim} border={p.border}>
+                          <span style={{ width: 7, height: 7, borderRadius: "50%", background: p.color, display: "block", flexShrink: 0 }} />{p.label}
+                        </Chip>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Btn onClick={() => { mark(1); setStep(2); }} disabled={!canNext1}>Context →</Btn>
                   </div>
                 </div>
-
-                <div style={{ marginBottom: 32 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: T.text, marginBottom: 4 }}>Which phase are you entering?</div>
-                  <div style={{ fontSize: 11, color: T.dim, marginBottom: 12 }}>Pick your starting point — or "Not sure yet" and Claude will recommend.</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                    {Object.entries(PHASE_SKILLS).map(([id, p]) => (
-                      <Chip key={id} selected={form.phase === id} onClick={() => set("phase", id)} color={p.color}>
-                        <span style={{ width: 7, height: 7, borderRadius: "50%", background: p.color, display: "block" }} />
-                        {p.label}
-                      </Chip>
-                    ))}
-                  </div>
-                </div>
-
-                <button onClick={() => setStep(2)} disabled={!canNext1}
-                  style={{ background: canNext1 ? T.proto : T.card, color: canNext1 ? T.text : T.dim, border: "none", borderRadius: 10, padding: "13px 28px", fontSize: 14, fontWeight: 600, cursor: canNext1 ? "pointer" : "default", fontFamily: "'DM Sans', sans-serif", transition: "all 0.15s" }}>
-                  Continue →
-                </button>
               </div>
             )}
-
-            {/* Step 2 */}
             {step === 2 && (
-              <div style={{ animation: "fadeIn 0.3s ease" }}>
-                <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 28, fontWeight: 400, color: T.text, margin: "0 0 6px" }}>What's your context?</h2>
-                <p style={{ fontSize: 14, color: T.dim, margin: "0 0 32px", lineHeight: 1.6 }}>A few quick details so Claude knows exactly where you are and what you're working with.</p>
-
-                <div style={{ marginBottom: 24 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: T.text, marginBottom: 12 }}>What do you have so far?</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                    {[
-                      { id: "nothing",          label: "Nothing yet" },
-                      { id: "brief",            label: "A project brief" },
-                      { id: "brief-research",   label: "Brief + research" },
-                      { id: "existing-designs", label: "Existing designs" },
-                    ].map(w => (
-                      <Chip key={w.id} selected={form.whatYouHave === w.id} onClick={() => set("whatYouHave", w.id)} color="#8B5CF6">{w.label}</Chip>
-                    ))}
+              <div>
+                <SectionHeader step={2} title="Your context" desc="A few quick details so Claude knows exactly where you are and what you're working with." />
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  <div>
+                    <Label>What do you have so far?</Label>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {[{ id: "nothing", label: "Nothing yet" }, { id: "brief", label: "A project brief" }, { id: "brief-research", label: "Brief + research" }, { id: "existing-designs", label: "Existing designs" }].map(w => (
+                        <Chip key={w.id} selected={form.whatYouHave === w.id} onClick={() => set("whatYouHave", w.id)}>{w.label}</Chip>
+                      ))}
+                    </div>
                   </div>
-                </div>
-
-                <div style={{ marginBottom: 24 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: T.text, marginBottom: 12 }}>Team setup</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                    {[
-                      { id: "solo",   label: "Solo",          desc: "Just me" },
-                      { id: "small",  label: "Small team",    desc: "2–5 people" },
-                      { id: "larger", label: "Larger team",   desc: "6+ cross-functional" },
-                      { id: "client", label: "With a client", desc: "External stakeholders" },
-                    ].map(t => (
-                      <Chip key={t.id} selected={form.team === t.id} onClick={() => set("team", t.id)} color="#F59E0B">
-                        {t.label}<span style={{ fontSize: 11, color: T.dim, fontWeight: 400 }}> — {t.desc}</span>
-                      </Chip>
-                    ))}
+                  <div>
+                    <Label>Team setup</Label>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {[{ id: "solo", label: "Solo", desc: "Just me" }, { id: "small", label: "Small team", desc: "2-5 people" }, { id: "larger", label: "Larger team", desc: "6+ cross-functional" }, { id: "client", label: "With a client", desc: "External stakeholders" }].map(t => (
+                        <Chip key={t.id} selected={form.team === t.id} onClick={() => set("team", t.id)}>{t.label}<span style={{ fontSize: 11, color: T.dim, fontWeight: 400 }}> — {t.desc}</span></Chip>
+                      ))}
+                    </div>
                   </div>
-                </div>
-
-                <div style={{ marginBottom: 32 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: T.text, marginBottom: 12 }}>Timeline</div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                    {[
-                      { id: "sprint",  label: "Sprint",  desc: "1–2 weeks" },
-                      { id: "month",   label: "Month",   desc: "3–4 weeks" },
-                      { id: "quarter", label: "Quarter", desc: "3 months" },
-                      { id: "ongoing", label: "Ongoing", desc: "No fixed end" },
-                    ].map(t => (
-                      <Chip key={t.id} selected={form.timeline === t.id} onClick={() => set("timeline", t.id)} color="#EF4444">
-                        {t.label}<span style={{ fontSize: 11, color: T.dim, fontWeight: 400 }}> — {t.desc}</span>
-                      </Chip>
-                    ))}
+                  <div>
+                    <Label>Timeline</Label>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                      {[{ id: "sprint", label: "Sprint", desc: "1-2 weeks" }, { id: "month", label: "Month", desc: "3-4 weeks" }, { id: "quarter", label: "Quarter", desc: "3 months" }, { id: "ongoing", label: "Ongoing", desc: "No fixed end" }].map(t => (
+                        <Chip key={t.id} selected={form.timeline === t.id} onClick={() => set("timeline", t.id)}>{t.label}<span style={{ fontSize: 11, color: T.dim, fontWeight: 400 }}> — {t.desc}</span></Chip>
+                      ))}
+                    </div>
                   </div>
-                </div>
-
-                <div style={{ display: "flex", gap: 10 }}>
-                  <button onClick={() => setStep(1)} style={{ background: T.text, border: `1px solid ${T.surfaceBorder}`, borderRadius: 10, padding: "13px 22px", fontSize: 14, fontWeight: 500, color: T.dim, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>← Back</button>
-                  <button onClick={() => setStep(3)} disabled={!canNext2}
-                    style={{ background: canNext2 ? T.proto : T.card, color: canNext2 ? T.text : T.dim, border: "none", borderRadius: 10, padding: "13px 28px", fontSize: 14, fontWeight: 600, cursor: canNext2 ? "pointer" : "default", fontFamily: "'DM Sans', sans-serif", transition: "all 0.15s" }}>
-                    Continue →
-                  </button>
+                  <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+                    <Btn variant="ghost" onClick={() => setStep(1)}>← Back</Btn>
+                    <Btn onClick={() => { mark(2); setStep(3); }} disabled={!canNext2}>Goals →</Btn>
+                  </div>
                 </div>
               </div>
             )}
-
-            {/* Step 3 */}
             {step === 3 && (
-              <div style={{ animation: "fadeIn 0.3s ease" }}>
-                <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 28, fontWeight: 400, color: T.text, margin: "0 0 6px" }}>Goals & details</h2>
-                <p style={{ fontSize: 14, color: T.dim, margin: "0 0 28px", lineHeight: 1.6 }}>The more specific you are here, the sharper Claude's first response will be.</p>
-
-                <Field label="Project name *" placeholder="e.g. Healthtrack Mobile Redesign" value={form.projectName} onChange={v => set("projectName", v)} />
-                <Field label="What are you designing? Who is it for?" hint="Describe the product or feature and the people who will use it." placeholder="e.g. A mobile app for nurses to track patient vitals during shift handoff" value={form.productDescription} onChange={v => set("productDescription", v)} multiline />
-                <Field label="Goals & success metrics" hint="What does success look like? Include both business and user outcomes." placeholder="e.g. Reduce handoff errors by 30%, nurses complete check-ins in under 2 minutes" value={form.goals} onChange={v => set("goals", v)} multiline />
-                <Field label="Known constraints" hint="Technical limitations, timeline pressure, stakeholder requirements." placeholder="e.g. Must work on hospital-issued iPads, integrate with Epic EHR, ship by Q3" value={form.constraints} onChange={v => set("constraints", v)} multiline />
-
-                <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
-                  <button onClick={() => setStep(2)} style={{ background: T.text, border: `1px solid ${T.surfaceBorder}`, borderRadius: 10, padding: "13px 22px", fontSize: 14, fontWeight: 500, color: T.dim, cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>← Back</button>
-                  <button onClick={generate} disabled={!canSubmit}
-                    style={{ background: canSubmit ? "#3B82F6" : T.surfaceBorder, color: canSubmit ? T.text : T.dim, border: "none", borderRadius: 10, padding: "13px 28px", fontSize: 14, fontWeight: 600, cursor: canSubmit ? "pointer" : "default", fontFamily: "'DM Sans', sans-serif", transition: "all 0.15s" }}>
-                    Build prompt ✦
-                  </button>
+              <div>
+                <SectionHeader step={3} title="Goals + details" desc="The more specific you are here, the sharper Claude's first response will be." />
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div><FieldLabel>Project name</FieldLabel><TextInput value={form.projectName} onChange={v => set("projectName", v)} placeholder="e.g. Healthtrack Mobile Redesign" /></div>
+                  <div><FieldLabel hint="Describe the product or feature and the people who will use it.">What are you designing? Who is it for?</FieldLabel><TextArea value={form.productDescription} onChange={v => set("productDescription", v)} placeholder="e.g. A mobile app for nurses to track patient vitals during shift handoff" /></div>
+                  <div><FieldLabel hint="What does success look like? Include both business and user outcomes.">Goals + success metrics</FieldLabel><TextArea value={form.goals} onChange={v => set("goals", v)} placeholder="e.g. Reduce handoff errors by 30%, nurses complete check-ins in under 2 minutes" /></div>
+                  <div><FieldLabel hint="Technical limitations, timeline pressure, stakeholder requirements.">Known constraints (optional)</FieldLabel><TextArea value={form.constraints} onChange={v => set("constraints", v)} placeholder="e.g. Must work on hospital-issued iPads, integrate with Epic EHR, ship by Q3" /></div>
+                  <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+                    <Btn variant="ghost" onClick={() => setStep(2)}>← Back</Btn>
+                    <Btn onClick={generate} disabled={!canSubmit}>Build prompt →</Btn>
+                  </div>
                 </div>
               </div>
             )}
