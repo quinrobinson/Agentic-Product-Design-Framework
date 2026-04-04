@@ -1706,17 +1706,17 @@ function PhasePath({ onOpenTool }) {
               {/* Right: Three artifact types */}
               <div style={{ flex: "1 1 400px" }}>
                 <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.dim, marginBottom: 14 }}>Three ways to work with Claude</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                   {[
-                    { label: "Tools", badge: "Interactive", color: T.text, desc: "Guided multi-step tools with real-time AI generation. Run a complete workflow in one session." },
-                    { label: "Prompts", badge: "Copy + Paste", color: T.text, desc: "Phase-specific prompts engineered for Claude Chat. Paste into a conversation and provide your context." },
-                    { label: "Skills", badge: "Attach to Claude", color: T.text, desc: "Attach .md files to a Claude project or conversation. Claude follows the methodology automatically." },
+                    { label: "Tools", badge: "Interactive", desc: "Guided multi-step tools with real-time AI generation. Run a complete workflow in one session." },
+                    { label: "Prompts", badge: "Copy + Paste", desc: "Phase-specific prompts engineered for Claude Chat. Paste into a conversation and provide your context." },
+                    { label: "Skills", badge: "Attach to Claude", desc: "Attach .md files to a Claude project or conversation. Claude follows the methodology automatically." },
                   ].map(item => (
-                    <div key={item.label} className="three-ways-row" style={{ background: T.card, borderRadius: 8, border: `1px solid ${T.border}` }}>
-                      <div style={{ flex: 1 }}>
-                        <span className="three-ways-badge three-ways-badge-wrap" style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", padding: "2px 7px", borderRadius: 3, background: "rgba(255,255,255,0.06)", border: `1px solid ${T.border}`, color: T.muted }}>{item.badge}</span>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: T.text, marginBottom: 3 }}>{item.label}</div>
-                        <div style={{ fontSize: 11, color: T.muted, lineHeight: 1.5 }}>{item.desc}</div>
+                    <div key={item.label} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+                      <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.dim, minWidth: 80, paddingTop: 2, flexShrink: 0 }}>{item.badge}</span>
+                      <div>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: T.text, marginBottom: 2 }}>{item.label}</div>
+                        <div style={{ fontSize: 11, color: T.muted, lineHeight: 1.55 }}>{item.desc}</div>
                       </div>
                     </div>
                   ))}
