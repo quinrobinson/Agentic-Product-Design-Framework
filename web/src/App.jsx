@@ -2558,9 +2558,9 @@ function DeliverablePath({ onOpenTool }) {
                         fontSize: 9, fontFamily: "'JetBrains Mono', monospace",
                         letterSpacing: "0.08em", textTransform: "uppercase",
                         padding: "2px 7px", borderRadius: 3, flexShrink: 0,
-                        background: `${typeColor[d.type]}18`,
-                        border: `1px solid ${typeColor[d.type]}40`,
-                        color: typeColor[d.type],
+                        background: "rgba(255,255,255,0.06)",
+                        border: `1px solid ${T.border}`,
+                        color: T.muted,
                       }}>{d.type}</span>
                     </div>
 
@@ -2581,11 +2581,11 @@ function DeliverablePath({ onOpenTool }) {
                           padding: "5px 14px", borderRadius: 5, flexShrink: 0,
                           fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
                           letterSpacing: "0.06em", textTransform: "uppercase",
-                          background: "transparent", border: `1px solid ${meta.color}60`,
-                          color: meta.color, cursor: "pointer", transition: "all 0.12s",
+                          background: "transparent", border: `1px solid ${T.border}`,
+                          color: T.muted, cursor: "pointer", transition: "all 0.12s",
                         }}
-                          onMouseEnter={e => { e.currentTarget.style.background = meta.dim; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                          onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderHover; e.currentTarget.style.color = T.text; }}
+                          onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}
                         >Open tool</button>
                       )}
                       {d.type === "prompt" && (
