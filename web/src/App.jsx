@@ -1591,34 +1591,35 @@ function FigmaMCPCallout({ phaseId, onOpenSkill }) {
   const figmaSkill = { file: "figma-playbook.md", phase: null, surface: "code + figma mcp", desc: "Step-by-step Figma MCP execution patterns for every phase — research boards through spec annotations." };
   return (
     <div style={{
-      display: "flex", alignItems: "center", justifyContent: "space-between",
-      gap: 12, padding: "10px 14px", marginBottom: 16,
+      padding: "10px 14px", marginBottom: 16,
       background: T.surface,
       border: `1px solid ${T.border}`,
       borderRadius: 8,
     }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
-        <span style={{
-          fontSize: 9, fontFamily: "'JetBrains Mono', monospace",
-          letterSpacing: "0.08em", textTransform: "uppercase",
-          padding: "2px 7px", borderRadius: 3, flexShrink: 0,
-          background: T.card, border: `1px solid ${T.border}`, color: T.muted,
-        }}>Figma MCP</span>
-        <span style={{ fontSize: 12, color: T.dim, lineHeight: 1.5 }}>{FIGMA_MCP_COPY[phaseId]}</span>
+      <div className="figma-callout-inner">
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
+          <span style={{
+            fontSize: 9, fontFamily: "'JetBrains Mono', monospace",
+            letterSpacing: "0.08em", textTransform: "uppercase",
+            padding: "2px 7px", borderRadius: 3, flexShrink: 0,
+            background: T.card, border: `1px solid ${T.border}`, color: T.muted,
+          }}>Figma MCP</span>
+          <span style={{ fontSize: 12, color: T.dim, lineHeight: 1.5 }}>{FIGMA_MCP_COPY[phaseId]}</span>
+        </div>
+        <button
+          onClick={() => onOpenSkill(figmaSkill)}
+          style={{
+            padding: "4px 12px", borderRadius: 5, flexShrink: 0,
+            fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
+            letterSpacing: "0.06em", textTransform: "uppercase",
+            background: "transparent", border: `1px solid ${T.border}`,
+            color: T.muted, cursor: "pointer", whiteSpace: "nowrap",
+            transition: "all 0.15s",
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderHover; e.currentTarget.style.color = T.text; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}
+        >View skill →</button>
       </div>
-      <button
-        onClick={() => onOpenSkill(figmaSkill)}
-        style={{
-          padding: "4px 12px", borderRadius: 5, flexShrink: 0,
-          fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
-          letterSpacing: "0.06em", textTransform: "uppercase",
-          background: "transparent", border: `1px solid ${T.border}`,
-          color: T.muted, cursor: "pointer", whiteSpace: "nowrap",
-          transition: "all 0.15s",
-        }}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderHover; e.currentTarget.style.color = T.text; }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}
-      >View skill →</button>
     </div>
   );
 }
@@ -1698,11 +1699,9 @@ function PhasePath({ onOpenTool }) {
                     { label: "Prompts", badge: "Copy + Paste", color: T.text, desc: "Phase-specific prompts engineered for Claude Chat. Paste into a conversation and provide your context." },
                     { label: "Skills", badge: "Attach to Claude", color: T.text, desc: "Attach .md files to a Claude project or conversation. Claude follows the methodology automatically." },
                   ].map(item => (
-                    <div key={item.label} style={{ display: "flex", gap: 14, padding: "12px 14px", background: T.card, borderRadius: 8, border: `1px solid ${T.border}` }}>
-                      <div style={{ flexShrink: 0, paddingTop: 1 }}>
-                        <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", padding: "2px 7px", borderRadius: 3, background: "rgba(255,255,255,0.06)", border: `1px solid ${T.border}`, color: T.muted }}>{item.badge}</span>
-                      </div>
-                      <div>
+                    <div key={item.label} className="three-ways-row" style={{ background: T.card, borderRadius: 8, border: `1px solid ${T.border}` }}>
+                      <div style={{ flex: 1 }}>
+                        <span className="three-ways-badge" style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", padding: "2px 7px", borderRadius: 3, background: "rgba(255,255,255,0.06)", border: `1px solid ${T.border}`, color: T.muted }}>{item.badge}</span>
                         <div style={{ fontSize: 12, fontWeight: 600, color: T.text, marginBottom: 3 }}>{item.label}</div>
                         <div style={{ fontSize: 11, color: T.muted, lineHeight: 1.5 }}>{item.desc}</div>
                       </div>
@@ -2439,14 +2438,11 @@ function DeliverablePath({ onOpenTool }) {
       {/* Deliverable rows */}
       <div style={{ display: "flex", flexDirection: "column", gap: 4, marginBottom: 16 }}>
         {filtered.map(d => (
-          <div key={d.name} style={{
-            display: "flex", alignItems: "center", padding: "13px 16px",
+          <div key={d.name} className="deliverable-row" style={{
             background: T.surface, borderRadius: 8, border: `1px solid ${T.border}`,
-            gap: 14,
           }}>
-            <span style={{ fontSize: 13, fontWeight: 500, color: T.text, flex: "0 0 190px" }}>{d.name}</span>
-            <span style={{ color: T.border, flexShrink: 0, fontSize: 12 }}>→</span>
-            <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
+            <span style={{ fontSize: 13, fontWeight: 500, color: T.text, flex: "1 1 140px", minWidth: 0 }}>{d.name}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
               <span style={{
                 fontSize: 9, fontFamily: "'JetBrains Mono', monospace",
                 letterSpacing: "0.08em", textTransform: "uppercase",
@@ -2455,7 +2451,7 @@ function DeliverablePath({ onOpenTool }) {
                 border: `1px solid ${typeColor[d.type]}40`,
                 color: typeColor[d.type], flexShrink: 0,
               }}>{d.type}</span>
-              <span style={{ fontSize: 12, color: T.muted }}>{d.label}</span>
+              <span className="deliverable-label" style={{ fontSize: 12, color: T.muted }}>{d.label}</span>
             </div>
             {d.type === "tool" && (
               <button onClick={() => onOpenTool(d.ref)} style={{
@@ -3276,6 +3272,24 @@ export default function App() {
         img, video { max-width: 100%; height: auto; }
         :focus-visible { outline: 2px solid #999999; outline-offset: 2px; border-radius: 4px; }
         button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
+        .path-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; }
+        .path-grid-item { border-right: 1px solid #2C2C2C; }
+        .path-grid-item:last-child { border-right: none; }
+        .three-ways-badge { display: inline-block; margin-bottom: 8px; }
+        .three-ways-row { display: flex; gap: 14px; padding: 12px 14px; }
+        .figma-callout-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: nowrap; }
+        .deliverable-row { display: flex; align-items: center; padding: 13px 16px; gap: 14px; }
+        .deliverable-label { display: inline; }
+        @media (max-width: 600px) {
+          .path-grid { grid-template-columns: 1fr !important; }
+          .path-grid-item { border-right: none !important; border-bottom: 1px solid #2C2C2C; }
+          .path-grid-item:last-child { border-bottom: none; }
+          .three-ways-badge { display: block; margin-bottom: 6px; }
+          .three-ways-row { flex-direction: column; gap: 8px; }
+          .figma-callout-inner { flex-direction: column; align-items: flex-start; gap: 8px; }
+          .deliverable-row { flex-wrap: wrap; gap: 10px; }
+          .deliverable-label { display: none; }
+        }
         .hide-mobile { display: inline; }
         .show-mobile { display: none; }
         @media (max-width: 540px) {
@@ -3363,10 +3377,9 @@ export default function App() {
           </div>
         )}
 
-        <div style={{
-          display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-          gap: 1, marginBottom: activePath ? 32 : 0,
-          border: `1px solid ${activePath ? T.border : T.border}`,
+        <div className="path-grid" style={{
+          marginBottom: activePath ? 32 : 0,
+          border: `1px solid ${T.border}`,
           borderRadius: 10, overflow: "hidden",
         }}>
           {[
@@ -3396,13 +3409,13 @@ export default function App() {
             return (
               <button
                 key={item.id}
+                className="path-grid-item"
                 onClick={() => setActivePath(activePath === item.id ? null : item.id)}
                 style={{
                   background: T.surface,
                   border: "none",
                   padding: "20px 20px 18px", textAlign: "left",
                   cursor: "pointer", transition: "background 0.15s",
-                  borderRight: i < 2 ? `1px solid ${T.border}` : "none",
                   borderBottom: isActive ? `1px solid ${T.borderHover}` : "1px solid transparent",
                   outline: "none",
                   display: "flex", flexDirection: "column",
