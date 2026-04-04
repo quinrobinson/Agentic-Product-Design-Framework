@@ -1577,9 +1577,10 @@ function PromptCard({ prompt, phaseColor }) {
   );
 }
 
-function PhasePath({ onOpenTool, onOpenSkill }) {
+function PhasePath({ onOpenTool }) {
   const [selected, setSelected] = useState(null);
   const [tab, setTab] = useState("prompts");
+  const [activeSkill, setActiveSkill] = useState(null);
 
   const phase = selected ? PHASES.find(p => p.id === selected) : null;
   const p = phase ? T.phases[phase.id] : null;
@@ -1742,7 +1743,7 @@ function PhasePath({ onOpenTool, onOpenSkill }) {
                       <div style={{ fontSize: 11, color: T.dim, lineHeight: 1.5 }}>{skill.desc}</div>
                     </div>
                     <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                      <button onClick={() => onOpenSkill(skill)} style={{ padding: "5px 10px", borderRadius: 5, fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", background: "transparent", border: `1px solid ${T.border}`, color: T.muted, cursor: "pointer", whiteSpace: "nowrap", transition: "all 0.15s" }}
+                      <button onClick={() => setActiveSkill(skill)} style={{ padding: "5px 10px", borderRadius: 5, fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", background: "transparent", border: `1px solid ${T.border}`, color: T.muted, cursor: "pointer", whiteSpace: "nowrap", transition: "all 0.15s" }}
                         onMouseEnter={e => { e.currentTarget.style.borderColor = p.color + "55"; e.currentTarget.style.color = p.color; }}
                         onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}
                       >Preview →</button>
@@ -1753,7 +1754,9 @@ function PhasePath({ onOpenTool, onOpenSkill }) {
               </div>
             )}
 
-            {/* Tab: Tools */}
+            {activeSkill && <SkillDrawer skill={activeSkill} onClose={() => setActiveSkill(null)} />}
+
+      {/* Tab: Tools */}
             {tab === "tools" && (
               <div style={{ display: "grid", gridTemplateColumns: phaseTools.length > 1 ? "1fr 1fr" : "1fr", gap: 8 }}>
                 {phaseTools.length === 0 ? (
@@ -2569,7 +2572,8 @@ function ZipDownloadBtn({ skills }) {
 }
 
 // ── Skills Library Overlay ───────────────────────────────────────────────────
-function SkillsLibraryOverlay({ onBack, onOpenSkill }) {
+function SkillsLibraryOverlay({ onBack }) {
+  const [activeSkill, setActiveSkill] = useState(null);
   const [phaseFilter, setPhaseFilter] = useState("all");
   const [surfaceFilter, setSurfaceFilter] = useState("all");
 
@@ -2763,7 +2767,7 @@ function SkillsLibraryOverlay({ onBack, onOpenSkill }) {
                 </div>
                 {/* Actions */}
                 <div style={{ display: "flex", gap: 6, flexShrink: 0, alignItems: "center" }}>
-                  <button onClick={() => onOpenSkill(skill)} style={{
+                  <button onClick={() => setActiveSkill(skill)} style={{
                     padding: "5px 12px", borderRadius: 5,
                     fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
                     letterSpacing: "0.06em", textTransform: "uppercase",
@@ -2795,6 +2799,98 @@ function SkillsLibraryOverlay({ onBack, onOpenSkill }) {
   );
 }
 
+
+// ── Skill Drawer ──────────────────────────────────────────────────────────────
+function SkillDrawer({ skill, onClose }) {
+  const [content, setContent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const phaseLabel = skill.phase ? T.phases[skill.phase]?.label?.toLowerCase() : "";
+  const dir = skill.phase ? `${skill.phase}-${phaseLabel}` : "";
+  const url = dir ? `${RAW}/${dir}/${skill.file}` : `${RAW}/${skill.file}`;
+  const phaseColor = skill.phase ? T.phases[skill.phase]?.color : T.dim;
+
+  useState(() => {
+    fetch(url)
+      .then(r => r.ok ? r.text() : Promise.reject())
+      .then(text => { setContent(text); setLoading(false); })
+      .catch(() => { setError(true); setLoading(false); });
+  });
+
+  useEffect(() => {
+    function handleKey(e) { if (e.key === "Escape") onClose(); }
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [onClose]);
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 100, backdropFilter: "blur(2px)" }} />
+
+      {/* Drawer panel */}
+      <div style={{
+        position: "fixed", top: 0, right: 0, bottom: 0,
+        width: "min(680px, 92vw)",
+        background: T.surface,
+        borderLeft: `1px solid ${T.border}`,
+        zIndex: 101,
+        display: "flex", flexDirection: "column",
+        animation: "slideIn 0.22s ease-out",
+      }}>
+
+        {/* Drawer header */}
+        <div style={{
+          padding: "16px 24px", borderBottom: `1px solid ${T.border}`,
+          display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12,
+          background: T.surface, flexShrink: 0,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, minWidth: 0 }}>
+            <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", color: T.muted, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{skill.file}</span>
+            {skill.phase && (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.07em", textTransform: "uppercase", color: phaseColor, flexShrink: 0 }}>
+                <span style={{ width: 5, height: 5, borderRadius: "50%", background: phaseColor }} />
+                {skill.phase} — {T.phases[skill.phase]?.label}
+              </span>
+            )}
+            {!skill.phase && <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.07em", textTransform: "uppercase", color: T.dim, flexShrink: 0 }}>Cross-phase</span>}
+            <SkillBadge surface={skill.surface} />
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+            <a href={url} download style={{
+              padding: "5px 14px", borderRadius: 5,
+              fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
+              letterSpacing: "0.06em", textTransform: "uppercase",
+              background: "transparent", border: `1px solid ${T.border}`,
+              color: T.muted, textDecoration: "none", transition: "all 0.15s", whiteSpace: "nowrap",
+            }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderHover; e.currentTarget.style.color = T.text; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}
+            >↓ Download</a>
+            <button onClick={onClose} style={{ background: "none", border: "none", color: T.dim, cursor: "pointer", fontSize: 18, padding: "2px 4px", lineHeight: 1 }}>✕</button>
+          </div>
+        </div>
+
+        {/* Drawer content */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "32px clamp(20px, 4vw, 48px) 48px" }}>
+          {loading && (
+            <div style={{ textAlign: "center", padding: "80px 0" }}>
+              <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", color: T.dim, letterSpacing: "0.08em", textTransform: "uppercase" }}>Loading skill…</span>
+            </div>
+          )}
+          {error && (
+            <div style={{ textAlign: "center", padding: "80px 0" }}>
+              <span style={{ fontSize: 13, color: T.dim }}>Couldn't load this skill file. </span>
+              <a href={url} download style={{ fontSize: 13, color: T.muted, textDecoration: "underline" }}>Download it instead</a>
+            </div>
+          )}
+          {content && <div>{renderMarkdown(content)}</div>}
+        </div>
+      </div>
+    </>
+  );
+}
 
 // ── Markdown renderer ─────────────────────────────────────────────────────────
 function renderMarkdown(text) {
@@ -3089,8 +3185,8 @@ export default function App() {
   if (showFigmaGuide) return <FigmaSetupGuide onBack={() => setShowFigmaGuide(false)} />;
 
   // Skills Library overlay
-  if (activeSkill) return <SkillDetailPage skill={activeSkill} onBack={() => setActiveSkill(null)} />;
-  if (showSkillsLibrary) return <SkillsLibraryOverlay onBack={() => setShowSkillsLibrary(false)} onOpenSkill={setActiveSkill} />;
+  // Skill detail now handled via SkillDrawer inline
+  if (showSkillsLibrary) return <SkillsLibraryOverlay onBack={() => setShowSkillsLibrary(false)} />;
 
   // Active tool
   if (activeTool) {
@@ -3273,7 +3369,6 @@ export default function App() {
           <div style={{ marginTop: 8 }}>
             <PhasePath
               onOpenTool={setActiveTool}
-              onOpenSkill={setActiveSkill}
             />
           </div>
         )}
