@@ -2795,6 +2795,7 @@ function SkillsLibraryOverlay({ onBack }) {
           })}
         </div>
       </div>
+      {activeSkill && <SkillDrawer skill={activeSkill} onClose={() => setActiveSkill(null)} />}
     </div>
   );
 }
@@ -2839,6 +2840,7 @@ function SkillDrawer({ skill, onClose }) {
         display: "flex", flexDirection: "column",
         animation: "slideIn 0.22s ease-out",
       }}>
+        <style>{`@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }`}</style>
 
         {/* Drawer header */}
         <div style={{
