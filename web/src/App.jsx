@@ -3281,24 +3281,31 @@ export default function App() {
         img, video { max-width: 100%; height: auto; }
         :focus-visible { outline: 2px solid #999999; outline-offset: 2px; border-radius: 4px; }
         button:focus:not(:focus-visible), a:focus:not(:focus-visible) { outline: none; }
+        .hide-mobile { display: inline; }
+        .show-mobile { display: none; }
+        @media (max-width: 540px) {
+          .hide-mobile { display: none; }
+          .show-mobile { display: inline; }
+        }
       `}</style>
 
       {/* Header */}
       <div style={{
         borderBottom: `1px solid ${T.border}`,
-        padding: "0 40px", height: 52,
+        padding: "0 40px", height: 58,
         display: "flex", alignItems: "center", justifyContent: "space-between",
         position: "sticky", top: 0, zIndex: 50,
         background: `${T.bg}f0`, backdropFilter: "blur(12px)",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 5, justifyContent: "center" }}>
           <div style={{ display: "flex", gap: 3 }}>
             {Object.values(T.phases).map(p => (
               <div key={p.label} style={{ width: 4, height: 4, borderRadius: "50%", background: p.color }} />
             ))}
           </div>
-          <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.muted }}>
-            Agentic Product Design Framework
+          <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.muted }}>
+            <span className="hide-mobile">Agentic Product Design Framework</span>
+            <span className="show-mobile">APDF</span>
           </span>
         </div>
         <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
