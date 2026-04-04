@@ -1687,7 +1687,7 @@ function PhasePath({ onOpenTool }) {
       </div>
 
       {/* Detail panel */}
-      <div style={{ border: `1px solid ${T.border}`, borderTop: "none", borderRadius: "0 0 10px 10px", overflow: "hidden", minHeight: 280 }}>
+      <div style={{ borderTop: `1px solid ${T.border}`, overflow: "hidden", minHeight: 280 }}>
         {!selected ? (
           /* ── Default: How to Use ── */
           <div style={{ padding: "36px 40px 40px" }}>
@@ -1706,14 +1706,14 @@ function PhasePath({ onOpenTool }) {
               {/* Right: Three artifact types */}
               <div style={{ flex: "1 1 400px" }}>
                 <div style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.dim, marginBottom: 14 }}>Three ways to work with Claude</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <div className="ways-explainer-grid">
                   {[
                     { label: "Tools", badge: "Interactive", desc: "Guided multi-step tools with real-time AI generation. Run a complete workflow in one session." },
                     { label: "Prompts", badge: "Copy + Paste", desc: "Phase-specific prompts engineered for Claude Chat. Paste into a conversation and provide your context." },
                     { label: "Skills", badge: "Attach to Claude", desc: "Attach .md files to a Claude project or conversation. Claude follows the methodology automatically." },
                   ].map(item => (
-                    <div key={item.label} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                      <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.dim, minWidth: 80, paddingTop: 2, flexShrink: 0 }}>{item.badge}</span>
+                    <div key={item.label} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                      <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.dim, minWidth: 72, paddingTop: 2, flexShrink: 0 }}>{item.badge}</span>
                       <div>
                         <div style={{ fontSize: 12, fontWeight: 600, color: T.text, marginBottom: 2 }}>{item.label}</div>
                         <div style={{ fontSize: 11, color: T.muted, lineHeight: 1.55 }}>{item.desc}</div>
@@ -2469,14 +2469,14 @@ function DeliverablePath({ onOpenTool }) {
       </div>
 
       {/* Detail panel */}
-      <div style={{ border: `1px solid ${T.border}`, borderTop: "none", borderRadius: "0 0 10px 10px", overflow: "hidden", minHeight: 200, marginBottom: 12 }}>
+      <div style={{ borderTop: `1px solid ${T.border}`, overflow: "hidden", minHeight: 200, marginBottom: 12 }}>
         {!selected ? (
           /* Default state */
           <div style={{ padding: "28px 28px 32px" }}>
             <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.7, margin: "0 0 20px", maxWidth: 520 }}>
               Select a phase above to see every deliverable for that stage. Each deliverable is produced by either a Tool or a Prompt.
             </p>
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div className="ways-explainer-grid">
               {[
                 {
                   badge: "Interactive", headline: "Tools",
@@ -2489,11 +2489,11 @@ function DeliverablePath({ onOpenTool }) {
                   when: "When you need something fast or want to stay in chat",
                 },
               ].map(item => (
-                <div key={item.headline} style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
-                  <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.dim, minWidth: 80, paddingTop: 2, flexShrink: 0 }}>{item.badge}</span>
+                <div key={item.headline} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                  <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.dim, minWidth: 72, paddingTop: 2, flexShrink: 0 }}>{item.badge}</span>
                   <div>
                     <div style={{ fontSize: 12, fontWeight: 600, color: T.text, marginBottom: 2 }}>{item.headline}</div>
-                    <div style={{ fontSize: 11, color: T.muted, lineHeight: 1.55, marginBottom: 4 }}>{item.desc}</div>
+                    <div style={{ fontSize: 11, color: T.muted, lineHeight: 1.55, marginBottom: 3 }}>{item.desc}</div>
                     <div style={{ fontSize: 11, color: T.dim }}>{item.when}</div>
                   </div>
                 </div>
@@ -2541,12 +2541,12 @@ function DeliverablePath({ onOpenTool }) {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))", gap: 10 }}>
                 {phaseItems.map(d => (
                   <div key={d.ref} style={{
-                    background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8,
+                    background: T.surface, border: `1px solid ${meta.border}`, borderRadius: 8,
                     padding: "14px 16px", display: "flex", flexDirection: "column", gap: 8,
                     transition: "border-color 0.12s",
                   }}
-                    onMouseEnter={e => e.currentTarget.style.borderColor = T.borderHover}
-                    onMouseLeave={e => e.currentTarget.style.borderColor = T.border}
+                    onMouseEnter={e => e.currentTarget.style.borderColor = meta.color + "60"}
+                    onMouseLeave={e => e.currentTarget.style.borderColor = meta.border}
                   >
                     {/* Name + type badge */}
                     <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
@@ -2930,7 +2930,7 @@ function SkillsLibraryOverlay({ onBack }) {
         </div>
 
         {/* Phase detail panel */}
-        <div style={{ border: `1px solid ${T.border}`, borderTop: "none", borderRadius: "0 0 10px 10px", overflow: "hidden", marginBottom: 20 }}>
+        <div style={{ borderTop: `1px solid ${T.border}`, overflow: "hidden", marginBottom: 20 }}>
           {!selected ? (
             <div style={{ padding: "28px 24px 32px" }}>
               <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.7, margin: 0, maxWidth: 520 }}>
@@ -3403,6 +3403,7 @@ export default function App() {
         .path-grid-item:last-child { border-right: none; }
         .three-ways-badge { display: inline-block; margin-bottom: 8px; }
         .three-ways-row { display: flex; gap: 14px; padding: 12px 14px; }
+        .ways-explainer-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
         .figma-callout-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: nowrap; }
         .deliverable-row { display: flex; align-items: center; padding: 13px 16px; gap: 14px; }
         .deliverable-label { display: inline; }
@@ -3418,6 +3419,7 @@ export default function App() {
           .path-grid-item { border-right: none !important; border-bottom: 1px solid #2C2C2C; }
           .path-grid-item:last-child { border-bottom: none; }
           .three-ways-badge { display: block; margin-bottom: 6px; }
+          .ways-explainer-grid { grid-template-columns: 1fr; gap: 14px; }
           .three-ways-row { flex-direction: column; gap: 8px; }
           .three-ways-badge-wrap { background: none !important; border: none !important; padding: 0 !important; font-size: 10px !important; color: #666 !important; }
           .figma-callout-inner { flex-direction: column; align-items: flex-start; gap: 8px; }
