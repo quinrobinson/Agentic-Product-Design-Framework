@@ -46,22 +46,22 @@ const RAW = "https://raw.githubusercontent.com/quinrobinson/Agentic-Product-Desi
 
 // ── Tool registry ────────────────────────────────────────────────────────────
 const TOOLS = [
-  { id: "brief",              number: "02", phase: "01", name: "AI Brief Generator",          subtitle: "Turn project context into a structured design brief",                             component: AIBriefGenerator },
-  { id: "deck",               number: "03", phase: null, name: "Client Deck Builder",          subtitle: "Build the right presentation for any stage of a project",                        component: ClientDeckBuilder },
-  { id: "design-system",      number: "04", phase: "03", name: "Design System Builder",       subtitle: "Upload, build, or bootstrap a design system for Claude",                         component: DesignSystemBuilder },
+  { id: "brief",              number: "01", phase: "01", name: "AI Brief Generator",          subtitle: "Turn project context into a structured design brief",                             component: AIBriefGenerator },
+  { id: "deck",               number: "02", phase: null, name: "Client Deck Builder",          subtitle: "Build the right presentation for any stage of a project",                        component: ClientDeckBuilder },
+  { id: "design-system",      number: "03", phase: "03", name: "Design System Builder",       subtitle: "Upload, build, or bootstrap a design system for Claude",                         component: DesignSystemBuilder },
   { id: "research-synthesizer",number:"05", phase: "01", name: "Research Synthesizer",        subtitle: "Turn raw interviews into a structured Research Brief",                           component: ResearchSynthesizer },
-  { id: "service-blueprint",  number: "06", phase: "01", name: "Service Blueprint Generator", subtitle: "Map current and future state experiences across five swim lanes",                component: ServiceBlueprintGenerator },
-  { id: "competitive-snapshot", number: "07", phase: "01", name: "Competitive Snapshot Builder", subtitle: "Map the landscape, audit competitors, and find differentiation opportunities",    component: CompetitiveSnapshotBuilder },
-  { id: "problem-framing",      number: "08", phase: "02", name: "Problem Framing",             subtitle: "Generate, pressure-test, and score problem statements + HMW questions",           component: ProblemFramingTool },
-  { id: "journey-mapping",      number: "09", phase: "02", name: "Journey Mapping",             subtitle: "Generate research-grounded journey maps across six lanes with critical moments",  component: JourneyMappingTool },
-  { id: "concept-generator",    number: "10", phase: "03", name: "Concept Generator",          subtitle: "Generate concepts across 5 angles including outside-the-box thinking from unrelated domains", component: ConceptGenerator },
-  { id: "idea-clustering",      number: "11", phase: "03", name: "Idea Clustering",             subtitle: "Transform raw concepts into a strategic landscape — clusters, tensions, and recommendations", component: IdeaClusteringTool },
-  { id: "ux-copy-writer",       number: "12", phase: "04", name: "UX Copy Writer",              subtitle: "Generate complete interface copy — voice brief, flow copy, error states, and empty states",      component: UXCopyWriter },
-  { id: "user-flow-mapper",     number: "13", phase: "04", name: "User Flow Mapper",            subtitle: "Map happy paths, branches, and error states — producing a screen inventory and prototype brief", component: UserFlowMapper },
-  { id: "findings-synthesizer",  number: "14", phase: "05", name: "Findings Synthesizer",        subtitle: "Structure session notes, synthesize across participants, rate severity, and generate a go/no-go decision", component: FindingsSynthesizer },
-  { id: "insight-report",        number: "15", phase: "05", name: "Insight Report Generator",     subtitle: "Generate findings reports for four stakeholder audiences plus an iteration brief for the next prototype cycle", component: InsightReportGenerator },
-  { id: "component-spec",        number: "16", phase: "06", name: "Component Spec Generator",     subtitle: "Generate complete component specs — anatomy, all states, behavior, spacing, and edge cases — ready for developer handoff", component: ComponentSpecGenerator },
-  { id: "design-qa",             number: "17", phase: "06", name: "Design QA Logger",             subtitle: "Structure QA notes into a severity-rated issue log with launch recommendation and developer sign-off checklist", component: DesignQALogger },
+  { id: "service-blueprint",  number: "05", phase: "01", name: "Service Blueprint Generator", subtitle: "Map current and future state experiences across five swim lanes",                component: ServiceBlueprintGenerator },
+  { id: "competitive-snapshot", number: "06", phase: "01", name: "Competitive Snapshot Builder", subtitle: "Map the landscape, audit competitors, and find differentiation opportunities",    component: CompetitiveSnapshotBuilder },
+  { id: "problem-framing",      number: "07", phase: "02", name: "Problem Framing",             subtitle: "Generate, pressure-test, and score problem statements + HMW questions",           component: ProblemFramingTool },
+  { id: "journey-mapping",      number: "08", phase: "02", name: "Journey Mapping",             subtitle: "Generate research-grounded journey maps across six lanes with critical moments",  component: JourneyMappingTool },
+  { id: "concept-generator",    number: "09", phase: "03", name: "Concept Generator",          subtitle: "Generate concepts across 5 angles including outside-the-box thinking from unrelated domains", component: ConceptGenerator },
+  { id: "idea-clustering",      number: "10", phase: "03", name: "Idea Clustering",             subtitle: "Transform raw concepts into a strategic landscape — clusters, tensions, and recommendations", component: IdeaClusteringTool },
+  { id: "ux-copy-writer",       number: "11", phase: "04", name: "UX Copy Writer",              subtitle: "Generate complete interface copy — voice brief, flow copy, error states, and empty states",      component: UXCopyWriter },
+  { id: "user-flow-mapper",     number: "12", phase: "04", name: "User Flow Mapper",            subtitle: "Map happy paths, branches, and error states — producing a screen inventory and prototype brief", component: UserFlowMapper },
+  { id: "findings-synthesizer",  number: "13", phase: "05", name: "Findings Synthesizer",        subtitle: "Structure session notes, synthesize across participants, rate severity, and generate a go/no-go decision", component: FindingsSynthesizer },
+  { id: "insight-report",        number: "14", phase: "05", name: "Insight Report Generator",     subtitle: "Generate findings reports for four stakeholder audiences plus an iteration brief for the next prototype cycle", component: InsightReportGenerator },
+  { id: "component-spec",        number: "15", phase: "06", name: "Component Spec Generator",     subtitle: "Generate complete component specs — anatomy, all states, behavior, spacing, and edge cases — ready for developer handoff", component: ComponentSpecGenerator },
+  { id: "design-qa",             number: "16", phase: "06", name: "Design QA Logger",             subtitle: "Structure QA notes into a severity-rated issue log with launch recommendation and developer sign-off checklist", component: DesignQALogger },
 ];
 
 // ── Skill registry ───────────────────────────────────────────────────────────
@@ -1848,6 +1848,7 @@ function WaysToWorkPath({ onOpenTool }) {
   const [expandedPrompt, setExpandedPrompt] = useState(null);
   const [phaseFilter, setPhaseFilter] = useState("all");
   const [surfaceFilter, setSurfaceFilter] = useState("all");
+  const [toolPhaseFilter, setToolPhaseFilter] = useState("all");
 
   const PHASE_FILTERS = [
     { id: "all", label: "All" },
@@ -1901,26 +1902,49 @@ function WaysToWorkPath({ onOpenTool }) {
   return (
     <div>
       {/* Tabs */}
-      <div style={{ display: "flex", gap: 4, marginBottom: 24, borderBottom: `1px solid ${T.border}`, paddingBottom: 0 }}>
+      <div style={{ display: "flex", gap: 0, marginBottom: 24, borderBottom: `1px solid ${T.border}` }}>
         {[
-          { id: "tools", label: "Tools" },
-          { id: "prompts", label: "Prompts" },
+          { id: "tools", label: "Tools", count: TOOLS.length },
+          { id: "prompts", label: "Prompts", count: PROMPTS.length },
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id)} style={{
-            padding: "8px 16px", background: "none", border: "none",
+            padding: "8px 14px", background: "none", border: "none",
             borderBottom: `2px solid ${tab === t.id ? T.text : "transparent"}`,
-            fontSize: 12, fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
             letterSpacing: "0.07em", textTransform: "uppercase",
             color: tab === t.id ? T.text : T.muted,
             cursor: "pointer", transition: "all 0.15s", marginBottom: -1,
-          }}>{t.label}</button>
+            display: "flex", alignItems: "center", gap: 6,
+          }}>
+            {t.label}
+            <span style={{ fontSize: 9, background: tab === t.id ? "rgba(255,255,255,0.08)" : T.card, color: tab === t.id ? T.muted : T.dim, padding: "1px 5px", borderRadius: 3 }}>{t.count}</span>
+          </button>
         ))}
       </div>
 
       {/* Tools tab */}
-      {tab === "tools" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {TOOLS.map(tool => (
+      {tab === "tools" && (() => {
+        const toolPhaseOptions = [
+          { id: "all", label: "All" },
+          { id: "01", label: "Discover" }, { id: "02", label: "Define" },
+          { id: "03", label: "Ideate" }, { id: "04", label: "Prototype" },
+          { id: "05", label: "Validate" }, { id: "06", label: "Deliver" },
+          { id: "cross", label: "Cross-phase" },
+        ];
+        const filteredTools = TOOLS.filter(t =>
+          toolPhaseFilter === "all" ? true :
+          toolPhaseFilter === "cross" ? t.phase === null :
+          t.phase === toolPhaseFilter
+        );
+        return (
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+            <Mono color={T.dim} size={10}>Phase</Mono>
+            <FilterPills options={toolPhaseOptions} active={toolPhaseFilter} onChange={setToolPhaseFilter} />
+          </div>
+          <div style={{ marginBottom: 12 }}><Mono color={T.dim} size={10}>{filteredTools.length} tool{filteredTools.length !== 1 ? "s" : ""}</Mono></div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {filteredTools.map(tool => (
             <div key={tool.id} style={{
               display: "flex", alignItems: "center", justifyContent: "space-between",
               padding: "16px 18px", background: T.surface, borderRadius: 8,
@@ -1943,24 +1967,33 @@ function WaysToWorkPath({ onOpenTool }) {
               }}>Open →</button>
             </div>
           ))}
+          </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* Prompts tab */}
-      {tab === "prompts" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {PROMPTS.map(prompt => {
-            const isOpen = expandedPrompt === prompt.id;
+      {tab === "prompts" && (() => {
+        const filteredPrompts = phaseFilter === "all" ? PROMPTS : PROMPTS.filter(p => p.phase === phaseFilter);
+        return (
+        <div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 18 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <Mono color={T.dim} size={10}>Phase</Mono>
+              <FilterPills options={PHASE_FILTERS} active={phaseFilter} onChange={setPhaseFilter} />
+            </div>
+          </div>
+          <div style={{ marginBottom: 12 }}><Mono color={T.dim} size={10}>{filteredPrompts.length} prompt{filteredPrompts.length !== 1 ? "s" : ""}</Mono></div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {filteredPrompts.map(prompt => {
+            const phaseColor = T.phases[prompt.phase]?.color || T.muted;
             return (
-              <div key={prompt.id} style={{
-                border: `1px solid ${isOpen ? "#22C55E44" : T.border}`,
-                borderRadius: 8, overflow: "hidden", transition: "border-color 0.15s",
-              }}>
+              <div key={prompt.id} style={{ border: `1px solid ${T.border}`, borderRadius: 8, overflow: "hidden" }}>
                 <button
-                  onClick={() => setExpandedPrompt(isOpen ? null : prompt.id)}
+                  onClick={() => setExpandedPrompt(expandedPrompt === prompt.id ? null : prompt.id)}
                   style={{
                     width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
-                    padding: "14px 18px", background: isOpen ? T.surface : "transparent",
+                    padding: "14px 18px", background: expandedPrompt === prompt.id ? T.surface : "transparent",
                     border: "none", cursor: "pointer", textAlign: "left", gap: 12,
                   }}
                 >
@@ -1971,7 +2004,7 @@ function WaysToWorkPath({ onOpenTool }) {
                     </div>
                     <Mono color={T.dim} size={10}>{prompt.skill}</Mono>
                   </div>
-                  <span style={{ fontSize: 11, color: T.dim, transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s", flexShrink: 0 }}>▾</span>
+                  <span style={{ fontSize: 11, color: T.dim, transform: expandedPrompt === prompt.id ? "rotate(180deg)" : "none", transition: "transform 0.2s", flexShrink: 0 }}>▾</span>
                 </button>
                 {isOpen && (
                   <div style={{ borderTop: `1px solid ${T.border}`, padding: "16px 18px 18px" }}>
@@ -1992,8 +2025,10 @@ function WaysToWorkPath({ onOpenTool }) {
               </div>
             );
           })}
+          </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* Skills tab */}
       {tab === "skills" && (
@@ -2987,13 +3022,14 @@ export default function App() {
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
                   <div style={{
                     width: 6, height: 6, borderRadius: "50%",
-                    background: isActive ? T.text : T.dim,
-                    transition: "background 0.15s",
+                    background: isActive ? item.color : T.dim,
+                    boxShadow: isActive ? `0 0 6px ${item.color}` : "none",
+                    transition: "all 0.15s",
                   }} />
                   <span style={{
                     fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
                     letterSpacing: "0.08em", textTransform: "uppercase",
-                    color: isActive ? T.text : T.muted,
+                    color: isActive ? item.color : T.muted,
                     transition: "color 0.15s",
                   }}>{item.label}</span>
                 </div>
@@ -3003,10 +3039,10 @@ export default function App() {
                 <span style={{
                   fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
                   letterSpacing: "0.07em", textTransform: "uppercase",
-                  color: isActive ? T.muted : T.dim,
+                  color: isActive ? item.color : T.dim,
                   transition: "color 0.15s",
                   marginTop: 14, display: "block",
-                }}>{item.cta}</span>
+                }}>{isActive ? "▲ Active" : item.cta}</span>
               </button>
             );
           })}
