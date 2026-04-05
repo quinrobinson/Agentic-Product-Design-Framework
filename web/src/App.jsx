@@ -3,7 +3,7 @@ import AIBriefGenerator from "./AIBriefGenerator";
 import ClientDeckBuilder from "./ClientDeckBuilder";
 import FigmaSetupGuide from "./FigmaSetupGuide";
 import SkillsLibrary from "./SkillsLibrary";
-import DesignSystemBuilder from "./DesignSystemBuilder";
+import DesignSystemStudio from "./DesignSystemStudio";
 import ResearchSynthesizer from "./ResearchSynthesizer";
 import ServiceBlueprintGenerator from "./ServiceBlueprintGenerator";
 import CompetitiveSnapshotBuilder from "./CompetitiveSnapshotBuilder";
@@ -51,7 +51,7 @@ const RAW = "https://raw.githubusercontent.com/quinrobinson/Agentic-Product-Desi
 const TOOLS = [
   { id: "brief",              number: "01", phase: null, name: "Design Brief Generator",      subtitle: "Turn project context into a Claude-ready design brief",                          component: AIBriefGenerator },
   { id: "deck",               number: "02", phase: null, name: "Client Deck Builder",          subtitle: "Build the right presentation for any stage of a project",                        component: ClientDeckBuilder },
-  { id: "design-system",      number: "03", phase: null, name: "Design System Builder",       subtitle: "Upload, build, or bootstrap a design system for Claude",                         component: DesignSystemBuilder },
+  { id: "design-system",      number: "03", phase: null, name: "Design System Studio",        subtitle: "Build or audit a complete design system with live previews",                     component: DesignSystemStudio },
   { id: "research-synthesizer",number:"05", phase: "01", name: "Research Synthesizer",        subtitle: "Turn raw interviews into a structured Research Brief",                           component: ResearchSynthesizer },
   { id: "service-blueprint",  number: "05", phase: "01", name: "Service Blueprint Generator", subtitle: "Map current and future state experiences across five swim lanes",                component: ServiceBlueprintGenerator },
   { id: "competitive-snapshot", number: "06", phase: "01", name: "Competitive Snapshot Builder", subtitle: "Map the landscape, audit competitors, and find differentiation opportunities",    component: CompetitiveSnapshotBuilder },
@@ -1270,7 +1270,7 @@ const DELIVERABLES = [
   // Ideate
   { phase: "03", name: "Concept Set",             type: "tool",   ref: "concept-generator",       label: "Concept Generator",              desc: "Generates concepts across five thinking angles including First Principles, Analogous, and Worst Idea First — breaking out of obvious directions.", output: "Named concept cards with strengths and risks" },
   { phase: "03", name: "Cluster Map",             type: "tool",   ref: "idea-clustering",         label: "Idea Clustering",                desc: "Groups a raw concept set by underlying strategic mechanism — not surface similarity — and maps tensions and gaps.", output: "Strategic landscape with recommended directions" },
-  { phase: null, name: "Design System",           type: "tool",   ref: "design-system",           label: "Design System Builder",          desc: "Live token editor with presets and component previews. Set brand colors, type, and spacing — export CSS ready to drop into Figma.", output: "CSS tokens + client delivery checklist" },
+  { phase: null, name: "Design System",           type: "tool",   ref: "design-system",           label: "Design System Studio",           desc: "Choose a theme, customize tokens, preview 14 core components live — export CSS with --apdf-* naming ready for Figma.", output: "Complete design system tokens + component previews" },
   // Prototype
   { phase: "04", name: "UX Copy",                 type: "tool",   ref: "ux-copy-writer",          label: "UX Copy Writer",                 desc: "Locks voice and tone first, then writes all flow copy, error states, empty states, and confirmations — grounded in the brief.", output: "Complete copy document for prototyping" },
   { phase: "04", name: "User Flow",               type: "tool",   ref: "user-flow-mapper",        label: "User Flow Mapper",               desc: "Maps the happy path, every branch, and every error state — producing a screen inventory and scoped prototype brief.", output: "Screen inventory + prototype brief" },
