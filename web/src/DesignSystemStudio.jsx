@@ -796,6 +796,7 @@ export default function DesignSystemStudio() {
   const [copied, setCopied] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [promptCopied, setPromptCopied] = useState(null);
+  const [figmaPath, setFigmaPath] = useState("export");
 
   const applyTheme = useCallback((key) => {
     setActiveTheme(key);
@@ -1171,72 +1172,115 @@ and a copy-paste remediation prompt for each finding.`;
                 </div>
               </div>
 
-              {/* ── EXPORT PATH ── */}
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#22C55E" }} />
-                  <div style={{ fontSize: 16, fontWeight: 600, color: C.text }}>Export to Figma</div>
-                  <div style={{ fontSize: 12, color: C.dim, fontStyle: "italic" }}>I built a system in the Studio</div>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 20 }}>
-                  <Step num="1" title="Configure your system" desc="Use the Themes and Tokens tabs to set your colors, typography, spacing, and shape. Preview components to verify everything looks right." />
-                  <Step num="2" title="Copy the export prompt below" desc="It includes your active theme's token values. Paste it into a Claude Code session with your Figma file URL." />
-                  <Step num="3" title="Claude creates your Figma variables" desc="Three variable collections (Reference, System, Component), text styles, and optionally component scaffolds — all linked by aliases, not hard-coded values." />
-                </div>
-
-                <div style={{ background: C.card, borderRadius: 10, border: `1px solid ${C.border}`, overflow: "hidden" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderBottom: `1px solid ${C.border}` }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, color: C.text }}>Export prompt — {tokens.name} theme</div>
-                    <button onClick={() => copyPrompt("export", exportPrompt)} style={{
-                      padding: "5px 14px", borderRadius: 6, border: `1px solid ${C.border}`,
-                      background: promptCopied === "export" ? alpha("#22C55E", 0.08) : "transparent",
-                      color: promptCopied === "export" ? "#22C55E" : C.text, fontSize: 11, cursor: "pointer",
-                      fontFamily: "'JetBrains Mono', monospace", transition: "all 0.15s",
-                    }}>{promptCopied === "export" ? "Copied ✓" : "Copy prompt"}</button>
-                  </div>
-                  <pre style={{ padding: 16, fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: C.sub, lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 260, overflow: "auto", margin: 0 }}>{exportPrompt}</pre>
-                </div>
-
-                <div style={{ fontSize: 12, color: C.dim, marginTop: 10 }}>
-                  Full workflow details: <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>skills/figma-ds-export.md</span>
-                </div>
+              {/* Option Picker */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                {[
+                  { id: "export", label: "Export to Figma", desc: "Bring what you built in the Studio into your Figma file" },
+                  { id: "audit", label: "Audit your Figma system", desc: "Evaluate an existing Figma design system against industry standards" },
+                ].map(opt => {
+                  const isActive = figmaPath === opt.id;
+                  return (
+                    <button key={opt.id} onClick={() => setFigmaPath(opt.id)} style={{
+                      padding: "16px 18px", borderRadius: 10, cursor: "pointer", textAlign: "left",
+                      border: `1.5px solid ${isActive ? C.text : C.border}`,
+                      background: isActive ? C.bgSub : C.card,
+                      transition: "all 0.15s",
+                    }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: C.text, marginBottom: 4 }}>{opt.label}</div>
+                      <div style={{ fontSize: 13, color: C.sub, lineHeight: 1.4 }}>{opt.desc}</div>
+                    </button>
+                  );
+                })}
               </div>
 
-              {/* Divider */}
-              <div style={{ borderTop: `1px solid ${C.border}` }} />
+              {/* ── EXPORT PATH ── */}
+              {figmaPath === "export" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  {/* Build summary */}
+                  <div style={{ background: C.bgSub, borderRadius: 10, padding: 20, border: `1px solid ${C.border}` }}>
+                    <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: C.dim, marginBottom: 14, textTransform: "uppercase", letterSpacing: 1.5 }}>Your system — {tokens.name} theme</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+                      <div>
+                        <div style={{ fontSize: 12, color: C.dim, marginBottom: 6 }}>Colors</div>
+                        <div style={{ display: "flex", gap: 4, marginBottom: 6 }}>
+                          {[tokens.primary, tokens.secondary, tokens.accent, tokens.success, tokens.warning, tokens.error].map((c, i) => (
+                            <div key={i} style={{ width: 22, height: 22, borderRadius: 4, background: c }} />
+                          ))}
+                        </div>
+                        <div style={{ fontSize: 11, color: C.sub }}>6 semantic colors + neutrals</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 12, color: C.dim, marginBottom: 6 }}>Typography</div>
+                        <div style={{ fontSize: 13, fontWeight: 500, color: C.text, fontFamily: tokens.fontHeading, marginBottom: 2 }}>{tokens.fontHeading.split("'")[1] || "System"}</div>
+                        <div style={{ fontSize: 11, color: C.sub }}>{tokens.baseSize}px base · {tokens.scaleRatio} ratio</div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 12, color: C.dim, marginBottom: 6 }}>Shape & spacing</div>
+                        <div style={{ display: "flex", gap: 4, alignItems: "center", marginBottom: 2 }}>
+                          <div style={{ width: 20, height: 14, borderRadius: tokens.radiusSm, border: `1.5px solid ${C.text}` }} />
+                          <div style={{ width: 20, height: 14, borderRadius: tokens.radiusMd, border: `1.5px solid ${C.text}` }} />
+                          <div style={{ width: 20, height: 14, borderRadius: tokens.radiusLg, border: `1.5px solid ${C.text}` }} />
+                        </div>
+                        <div style={{ fontSize: 11, color: C.sub }}>{tokens.spaceUnit}px grid · r{tokens.radiusSm}/{tokens.radiusMd}/{tokens.radiusLg}</div>
+                      </div>
+                    </div>
+                    <div style={{ borderTop: `1px solid ${C.border}`, marginTop: 14, paddingTop: 12, fontSize: 12, color: C.sub }}>
+                      24 components · 3 variable collections (Reference → System → Component) · Light + Dark modes · {tokens.name} archetype
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    <Step num="1" title="Configure your system" desc="Use the Themes and Tokens tabs to set your colors, typography, spacing, and shape. Preview components to verify everything looks right." />
+                    <Step num="2" title="Copy the export prompt below" desc="It includes your active theme's token values. Paste it into a Claude Code session with your Figma file URL." />
+                    <Step num="3" title="Claude creates your Figma variables" desc="Three variable collections (Reference, System, Component), text styles, and optionally component scaffolds — all linked by aliases, not hard-coded values." />
+                  </div>
+
+                  <div style={{ background: C.card, borderRadius: 10, border: `1px solid ${C.border}`, overflow: "hidden" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderBottom: `1px solid ${C.border}` }}>
+                      <div style={{ fontSize: 13, fontWeight: 500, color: C.text }}>Export prompt — {tokens.name} theme</div>
+                      <button onClick={() => copyPrompt("export", exportPrompt)} style={{
+                        padding: "5px 14px", borderRadius: 6, border: `1px solid ${C.border}`,
+                        background: promptCopied === "export" ? alpha("#22C55E", 0.08) : "transparent",
+                        color: promptCopied === "export" ? "#22C55E" : C.text, fontSize: 11, cursor: "pointer",
+                        fontFamily: "'JetBrains Mono', monospace", transition: "all 0.15s",
+                      }}>{promptCopied === "export" ? "Copied ✓" : "Copy prompt"}</button>
+                    </div>
+                    <pre style={{ padding: 16, fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: C.sub, lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 260, overflow: "auto", margin: 0 }}>{exportPrompt}</pre>
+                  </div>
+
+                  <div style={{ fontSize: 12, color: C.dim }}>
+                    Full workflow details: <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>skills/figma-ds-export.md</span>
+                  </div>
+                </div>
+              )}
 
               {/* ── AUDIT PATH ── */}
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: "#8B5CF6" }} />
-                  <div style={{ fontSize: 16, fontWeight: 600, color: C.text }}>Audit your Figma system</div>
-                  <div style={{ fontSize: 12, color: C.dim, fontStyle: "italic" }}>I already have a design system</div>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 20 }}>
-                  <Step num="1" title="Open your Figma file" desc="The file should contain your design system — variables, text styles, color styles, and component sets. Have the desktop app running." />
-                  <Step num="2" title="Copy the audit prompt below" desc="Paste it into Claude Code with your Figma file URL. Claude reads your system via MCP — you don't need to export anything." />
-                  <Step num="3" title="Review the gap analysis" desc="Claude scores your system across foundations, typography, components, accessibility, and documentation. Each gap includes a severity level and a remediation prompt you can run immediately." />
-                </div>
-
-                <div style={{ background: C.card, borderRadius: 10, border: `1px solid ${C.border}`, overflow: "hidden" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderBottom: `1px solid ${C.border}` }}>
-                    <div style={{ fontSize: 13, fontWeight: 500, color: C.text }}>Audit prompt</div>
-                    <button onClick={() => copyPrompt("audit", auditPrompt)} style={{
-                      padding: "5px 14px", borderRadius: 6, border: `1px solid ${C.border}`,
-                      background: promptCopied === "audit" ? alpha("#22C55E", 0.08) : "transparent",
-                      color: promptCopied === "audit" ? "#22C55E" : C.text, fontSize: 11, cursor: "pointer",
-                      fontFamily: "'JetBrains Mono', monospace", transition: "all 0.15s",
-                    }}>{promptCopied === "audit" ? "Copied ✓" : "Copy prompt"}</button>
+              {figmaPath === "audit" && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                    <Step num="1" title="Open your Figma file" desc="The file should contain your design system — variables, text styles, color styles, and component sets. Have the desktop app running." />
+                    <Step num="2" title="Copy the audit prompt below" desc="Paste it into Claude Code with your Figma file URL. Claude reads your system via MCP — you don't need to export anything." />
+                    <Step num="3" title="Review the gap analysis" desc="Claude scores your system across foundations, typography, components, accessibility, and documentation. Each gap includes a severity level and a remediation prompt you can run immediately." />
                   </div>
-                  <pre style={{ padding: 16, fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: C.sub, lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 260, overflow: "auto", margin: 0 }}>{auditPrompt}</pre>
-                </div>
 
-                <div style={{ fontSize: 12, color: C.dim, marginTop: 10 }}>
-                  Full workflow details: <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>skills/figma-ds-audit.md</span>
+                  <div style={{ background: C.card, borderRadius: 10, border: `1px solid ${C.border}`, overflow: "hidden" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderBottom: `1px solid ${C.border}` }}>
+                      <div style={{ fontSize: 13, fontWeight: 500, color: C.text }}>Audit prompt</div>
+                      <button onClick={() => copyPrompt("audit", auditPrompt)} style={{
+                        padding: "5px 14px", borderRadius: 6, border: `1px solid ${C.border}`,
+                        background: promptCopied === "audit" ? alpha("#22C55E", 0.08) : "transparent",
+                        color: promptCopied === "audit" ? "#22C55E" : C.text, fontSize: 11, cursor: "pointer",
+                        fontFamily: "'JetBrains Mono', monospace", transition: "all 0.15s",
+                      }}>{promptCopied === "audit" ? "Copied ✓" : "Copy prompt"}</button>
+                    </div>
+                    <pre style={{ padding: 16, fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: C.sub, lineHeight: 1.6, whiteSpace: "pre-wrap", maxHeight: 260, overflow: "auto", margin: 0 }}>{auditPrompt}</pre>
+                  </div>
+
+                  <div style={{ fontSize: 12, color: C.dim }}>
+                    Full workflow details: <span style={{ fontFamily: "'JetBrains Mono', monospace" }}>skills/figma-ds-audit.md</span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           );
         })()}
