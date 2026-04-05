@@ -895,18 +895,12 @@ export default function DesignSystemStudio() {
             {/* Block 2 — Two path cards */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 40, maxWidth: 900, margin: "0 auto 40px" }}>
               <div onClick={() => setSection("themes")} style={{ background: "#1A1A1A", borderRadius: 10, padding: "28px", border: "1px solid #2A2A2A", cursor: "pointer", transition: "all 0.15s" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: "#0F0F0F", border: "1px solid #444444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#999999" }}>◆</div>
-                  <div style={{ fontSize: 16, fontWeight: 600, color: "#F5F5F5" }}>I need a design system</div>
-                </div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: "#F5F5F5", marginBottom: 12 }}>I need a design system</div>
                 <p style={{ fontSize: 14, color: "#999999", lineHeight: 1.5, margin: "0 0 16px" }}>Choose a theme, customize tokens, preview 24 components live, and export to CSS or push to Figma.</p>
                 <span style={{ fontSize: 12, fontWeight: 500, color: "#F5F5F5", fontFamily: "'JetBrains Mono', monospace" }}>Start building →</span>
               </div>
               <div onClick={() => setSection("figma")} style={{ background: "#1A1A1A", borderRadius: 10, padding: "28px", border: "1px solid #2A2A2A", cursor: "pointer", transition: "all 0.15s" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: "#0F0F0F", border: "1px solid #444444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#999999" }}>◎</div>
-                  <div style={{ fontSize: 16, fontWeight: 600, color: "#F5F5F5" }}>I already have one</div>
-                </div>
+                <div style={{ fontSize: 16, fontWeight: 600, color: "#F5F5F5", marginBottom: 12 }}>I already have one</div>
                 <p style={{ fontSize: 14, color: "#999999", lineHeight: 1.5, margin: "0 0 16px" }}>Connect your Figma file via MCP. Claude reads your system and scores it against industry standards.</p>
                 <span style={{ fontSize: 12, fontWeight: 500, color: "#F5F5F5", fontFamily: "'JetBrains Mono', monospace" }}>Run an audit →</span>
               </div>
@@ -974,23 +968,24 @@ export default function DesignSystemStudio() {
                     {isActive && <div style={{ position: "absolute", top: 12, right: 12, fontSize: 12, padding: "3px 10px", borderRadius: 99, background: C.bgSub, color: C.sub, fontFamily: "'JetBrains Mono', monospace", fontWeight: 500, border: `1px solid ${C.border}` }}>Active</div>}
                     <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4, color: C.text }}>{theme.name}</div>
                     <div style={{ fontSize: 14, color: C.sub, marginBottom: 14, lineHeight: 1.4 }}>{theme.desc}</div>
-                    {/* Color swatches */}
-                    <div style={{ display: "flex", gap: 5, marginBottom: 12 }}>
-                      {[theme.primary, theme.secondary, theme.accent, theme.success, theme.error].map((c, i) => (
-                        <div key={i} style={{ width: 28, height: 28, borderRadius: 6, background: c }} />
-                      ))}
+                    {/* Color swatches — weighted */}
+                    <div style={{ display: "flex", gap: 4, alignItems: "flex-end", marginBottom: 14 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 6, background: theme.primary }} />
+                      <div style={{ width: 36, height: 36, borderRadius: 6, background: theme.secondary }} />
+                      <div style={{ width: 20, height: 20, borderRadius: 4, background: theme.accent }} />
+                      <div style={{ width: 20, height: 20, borderRadius: 4, background: theme.success }} />
+                      <div style={{ width: 20, height: 20, borderRadius: 4, background: theme.error }} />
                     </div>
-                    {/* Font + Radius preview */}
+                    {/* Font preview */}
+                    <div style={{ marginBottom: 12, padding: "10px 12px", background: theme.surface, borderRadius: theme.radiusMd, border: `1px solid ${theme.border}` }}>
+                      <div style={{ fontFamily: theme.fontHeading, fontWeight: theme.headingWeight, fontSize: 15, color: theme.textPrimary, marginBottom: 3, lineHeight: 1.2 }}>Heading text</div>
+                      <div style={{ fontFamily: theme.fontBody, fontSize: 12, color: theme.textSecondary, lineHeight: 1.4 }}>Body text in {theme.fontBody.split("'")[1] || "system"}</div>
+                    </div>
+                    {/* Meta */}
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span style={{ fontSize: 12, color: C.sub, fontFamily: "'JetBrains Mono', monospace" }}>
-                        {theme.fontHeading.split("'")[1] || "Inter"} · r{theme.radiusMd}
-                      </span>
-                      <div style={{ display: "flex", gap: 3 }}>
-                        <div style={{ width: 46, height: 22, borderRadius: theme.radiusMd, background: theme.primary, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10, color: contrastOn(theme.primary), fontWeight: 500 }}>Aa</div>
-                        <div style={{ width: 22, height: 22, borderRadius: theme.radiusMd, border: `1.5px solid ${theme.primary}` }} />
-                      </div>
+                      <span style={{ fontSize: 11, color: C.dim }}>{theme.archetype}</span>
+                      <span style={{ fontSize: 11, color: C.dim, fontFamily: "'JetBrains Mono', monospace" }}>r{theme.radiusMd}</span>
                     </div>
-                    <div style={{ fontSize: 12, color: C.dim, marginTop: 10 }}>{theme.archetype}</div>
                   </div>
                 );
               })}
