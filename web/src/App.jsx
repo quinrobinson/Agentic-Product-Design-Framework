@@ -108,6 +108,8 @@ const SKILL_FILES = [
   { file: "design-delivery.md",        phase: "06", leverage: "high", surface: "chat + code",    desc: "Produces component specs, platform handoff packages, design decision records, and release notes." },
   { file: "design-systems.md",         phase: null, leverage: "high", surface: "chat + code",    desc: "Audits any product against Material Design 3, Atlassian, Carbon, and Apple HIG." },
   { file: "figma-playbook.md",         phase: null, leverage: "high", surface: "code + figma mcp",desc: "Step-by-step Figma MCP execution patterns for every phase — research boards through spec annotations." },
+  { file: "figma-ds-export.md",        phase: null, leverage: "high", surface: "code + figma mcp",desc: "Export --apdf-* tokens from the Design System Studio to Figma as variable collections, text styles, and component scaffolds." },
+  { file: "figma-ds-audit.md",         phase: null, leverage: "high", surface: "code + figma mcp",desc: "Audit an existing Figma design system via MCP — scoring foundations, typography, components, and accessibility against industry standards." },
   { file: "phase-handoff.md",          phase: null, leverage: "high", surface: "chat",           desc: "Generates a structured handoff block at the close of each phase — full context for the next." },
 ];
 

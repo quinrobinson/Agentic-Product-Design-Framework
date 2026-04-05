@@ -31,6 +31,8 @@ const SKILL_META = {
   "design-delivery.md": { phase: "06", leverage: "high", surface: "chat + code", desc: "Produces component specs, platform-specific handoff packages for iOS/Android/Web, design decision records, and release notes — everything a developer needs to build it right." },
   "design-systems.md": { phase: null, leverage: "high", surface: "chat + code", desc: "Audits any product against Material Design 3, Atlassian, IBM Carbon, and Apple HIG — then documents tokens using M3 naming conventions and sets up Figma variable collections." },
   "figma-playbook.md": { phase: null, leverage: "high", surface: "code + figma mcp", desc: "Gives Claude step-by-step Figma MCP execution patterns for every phase — research boards, journey maps, wireframes, components, spec annotations, and decision records in your file." },
+  "figma-ds-export.md": { phase: null, leverage: "high", surface: "code + figma mcp", desc: "Exports --apdf-* tokens from the Design System Studio to Figma as three variable collections (Reference, System, Component), text styles, and optional component scaffolds." },
+  "figma-ds-audit.md": { phase: null, leverage: "high", surface: "code + figma mcp", desc: "Audits an existing Figma design system via MCP — reads variables, styles, and components, then scores against Material, Atlassian, Carbon, and HIG criteria with a severity-rated gap analysis." },
   "phase-handoff.md": { phase: null, leverage: "high", surface: "chat", desc: "Generates a structured handoff block at the close of each phase that you paste into the next conversation — so Claude carries full project context across all six phases without re-briefing." },
   "skill-chaining.md": { phase: null, leverage: "high", surface: "chat", desc: "Chains all six phases into one continuous AI-assisted workflow using handoff blocks — turning separate Claude conversations into a single thread from research through delivery." },
 };
@@ -42,7 +44,7 @@ const SKILLS = [
   { phase: "04", dir: "04-prototype", files: ["prototyping.md", "accessibility-audit.md"] },
   { phase: "05", dir: "05-validate", files: ["usability-testing.md"] },
   { phase: "06", dir: "06-deliver", files: ["design-delivery.md"] },
-  { phase: null, dir: "", files: ["design-systems.md", "figma-playbook.md", "phase-handoff.md", "skill-chaining.md"] },
+  { phase: null, dir: "", files: ["design-systems.md", "figma-playbook.md", "figma-ds-export.md", "figma-ds-audit.md", "phase-handoff.md", "skill-chaining.md"] },
 ];
 
 const PHASE_FILTERS = [
@@ -74,6 +76,8 @@ const ALL_SKILL_FILES = [
   { path: "06-deliver/design-system-audit.md",      zipPath: "design-system-audit/SKILL.md" },
   { path: "design-systems.md",                      zipPath: "design-systems/SKILL.md" },
   { path: "figma-playbook.md",                      zipPath: "figma-playbook/SKILL.md" },
+  { path: "figma-ds-export.md",                     zipPath: "figma-ds-export/SKILL.md" },
+  { path: "figma-ds-audit.md",                      zipPath: "figma-ds-audit/SKILL.md" },
   { path: "phase-handoff.md",                       zipPath: "phase-handoff/SKILL.md" },
   { path: "skill-chaining.md",                      zipPath: "skill-chaining/SKILL.md" },
 ];
