@@ -839,7 +839,7 @@ export default function DesignSystemStudio() {
 
   // T = dark header/tabs, C = light content area
   const T = {
-    dark: "#2A2A2A", card: "#333333", border: "#404040",
+    dark: "#0F0F0F", card: "#1A1A1A", border: "#2A2A2A",
     text: "#F5F5F5", dim: "#999999", dimmer: "#777777",
   };
   const C = {
@@ -851,7 +851,7 @@ export default function DesignSystemStudio() {
   const fontsUrl = `https://fonts.googleapis.com/css2?family=${tokens.fonts}&display=swap`;
 
   return (
-    <div style={{ fontFamily: "'DM Sans', sans-serif", background: section === "overview" ? "#2A2A2A" : C.bg, minHeight: "100vh", color: C.text }}>
+    <div style={{ fontFamily: "'DM Sans', sans-serif", background: section === "overview" ? "#0F0F0F" : C.bg, minHeight: "100vh", color: C.text }}>
       <link href={fontsUrl} rel="stylesheet" />
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
@@ -872,7 +872,7 @@ export default function DesignSystemStudio() {
       </div>
 
       {/* Section Nav */}
-      <div style={{ background: T.dark, borderBottom: `1px solid ${section === "overview" ? "#404040" : C.border}`, padding: "0 24px" }}>
+      <div style={{ background: T.dark, borderBottom: `1px solid ${section === "overview" ? "#2A2A2A" : C.border}`, padding: "0 24px" }}>
         <div style={{ maxWidth: 1200, margin: "0 auto", display: "flex", gap: 0, justifyContent: "center" }}>
           {SECTIONS.map(s => (
             <button key={s} onClick={() => setSection(s)} style={{
@@ -891,7 +891,7 @@ export default function DesignSystemStudio() {
 
         {/* ─── OVERVIEW ─── */}
         {section === "overview" && (
-          <div style={{ margin: "-24px -24px -48px", background: "#2A2A2A", padding: "48px 48px 56px", minHeight: "calc(100vh - 120px)" }}>
+          <div style={{ margin: "-24px -24px -48px", background: "#0F0F0F", padding: "48px 48px 56px", minHeight: "calc(100vh - 120px)" }}>
             {/* Block 1 — Hero with illustration */}
             <div style={{ textAlign: "center", marginBottom: 40 }}>
               {/* Design System illustration */}
@@ -947,17 +947,17 @@ export default function DesignSystemStudio() {
 
             {/* Block 2 — Two path cards */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 40, maxWidth: 900, margin: "0 auto 40px" }}>
-              <div onClick={() => setSection("themes")} style={{ background: "#333333", borderRadius: 10, padding: "28px", border: "1px solid #444444", cursor: "pointer", transition: "all 0.15s" }}>
+              <div onClick={() => setSection("themes")} style={{ background: "#1A1A1A", borderRadius: 10, padding: "28px", border: "1px solid #2A2A2A", cursor: "pointer", transition: "all 0.15s" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: "#2A2A2A", border: "1px solid #444444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#999999" }}>◆</div>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: "#0F0F0F", border: "1px solid #444444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#999999" }}>◆</div>
                   <div style={{ fontSize: 16, fontWeight: 600, color: "#F5F5F5" }}>I need a design system</div>
                 </div>
                 <p style={{ fontSize: 14, color: "#999999", lineHeight: 1.5, margin: "0 0 16px" }}>Choose a theme, customize tokens, preview 24 components live, and export to CSS or push to Figma.</p>
                 <span style={{ fontSize: 12, fontWeight: 500, color: "#F5F5F5", fontFamily: "'JetBrains Mono', monospace" }}>Start building →</span>
               </div>
-              <div onClick={() => setSection("figma")} style={{ background: "#333333", borderRadius: 10, padding: "28px", border: "1px solid #444444", cursor: "pointer", transition: "all 0.15s" }}>
+              <div onClick={() => setSection("figma")} style={{ background: "#1A1A1A", borderRadius: 10, padding: "28px", border: "1px solid #2A2A2A", cursor: "pointer", transition: "all 0.15s" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                  <div style={{ width: 32, height: 32, borderRadius: 8, background: "#2A2A2A", border: "1px solid #444444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#999999" }}>◎</div>
+                  <div style={{ width: 32, height: 32, borderRadius: 8, background: "#0F0F0F", border: "1px solid #444444", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: "#999999" }}>◎</div>
                   <div style={{ fontSize: 16, fontWeight: 600, color: "#F5F5F5" }}>I already have one</div>
                 </div>
                 <p style={{ fontSize: 14, color: "#999999", lineHeight: 1.5, margin: "0 0 16px" }}>Connect your Figma file via MCP. Claude reads your system and scores it against industry standards.</p>
@@ -977,7 +977,7 @@ export default function DesignSystemStudio() {
                   { tab: "export", step: "05", label: "Export", desc: "Copy CSS properties" },
                   { tab: "figma", step: "06", label: "Figma", desc: "Push via MCP" },
                 ].map((s, i) => (
-                  <div key={s.tab} onClick={() => setSection(s.tab)} style={{ flex: 1, background: "#333333", borderRadius: 8, padding: "16px 12px", border: "1px solid #444444", cursor: "pointer", textAlign: "center", transition: "all 0.15s", position: "relative" }}>
+                  <div key={s.tab} onClick={() => setSection(s.tab)} style={{ flex: 1, background: "#1A1A1A", borderRadius: 8, padding: "16px 12px", border: "1px solid #2A2A2A", cursor: "pointer", textAlign: "center", transition: "all 0.15s", position: "relative" }}>
                     <div style={{ fontSize: 9, fontWeight: 600, color: "#777777", fontFamily: "'JetBrains Mono', monospace", marginBottom: 8 }}>{s.step}</div>
                     <div style={{ fontSize: 13, fontWeight: 600, color: "#F5F5F5", marginBottom: 4 }}>{s.label}</div>
                     <div style={{ fontSize: 11, color: "#999999", lineHeight: 1.3 }}>{s.desc}</div>
@@ -997,7 +997,7 @@ export default function DesignSystemStudio() {
                   { value: "apdf-*", label: "Tokens", desc: "Three-layer architecture — ref, sys, comp" },
                   { value: "MCP", label: "Figma", desc: "Variables, text styles, and component scaffolds" },
                 ].map((item, i) => (
-                  <div key={i} style={{ background: "#333333", borderRadius: 8, padding: "18px 16px", border: "1px solid #444444" }}>
+                  <div key={i} style={{ background: "transparent", borderRadius: 8, padding: "18px 16px", border: "1px solid #2A2A2A" }}>
                     <div style={{ fontSize: 22, fontWeight: 600, color: "#F5F5F5", fontFamily: "'JetBrains Mono', monospace", marginBottom: 6 }}>{item.value}</div>
                     <div style={{ fontSize: 13, fontWeight: 600, color: "#F5F5F5", marginBottom: 6 }}>{item.label}</div>
                     <div style={{ fontSize: 12, color: "#999999", lineHeight: 1.4 }}>{item.desc}</div>
