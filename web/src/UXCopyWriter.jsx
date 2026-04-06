@@ -18,7 +18,7 @@ async function callClaude(system, user, onChunk) {
   const res = await fetch("/api/claude", {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "claude-sonnet-4-20250514", max_tokens: 1000, stream: true,
+      model: "claude-sonnet-4-5-20250514", max_tokens: 1000, stream: true,
       system, messages: [{ role: "user", content: user }],
     }),
   });

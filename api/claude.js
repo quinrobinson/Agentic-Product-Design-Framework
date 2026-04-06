@@ -32,6 +32,14 @@ export default async function handler(req) {
     body: JSON.stringify(body),
   });
 
+  if (!response.ok) {
+    const errorText = await response.text();
+    return new Response(errorText, {
+      status: response.status,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+    });
+  }
+
   return new Response(response.body, {
     status: response.status,
     headers: {

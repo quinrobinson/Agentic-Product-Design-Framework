@@ -298,7 +298,7 @@ export default function ClientDeckBuilder() {
     try {
       const res = await fetch("/api/claude", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, messages: [{ role: "user", content: buildPrompt(form) }] }),
+        body: JSON.stringify({ model: "claude-sonnet-4-5-20250514", max_tokens: 1000, messages: [{ role: "user", content: buildPrompt(form) }] }),
       });
       if (!res.ok) throw new Error(`API error: ${res.status}`);
       const data = await res.json();
