@@ -1,422 +1,162 @@
 import { useState } from "react";
 
 const T = {
-  bg: "#0F0F0F", surface: "#161616", card: "#1C1C1C", border: "#2A2A2A",
-  text: "#F2F2F2", muted: "#999999", dim: "#666666",
-  proto: "#3B82F6", protoDim: "rgba(59,130,246,0.12)", protoBorder: "rgba(59,130,246,0.25)",
+  bg: "#0F0F0F", surface: "#161616", card: "#1A1A1A",
+  border: "#2C2C2C", text: "#F2F2F2", muted: "#999999", dim: "#787878",
+  accent: "#3B82F6",
+  font: { sans: "'DM Sans', sans-serif", mono: "'JetBrains Mono', monospace" },
 };
 
-const STEPS = [
-  { id: 1, label: "Screens",    short: "Screen inventory input"   },
-  { id: 2, label: "Components", short: "Identify + group"         },
-  { id: 3, label: "Variants",   short: "Variant matrix"           },
-  { id: 4, label: "Tokens",     short: "Token assignment"         },
-  { id: 5, label: "Brief",      short: "Build brief + handoff"    },
-];
-
-function PromptPanel({ promptText, pastedResult, setPastedResult }) {
-  const [copied, setCopied] = useState(false);
-  if (!promptText) return null;
+function Textarea({ value, onChange, placeholder, rows = 4 }) {
   return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "16px 18px", marginTop: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.proto }}>
-          Prompt ready — copy and run in Claude
-        </span>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            onClick={() => { navigator.clipboard.writeText(promptText); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-            style={{ padding: "6px 14px", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, cursor: "pointer", borderRadius: 6, border: `1.5px solid ${T.proto}`, background: copied ? T.proto : "transparent", color: copied ? "#fff" : T.proto, transition: "all 0.15s" }}
-          >{copied ? "✓ Copied" : "Copy Prompt"}</button>
-          <a href="https://claude.ai" target="_blank" rel="noopener noreferrer"
-            style={{ padding: "6px 14px", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, borderRadius: 6, border: `1.5px solid ${T.border}`, color: T.muted, textDecoration: "none", display: "inline-block" }}
-          >Open Claude.ai →</a>
-        </div>
-      </div>
-      <pre style={{ whiteSpace: "pre-wrap", fontSize: 12, lineHeight: 1.7, color: T.text, fontFamily: "'DM Sans', sans-serif", margin: 0, maxHeight: 320, overflowY: "auto" }}>{promptText}</pre>
-      <div style={{ marginTop: 16 }}>
-        <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.muted, marginBottom: 8 }}>Paste Claude's response here</div>
-        <textarea
-          value={pastedResult} onChange={e => setPastedResult(e.target.value)}
-          placeholder="Run the prompt in Claude, then paste the result here to continue…" rows={6}
-          style={{ width: "100%", boxSizing: "border-box", background: T.bg, border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px", color: T.text, fontSize: 13, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none" }}
-          onFocus={e => e.target.style.borderColor = T.proto} onBlur={e => e.target.style.borderColor = T.border}
-        />
-      </div>
-    </div>
+    <textarea
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      rows={rows}
+      style={{
+        width: "100%", boxSizing: "border-box", background: T.surface,
+        border: `1px solid ${T.border}`, borderRadius: 8, color: T.text,
+        fontFamily: T.font.sans, fontSize: 14, padding: "10px 12px",
+        resize: "vertical", outline: "none",
+      }}
+    />
   );
-}
-
-function Label({ children, sub }) {
-  return <div style={{ marginBottom: sub ? 4 : 8 }}><span style={{ fontSize: sub ? 11 : 12, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.07em", textTransform: "uppercase", color: sub ? T.muted : T.proto }}>{children}</span></div>;
-}
-
-function Textarea({ value, onChange, placeholder, rows = 5, disabled }) {
-  return <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows} disabled={disabled} style={{ width: "100%", boxSizing: "border-box", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px", color: T.text, fontSize: 13, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none", opacity: disabled ? 0.5 : 1, transition: "border-color 0.15s" }} onFocus={e => e.target.style.borderColor = T.proto} onBlur={e => e.target.style.borderColor = T.border} />;
-}
-
-function Btn({ children, onClick, disabled, variant = "primary", small }) {
-  const p = variant === "primary";
-  return <button onClick={onClick} disabled={disabled} style={{ padding: small ? "7px 14px" : "10px 20px", fontSize: small ? 11 : 13, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, cursor: disabled ? "not-allowed" : "pointer", borderRadius: 6, border: "1.5px solid", borderColor: p ? T.proto : T.border, background: p ? T.proto : "transparent", color: p ? "#fff" : T.muted, opacity: disabled ? 0.4 : 1, transition: "all 0.15s" }} onMouseEnter={e => { if (!disabled) e.currentTarget.style.opacity = "0.85"; }} onMouseLeave={e => { if (!disabled) e.currentTarget.style.opacity = "1"; }}>{children}</button>;
 }
 
 function CopyBtn({ text }) {
-  const [c, setC] = useState(false);
-  return <Btn small variant="ghost" onClick={() => { navigator.clipboard.writeText(text); setC(true); setTimeout(() => setC(false), 1800); }}>{c ? "✓ Copied" : "Copy"}</Btn>;
-}
-
-function OutputBlock({ content, maxH = 500 }) {
+  const [copied, setCopied] = useState(false);
+  async function copy() {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
   return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "16px 18px", fontSize: 13, lineHeight: 1.7, color: T.text, fontFamily: "'DM Sans', sans-serif", whiteSpace: "pre-wrap", wordBreak: "break-word", maxHeight: maxH, overflowY: "auto" }}>
-      {content || <span style={{ color: T.dim, fontStyle: "italic" }}>Output will appear here…</span>}
-    </div>
-  );
-}
-
-function SectionHeader({ step, title, desc }) {
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-        <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.proto, background: T.protoDim, border: `1px solid ${T.protoBorder}`, padding: "2px 8px", borderRadius: 4 }}>Step {step}</span>
-        <span style={{ fontSize: 16, fontWeight: 600, fontFamily: "'DM Serif Display', serif", color: T.text }}>{title}</span>
-      </div>
-      {desc && <p style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, margin: 0, maxWidth: 600 }}>{desc}</p>}
-    </div>
-  );
-}
-
-function StepIndicator({ current, completed }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 32 }}>
-      {STEPS.map((s, i) => {
-        const done = completed.includes(s.id), active = current === s.id;
-        return (
-          <div key={s.id} style={{ display: "flex", alignItems: "center", flex: i < STEPS.length - 1 ? 1 : "none" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 56 }}>
-              <div style={{ width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", background: done ? T.proto : active ? T.protoDim : "transparent", border: `1.5px solid ${done ? T.proto : active ? T.proto : T.border}`, color: done ? "#fff" : active ? T.proto : T.dim, transition: "all 0.2s" }}>{done ? "✓" : s.id}</div>
-              <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: active ? T.proto : done ? T.muted : T.dim, whiteSpace: "nowrap" }}>{s.label}</span>
-            </div>
-            {i < STEPS.length - 1 && <div style={{ flex: 1, height: 1, marginBottom: 18, marginLeft: 4, marginRight: 4, background: done ? T.proto : T.border, transition: "background 0.3s" }} />}
-          </div>
-        );
-      })}
-    </div>
+    <button onClick={copy} disabled={!text} style={{
+      background: text ? T.accent : T.border, color: text ? "#000" : T.muted,
+      border: "none", borderRadius: 8, padding: "10px 20px",
+      fontFamily: T.font.sans, fontSize: 14, fontWeight: 600,
+      cursor: text ? "pointer" : "default",
+    }}>
+      {copied ? "Copied!" : "Copy Prompt"}
+    </button>
   );
 }
 
 export default function ComponentArchitecturePlanner() {
-  const [step, setStep] = useState(1);
-  const [completed, setCompleted] = useState([]);
-  const [promptText, setPromptText] = useState("");
-  const [pastedResult, setPastedResult] = useState("");
+  const [designContext, setDesignContext] = useState("");
+  const [systemContext, setSystemContext] = useState("");
+  const [prompt, setPrompt] = useState("");
 
-  // Step 1 inputs
-  const [screenInventory, setScreenInventory] = useState("");
-  const [platform, setPlatform] = useState("web");
-  const [productContext, setProductContext] = useState("");
-  const [tokenContext, setTokenContext] = useState("");
+  function buildPrompt() {
+    return `You are a senior design systems engineer helping a designer plan their component architecture before building in Figma.
 
-  // Step outputs
-  const [components, setComponents] = useState("");
-  const [variants, setVariants] = useState("");
-  const [tokens, setTokens] = useState("");
-  const [brief, setBrief] = useState("");
+Start by understanding the scope:
+- How many screens or states are involved?
+- Is this net-new design or are we extending an existing system?
+- What's the delivery format — Figma components, React components, or both?
 
-  const mark = (id) => setCompleted(p => [...new Set([...p, id])]);
+Produce a complete component architecture document:
 
-  function dl(content, filename) {
-    const blob = new Blob([content], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = filename; a.click();
-    URL.revokeObjectURL(url);
+1. **Component Inventory** — List every component needed. For each:
+   - Component name (use the design system naming convention)
+   - Type: atom / molecule / organism / template
+   - Variants needed (e.g. size: sm/md/lg, state: default/hover/active/disabled/error)
+   - Props or Figma properties
+   - Which design tokens it consumes (color, spacing, typography, radius)
+
+2. **Token Assignment** — Map every visual decision to a token:
+   - Background colors → semantic tokens (e.g. \`surface/primary\`, \`surface/elevated\`)
+   - Text colors → \`text/primary\`, \`text/secondary\`, \`text/disabled\`
+   - Borders → \`border/default\`, \`border/focus\`, \`border/error\`
+   - Spacing → spacing scale tokens
+   - Border radius → radius tokens
+
+3. **Component Hierarchy** — Show how components compose together (which organisms contain which molecules)
+
+4. **Figma Setup Notes** — Recommended auto-layout settings, component naming, variant property names, and any tricky interactive states to plan for
+
+If the designer has wireframes, existing Figma files, or a design brief to share, ask them to upload the files.
+
+Output as clean markdown with tables for the component inventory and token assignments.${designContext ? `\n\nDesign context:\n${designContext}` : ""}${systemContext ? `\n\nDesign system context:\n${systemContext}` : ""}`;
   }
-
-  function handleComponents() {
-    const sys = `You are a senior design systems architect. Analyze a screen inventory and produce a structured component breakdown. Group components into three tiers:
-
-ATOMIC — single-purpose primitives: Button, Input, Label, Badge, Icon, Avatar, Divider, Spinner, Tag, Toggle, Checkbox, Radio
-MOLECULAR — composed of 2–4 atoms: Card, Form Group, Nav Item, List Item, Search Bar, Alert, Tooltip, Tab, Breadcrumb
-ORGANISM — complex patterns: Header, Sidebar, Data Table, Modal, Form, Feed, Navigation Bar, Empty State, Page Header
-
-For each component:
-- State whether it LIKELY EXISTS in common UI libraries (flag as "existing") or needs to be BUILT from scratch ("custom")
-- Note the platform constraints (${platform})
-- Be specific about what makes each component unique to THIS product
-
-Format output as clean markdown. Each tier is a section. Each component is a row: Component name | Tier | Existing/Custom | Notes.`;
-
-    const user = `Screen inventory:
-${screenInventory}
-
-Product context: ${productContext || "Not specified"}
-Platform: ${platform}
-${tokenContext ? `Design tokens available:\n${tokenContext}` : "No custom token set provided — use --sds-* naming convention defaults."}
-
-Analyze every screen, identify all unique UI patterns, and produce the full component breakdown grouped by tier. Flag anything that appears on 3+ screens as high-priority.`;
-
-    setPromptText(sys + "\n\n" + user);
-    setPastedResult("");
-  }
-
-  function acceptComponents() {
-    setComponents(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(1);
-    setStep(2);
-  }
-
-  function handleVariants() {
-    const sys = `You are a design systems architect defining variant matrices. For each component, define every axis of variation a designer needs to account for before building in Figma.
-
-Variant axes to consider:
-- Type/Kind: primary, secondary, destructive, ghost, outline, etc.
-- Size: xs, sm, md, lg, xl — only include sizes actually needed
-- State: default, hover, focus, active, disabled, loading, error, success, empty, skeleton
-- Platform-specific: mobile touch targets, desktop hover states
-- Content variants: with/without icon, with/without label, truncated
-
-Rules:
-- Only define variants that will actually be used — don't over-engineer
-- Flag the DEFAULT variant clearly for each component
-- Note which variants are HIGH PRIORITY for v1 vs DEFER to v2
-- Format as a table per component: Axis | Values | Default | Priority`;
-
-    const user = `Component list:
-${components}
-
-Platform: ${platform}
-${tokenContext ? `Token context:\n${tokenContext}` : "Using --sds-* defaults."}
-
-For each component in the list, produce the complete variant matrix. Be specific — a Button has different variant needs than a Data Table.`;
-
-    setPromptText(sys + "\n\n" + user);
-    setPastedResult("");
-  }
-
-  function acceptVariants() {
-    setVariants(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(2);
-    setStep(3);
-  }
-
-  function handleTokens() {
-    const tokenPrefix = tokenContext ? "Use the exact token names from the provided token set." : "Use --sds-* naming convention: --sds-color-*, --sds-size-space-*, --sds-size-radius-*, --sds-typography-*, --sds-shadow-*.";
-
-    const sys = `You are a design systems architect mapping components to design tokens. Every visual property must map to a named token — no hardcoded values in specs.
-
-Token categories:
-- Color: background, text, border, icon colors — map to semantic color roles not raw hex
-- Spacing: padding, gap, margin — map to space tokens (--sds-size-space-*)
-- Typography: font-size, font-weight, line-height — map to typography tokens
-- Radius: border-radius — map to radius tokens
-- Elevation: box-shadow — map to shadow tokens
-- Motion: transition duration and easing
-
-${tokenPrefix}
-
-Format: one section per component. For each component property: Property | Token name | Notes on state variations (e.g. hover changes --sds-color-primary-700 → --sds-color-primary-800).`;
-
-    const user = `Components and variants:
-${components}
-
-Variant matrix:
-${variants}
-
-${tokenContext ? `Available tokens:\n${tokenContext}` : "Apply --sds-* naming convention defaults."}
-
-Produce the token assignment map. Every property of every component should have a named token. Flag any properties where a token doesn't exist and a new token should be created.`;
-
-    setPromptText(sys + "\n\n" + user);
-    setPastedResult("");
-  }
-
-  function acceptTokens() {
-    setTokens(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(3);
-    setStep(4);
-  }
-
-  function handleBrief() {
-    const sys = `You are a senior design systems architect generating a build brief and phase handoff. The brief must be actionable — a designer should be able to open Figma and start building immediately.
-
-The brief includes:
-1. ORDERED BUILD LIST — foundation first, complex last. Format: Priority | Component | Why this order | Estimated Figma frames
-2. FIGMA STRUCTURE — recommended page and frame organization for this component set
-3. BUILD PRINCIPLES — token-first rules, naming conventions, auto-layout requirements specific to this product
-4. OPEN QUESTIONS — decisions that need resolution before building (missing tokens, unclear interactions, platform edge cases)
-5. HANDOFF BLOCK — a structured block for the Component State Specifier tool. Format it clearly so the designer can copy any single component row and paste it as input to the next tool.
-
-Be specific and opinionated. Generic advice is not useful here.`;
-
-    const user = `Component architecture:
-${components}
-
-Variant matrix:
-${variants}
-
-Token assignments:
-${tokens}
-
-Platform: ${platform}
-Product context: ${productContext || "Not specified"}
-
-Generate the complete build brief with ordered build list, Figma structure recommendation, build principles, open questions, and handoff block for the Component State Specifier.`;
-
-    setPromptText(sys + "\n\n" + user);
-    setPastedResult("");
-  }
-
-  function acceptBrief() {
-    setBrief(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(4);
-    setStep(5);
-  }
-
-  const fullDoc = `# Component Architecture Plan\n\n## Component Inventory\n${components}\n\n## Variant Matrix\n${variants}\n\n## Token Assignments\n${tokens}\n\n## Build Brief\n${brief}`;
 
   return (
-    <div style={{ background: T.bg, minHeight: "100vh", padding: "40px 32px", fontFamily: "'DM Sans', sans-serif", color: T.text }}>
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-
-      {/* Header */}
-      <div style={{ maxWidth: 760, margin: "0 auto 40px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-          <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.proto, background: T.protoDim, border: `1px solid ${T.protoBorder}`, padding: "3px 10px", borderRadius: 4 }}>Prototype · Tool 13</span>
+    <div style={{ background: T.bg, minHeight: "100vh", padding: "32px 24px", fontFamily: T.font.sans, color: T.text }}>
+      <div style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <span style={{ background: T.accent + "22", color: T.accent, padding: "3px 10px", borderRadius: 99, fontSize: 12, fontWeight: 600, letterSpacing: "0.05em" }}>
+            PROTOTYPE
+          </span>
         </div>
-        <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 32, fontWeight: 400, margin: "0 0 8px", color: T.text }}>Component Architecture Planner</h1>
-        <p style={{ fontSize: 14, color: T.muted, margin: 0, lineHeight: 1.6, maxWidth: 560 }}>Define what to build before opening Figma. Takes your screen inventory and produces a complete component breakdown, variant matrix, token assignments, and an ordered build brief.</p>
-      </div>
+        <h1 style={{ margin: "0 0 8px", fontSize: 28, fontWeight: 700, lineHeight: 1.2 }}>Component Architecture Planner</h1>
+        <p style={{ margin: "0 0 32px", color: T.muted, fontSize: 16, lineHeight: 1.5 }}>Define every component, variant, and token assignment before opening Figma</p>
 
-      <div style={{ maxWidth: 760, margin: "0 auto" }}>
-        <StepIndicator current={step} completed={completed} />
-
-        {/* STEP 1 — Screen Inventory */}
-        {step === 1 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 28 }}>
           <div>
-            <SectionHeader step={1} title="Screen Inventory" desc="Paste the screen inventory from your User Flow Mapper output, or describe the screens you're building. Include every screen and state — the more complete the input, the more precise the component breakdown." />
-            <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-              <div>
-                <Label>Screen inventory</Label>
-                <Textarea value={screenInventory} onChange={setScreenInventory} placeholder="Paste your screen list here. Example:&#10;- Home / Dashboard (default, empty, loading)&#10;- Login (default, error, forgot password)&#10;- Product List (default, filtered, empty)&#10;- Product Detail (default, out of stock)&#10;- Cart (items, empty, processing)&#10;- Checkout (address, payment, confirmation)&#10;- User Profile (view, edit)&#10;- Settings (notifications, privacy, account)" rows={10} />
-              </div>
-              <div>
-                <Label>Platform</Label>
-                <div style={{ display: "flex", gap: 8 }}>
-                  {["web", "iOS", "Android", "cross-platform"].map(p => (
-                    <button key={p} onClick={() => setPlatform(p)} style={{ padding: "7px 16px", fontSize: 12, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", borderRadius: 6, border: `1.5px solid ${platform === p ? T.proto : T.border}`, background: platform === p ? T.protoDim : "transparent", color: platform === p ? T.proto : T.muted, cursor: "pointer", transition: "all 0.15s" }}>{p}</button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <Label>Product context <span style={{ color: T.dim, textTransform: "none", fontFamily: "'DM Sans', sans-serif", fontSize: 11 }}>(optional)</span></Label>
-                <Textarea value={productContext} onChange={setProductContext} placeholder="Brief description of the product, user, and key interactions. Helps Claude make better decisions about component complexity and variant needs." rows={3} />
-              </div>
-              <div>
-                <Label>Design tokens <span style={{ color: T.dim, textTransform: "none", fontFamily: "'DM Sans', sans-serif", fontSize: 11 }}>(optional — paste CSS custom properties)</span></Label>
-                <Textarea value={tokenContext} onChange={setTokenContext} placeholder="Paste your CSS custom properties here if you have them. Example:&#10;--sds-color-primary-600: #2563EB;&#10;--sds-size-space-200: 8px;&#10;&#10;If left blank, output uses --sds-* naming convention defaults." rows={5} />
-                <p style={{ fontSize: 11, color: T.dim, margin: "6px 0 0", lineHeight: 1.5 }}>Export from the Design System Builder → Copy CSS → paste above. If blank, output uses <code style={{ fontFamily: "'JetBrains Mono', monospace", color: T.proto }}>--sds-*</code> defaults.</p>
-              </div>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Btn onClick={handleComponents} disabled={!screenInventory.trim()}>
-                  Identify components →
-                </Btn>
-              </div>
-              <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-              {promptText && (
-                <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-                  <Btn small disabled={!pastedResult.trim()} onClick={acceptComponents}>Accept Components →</Btn>
-                </div>
-              )}
-            </div>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 6, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              DESIGN CONTEXT <span style={{ color: T.dim }}>(optional)</span>
+            </label>
+            <Textarea
+              value={designContext}
+              onChange={setDesignContext}
+              placeholder="Describe the feature or screen set you're designing. What components will you need? Paste any wireframes, flow maps, or screen inventories."
+              rows={4}
+            />
           </div>
-        )}
-
-        {/* STEP 2 — Component Identification */}
-        {step === 2 && (
           <div>
-            <SectionHeader step={2} title="Component Identification" desc="Every unique UI pattern across your screens, grouped into atomic, molecular, and organism tiers. Existing components are flagged separately from custom builds." />
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <OutputBlock content={components} maxH={480} />
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <CopyBtn text={components} />
-                <Btn onClick={handleVariants}>Define variant matrix →</Btn>
-              </div>
-              <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-              {promptText && (
-                <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-                  <Btn small disabled={!pastedResult.trim()} onClick={acceptVariants}>Accept Variants →</Btn>
-                </div>
-              )}
-            </div>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 6, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              DESIGN SYSTEM CONTEXT <span style={{ color: T.dim }}>(optional)</span>
+            </label>
+            <Textarea
+              value={systemContext}
+              onChange={setSystemContext}
+              placeholder="What design system or component library exists? (e.g. custom, Material, Radix, shadcn). Any token or naming conventions to follow?"
+              rows={3}
+            />
           </div>
-        )}
+        </div>
 
-        {/* STEP 3 — Variant Matrix */}
-        {step === 3 && (
-          <div>
-            <SectionHeader step={3} title="Variant Matrix" desc="For each component: every axis of variation, the default state, and v1 vs v2 priority. No over-engineering — only variants that will actually be built." />
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <OutputBlock content={variants} maxH={480} />
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <CopyBtn text={variants} />
-                <Btn onClick={handleTokens}>Assign tokens →</Btn>
-              </div>
-              <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-              {promptText && (
-                <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-                  <Btn small disabled={!pastedResult.trim()} onClick={acceptTokens}>Accept Token Assignments →</Btn>
-                </div>
-              )}
+        <button
+          onClick={() => setPrompt(buildPrompt())}
+          style={{
+            background: T.accent, color: "#000", border: "none", borderRadius: 8,
+            padding: "12px 28px", fontFamily: T.font.sans, fontSize: 15, fontWeight: 600,
+            cursor: "pointer", marginBottom: 36,
+          }}
+        >
+          Generate Prompt →
+        </button>
+
+        {prompt && (
+          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 24 }}>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 10, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              YOUR CLAUDE PROMPT
+            </label>
+            <pre style={{
+              margin: "0 0 20px", color: T.text, fontSize: 13, fontFamily: T.font.mono,
+              whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: 1.65,
+              background: T.surface, borderRadius: 8, padding: 16, maxHeight: 400, overflowY: "auto",
+            }}>
+              {prompt}
+            </pre>
+            <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
+              <CopyBtn text={prompt} />
+              <a
+                href="https://claude.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: T.accent, fontFamily: T.font.sans, fontSize: 14, fontWeight: 500,
+                  textDecoration: "none", border: `1px solid ${T.accent}44`, borderRadius: 8, padding: "10px 20px",
+                }}
+              >
+                Open Claude.ai ↗
+              </a>
             </div>
-          </div>
-        )}
-
-        {/* STEP 4 — Token Assignment */}
-        {step === 4 && (
-          <div>
-            <SectionHeader step={4} title="Token Assignment" desc="Every visual property mapped to a named token. No hardcoded values. New tokens that need to be created are flagged explicitly." />
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <OutputBlock content={tokens} maxH={480} />
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <CopyBtn text={tokens} />
-                <Btn onClick={handleBrief}>Generate build brief →</Btn>
-              </div>
-              <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-              {promptText && (
-                <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-                  <Btn small disabled={!pastedResult.trim()} onClick={acceptBrief}>Accept Build Brief →</Btn>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* STEP 5 — Build Brief + Handoff */}
-        {step === 5 && (
-          <div>
-            <SectionHeader step={5} title="Build Brief + Handoff" desc="Ordered build list, Figma structure, build principles, open questions, and a handoff block for the Component State Specifier. Copy any single component row to start speccing states." />
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <OutputBlock content={brief} maxH={480} />
-
-              {/* Callout */}
-              <div style={{ background: T.card, border: `1px solid ${T.protoBorder}`, borderRadius: 8, padding: "14px 16px" }}>
-                <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.proto, marginBottom: 8 }}>Next step</div>
-                <p style={{ fontSize: 13, color: T.muted, margin: 0, lineHeight: 1.6 }}>Copy any component row from the handoff block above and paste it into the <strong style={{ color: T.text }}>Component State Specifier</strong> to document every state before building in Figma.</p>
-              </div>
-
-              <div style={{ display: "flex", gap: 10, justifyContent: "flex-end", flexWrap: "wrap" }}>
-                <CopyBtn text={brief} />
-                <Btn variant="ghost" small onClick={() => dl(fullDoc, "component-architecture-plan.md")}>Download full plan (.md)</Btn>
-                <Btn variant="ghost" small onClick={() => dl(brief, "build-brief.md")}>Download build brief</Btn>
-              </div>
-            </div>
+            <p style={{ margin: 0, color: T.dim, fontSize: 13, lineHeight: 1.5 }}>
+              Claude will ask follow-up questions to fill in any gaps. You can also upload documents, transcripts, or files directly in Claude.ai.
+            </p>
           </div>
         )}
       </div>

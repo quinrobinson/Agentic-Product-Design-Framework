@@ -1,507 +1,157 @@
 import { useState } from "react";
 
 const T = {
-  bg: "#0F0F0F", surface: "#161616", card: "#1C1C1C", border: "#2A2A2A",
-  text: "#F2F2F2", muted: "#999999", dim: "#666666",
-  proto: "#3B82F6", protoDim: "rgba(59,130,246,0.12)", protoBorder: "rgba(59,130,246,0.25)",
+  bg: "#0F0F0F", surface: "#161616", card: "#1A1A1A",
+  border: "#2C2C2C", text: "#F2F2F2", muted: "#999999", dim: "#787878",
+  accent: "#3B82F6",
+  font: { sans: "'DM Sans', sans-serif", mono: "'JetBrains Mono', monospace" },
 };
 
-const STEPS = [
-  { id: 1, label: "Setup",     short: "Entry + goal + persona"   },
-  { id: 2, label: "Happy",     short: "Optimistic path"          },
-  { id: 3, label: "Branches",  short: "Errors + alternatives"    },
-  { id: 4, label: "Inventory", short: "Screen list + scope"      },
-  { id: 5, label: "Handoff",   short: "Prototype brief"          },
-];
-
-function PromptPanel({ promptText, pastedResult, setPastedResult }) {
-  const [copied, setCopied] = useState(false);
-  if (!promptText) return null;
+function Textarea({ value, onChange, placeholder, rows = 4 }) {
   return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "16px 18px", marginTop: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.proto }}>
-          Prompt ready — copy and run in Claude
-        </span>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            onClick={() => { navigator.clipboard.writeText(promptText); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-            style={{ padding: "6px 14px", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, cursor: "pointer", borderRadius: 6, border: `1.5px solid ${T.proto}`, background: copied ? T.proto : "transparent", color: copied ? "#fff" : T.proto, transition: "all 0.15s" }}
-          >{copied ? "✓ Copied" : "Copy Prompt"}</button>
-          <a href="https://claude.ai" target="_blank" rel="noopener noreferrer"
-            style={{ padding: "6px 14px", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, borderRadius: 6, border: `1.5px solid ${T.border}`, color: T.muted, textDecoration: "none", display: "inline-block" }}
-          >Open Claude.ai →</a>
-        </div>
-      </div>
-      <pre style={{ whiteSpace: "pre-wrap", fontSize: 12, lineHeight: 1.7, color: T.text, fontFamily: "'DM Sans', sans-serif", margin: 0, maxHeight: 320, overflowY: "auto" }}>{promptText}</pre>
-      <div style={{ marginTop: 16 }}>
-        <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.muted, marginBottom: 8 }}>Paste Claude's response here</div>
-        <textarea
-          value={pastedResult} onChange={e => setPastedResult(e.target.value)}
-          placeholder="Run the prompt in Claude, then paste the result here to continue…" rows={6}
-          style={{ width: "100%", boxSizing: "border-box", background: T.bg, border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px", color: T.text, fontSize: 13, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none" }}
-          onFocus={e => e.target.style.borderColor = T.proto} onBlur={e => e.target.style.borderColor = T.border}
-        />
-      </div>
-    </div>
+    <textarea
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      rows={rows}
+      style={{
+        width: "100%", boxSizing: "border-box", background: T.surface,
+        border: `1px solid ${T.border}`, borderRadius: 8, color: T.text,
+        fontFamily: T.font.sans, fontSize: 14, padding: "10px 12px",
+        resize: "vertical", outline: "none",
+      }}
+    />
   );
-}
-
-function Label({ children, sub }) {
-  return <div style={{ marginBottom: sub ? 4 : 8 }}><span style={{ fontSize: sub ? 11 : 12, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.07em", textTransform: "uppercase", color: sub ? T.muted : T.proto }}>{children}</span></div>;
-}
-
-function Textarea({ value, onChange, placeholder, rows = 5, disabled }) {
-  return <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows} disabled={disabled} style={{ width: "100%", boxSizing: "border-box", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px", color: T.text, fontSize: 13, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none", opacity: disabled ? 0.5 : 1, transition: "border-color 0.15s" }} onFocus={e => e.target.style.borderColor = T.proto} onBlur={e => e.target.style.borderColor = T.border} />;
-}
-
-function Input({ value, onChange, placeholder, disabled }) {
-  return <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} disabled={disabled} style={{ width: "100%", boxSizing: "border-box", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "10px 14px", color: T.text, fontSize: 13, fontFamily: "'DM Sans', sans-serif", outline: "none", transition: "border-color 0.15s", opacity: disabled ? 0.5 : 1 }} onFocus={e => e.target.style.borderColor = T.proto} onBlur={e => e.target.style.borderColor = T.border} />;
-}
-
-function Btn({ children, onClick, disabled, variant = "primary", small }) {
-  const p = variant === "primary";
-  return <button onClick={onClick} disabled={disabled} style={{ padding: small ? "7px 14px" : "10px 20px", fontSize: small ? 11 : 13, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, cursor: disabled ? "not-allowed" : "pointer", borderRadius: 6, border: "1.5px solid", borderColor: p ? T.proto : T.border, background: p ? T.proto : "transparent", color: p ? "#fff" : T.muted, opacity: disabled ? 0.4 : 1, transition: "all 0.15s" }} onMouseEnter={e => { if (!disabled) e.currentTarget.style.opacity = "0.85"; }} onMouseLeave={e => { if (!disabled) e.currentTarget.style.opacity = "1"; }}>{children}</button>;
 }
 
 function CopyBtn({ text }) {
-  const [c, setC] = useState(false);
-  return <Btn small variant="ghost" onClick={() => { navigator.clipboard.writeText(text); setC(true); setTimeout(() => setC(false), 1800); }}>{c ? "✓ Copied" : "Copy"}</Btn>;
-}
-
-function OutputBlock({ content, maxH = 500 }) {
+  const [copied, setCopied] = useState(false);
+  async function copy() {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
   return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "16px 18px", fontSize: 13, lineHeight: 1.7, color: T.text, fontFamily: "'DM Sans', sans-serif", whiteSpace: "pre-wrap", wordBreak: "break-word", maxHeight: maxH, overflowY: "auto" }}>
-      {content || <span style={{ color: T.dim, fontStyle: "italic" }}>Output will appear here…</span>}
-    </div>
-  );
-}
-
-function SectionHeader({ step, title, desc }) {
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-        <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.proto, background: T.protoDim, border: `1px solid ${T.protoBorder}`, padding: "2px 8px", borderRadius: 4 }}>Step {step}</span>
-        <span style={{ fontSize: 16, fontWeight: 600, fontFamily: "'DM Serif Display', serif", color: T.text }}>{title}</span>
-      </div>
-      {desc && <p style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, margin: 0, maxWidth: 600 }}>{desc}</p>}
-    </div>
-  );
-}
-
-function StepIndicator({ current, completed }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 32 }}>
-      {STEPS.map((s, i) => {
-        const done = completed.includes(s.id), active = current === s.id;
-        return (
-          <div key={s.id} style={{ display: "flex", alignItems: "center", flex: i < STEPS.length - 1 ? 1 : "none" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 56 }}>
-              <div style={{ width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", background: done ? T.proto : active ? T.protoDim : "transparent", border: `1.5px solid ${done ? T.proto : active ? T.proto : T.border}`, color: done ? "#fff" : active ? T.proto : T.dim, transition: "all 0.2s" }}>{done ? "✓" : s.id}</div>
-              <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: active ? T.proto : done ? T.muted : T.dim, whiteSpace: "nowrap" }}>{s.label}</span>
-            </div>
-            {i < STEPS.length - 1 && <div style={{ flex: 1, height: 1, marginBottom: 18, marginLeft: 4, marginRight: 4, background: done ? T.proto : T.border, transition: "background 0.3s" }} />}
-          </div>
-        );
-      })}
-    </div>
+    <button onClick={copy} disabled={!text} style={{
+      background: text ? T.accent : T.border, color: text ? "#000" : T.muted,
+      border: "none", borderRadius: 8, padding: "10px 20px",
+      fontFamily: T.font.sans, fontSize: 14, fontWeight: 600,
+      cursor: text ? "pointer" : "default",
+    }}>
+      {copied ? "Copied!" : "Copy Prompt"}
+    </button>
   );
 }
 
 export default function UserFlowMapper() {
-  const [step, setStep] = useState(1);
-  const [completed, setCompleted] = useState([]);
-  const [promptText, setPromptText] = useState("");
-  const [pastedResult, setPastedResult] = useState("");
+  const [conceptContext, setConceptContext] = useState("");
+  const [constraintsContext, setConstraintsContext] = useState("");
+  const [prompt, setPrompt] = useState("");
 
-  const [entry, setEntry] = useState("");
-  const [goal, setGoal] = useState("");
-  const [persona, setPersona] = useState("");
-  const [constraints, setConstraints] = useState("");
-  const [protoQuestion, setProtoQuestion] = useState("");
+  function buildPrompt() {
+    return `You are a senior interaction designer helping a team map all the paths through a feature or concept before building a prototype.
 
-  const [happyPath, setHappyPath] = useState("");
-  const [branches, setBranches] = useState("");
-  const [inventory, setInventory] = useState("");
-  const [handoff, setHandoff] = useState("");
+Start by clarifying:
+- Who is the primary user and what's their mental model going in?
+- What's the single most important task this flow needs to support?
+- Are there multiple user types with different paths?
+- What does success look like — what's the desired end state?
 
-  const mark = (id) => setCompleted(p => [...new Set([...p, id])]);
+Map the complete flow across three layers:
 
-  function dl(content, filename) {
-    const blob = new Blob([content], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = filename; a.click();
-    URL.revokeObjectURL(url);
-  }
+1. **Happy Path** — The ideal sequence from start to success. Name every screen. Describe the primary action on each screen and what triggers the next step.
 
-  function handleHappyPath() {
-    const sys = "You are a UX designer mapping user flows. Be systematic and specific — list every step as a discrete action or response. Flag every decision point explicitly. Your output becomes the wireframing scope.";
-    const msg = `Map the happy path for this user flow.
+2. **Branches** — Every decision point where the user's path splits. For each branch: what's the condition? what are the paths? which is the most common case?
 
-Entry point: ${entry}
-User's goal: ${goal}
-Persona: ${persona}
-Constraints: ${constraints || "None specified"}
+3. **Error States** — For every action that can fail, map: what triggers the error, what the user sees, and how they recover.
 
-List every step from entry to success. For each step:
+4. **Edge Cases** — What happens with: empty state (no data), first-time user, returning user, incomplete data, slow connection?
 
-**[Step N]:** [User or System] — [Action or Response]
+Then produce:
+- **Screen Inventory** — A numbered list of every screen/state in the flow, with a one-line description of what the user is doing there
+- **Prototype Brief** — What screens to build for the minimum testable prototype, what to stub out, and what hypotheses each screen tests
 
-After each USER step, flag if there's a decision point (→ Decision):
-After each SYSTEM step, flag if the response could vary (→ Variable):
+If the designer has wireframes, existing flows, or a design brief to share, ask them to upload the files.
 
-At the end, add:
-
-## Decision Points Summary
-List each decision point from above:
-- Step [N]: [The decision] → [Possible outcomes]
-
-## Steps requiring a screen or state change
-List only the steps that need a distinct UI state:
-- Step [N]: [Screen name] — [What it shows/does]`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptHappyPath() {
-    setHappyPath(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(2);
-  }
-
-  function handleBranches() {
-    const sys = "You are a UX designer mapping every path through a feature — not just the optimistic one. Be systematic. Every decision point branches. Every async step can fail. Every form field can be wrong. Your output determines prototype completeness.";
-    const msg = `Map all alternative paths, errors, and edge cases for this flow.
-
-User's goal: ${goal}
-Persona: ${persona}
-Constraints: ${constraints || "None specified"}
-
-Happy path:
-${happyPath}
-
-## Part 1 — Alternative Paths
-For each decision point from the happy path, map all branches:
-
-**Decision at Step [N]: [The decision]**
-Branch A: [Condition] → [Steps] → [Outcome]
-Branch B: [Condition] → [Steps] → [Outcome]
-
-## Part 2 — Error States
-For each async operation or user input, map the failure path:
-
-**Error: [Error name]**
-- Triggered by: [Cause]
-- Occurs at: Step [N]
-- User sees: [Error state description]
-- User can: [Available actions — retry, back, contact support]
-- Progress preserved: Yes / No
-
-Cover: network failure, validation errors, permission denied, not found, timeout, conflict
-
-## Part 3 — Edge Cases
-Map these systematically:
-- Already done: User tries to complete something they've already done
-- Partial state: User returns to a partially completed flow
-- Slow connection: Async operations take 10× longer than expected
-- Double-tap: User submits the same action twice quickly
-- Session timeout: User is idle and their session expires mid-flow`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptBranches() {
-    setBranches(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(3);
-  }
-
-  function handleInventory() {
-    const sys = "You are a UX designer building the wireframing scope from a user flow. Every branch and every state becomes a screen. Be complete and systematic. This inventory is what gets built.";
-    const msg = `Generate a complete screen inventory from this user flow.
-
-User's goal: ${goal}
-Core prototype question: ${protoQuestion || "Not specified"}
-
-Happy path:
-${happyPath}
-
-Alternative paths + errors:
-${branches}
-
-For every unique screen or UI state, produce one inventory entry:
-
-## Screen Inventory
-
-### Happy Path Screens
-| # | Screen Name | Type | Triggered By | Primary Action | Leads To |
-|---|---|---|---|---|---|
-| 1 | [Name] | [Page/Modal/Sheet/Toast] | [What shows it] | [CTA] | [Next] |
-
-### Alternative Path Screens
-| # | Screen Name | Type | Condition | Primary Action | Leads To |
-|---|---|---|---|---|---|
-
-### Error States
-| # | Error Name | Trigger | User Can Fix? | Primary Action |
-|---|---|---|---|---|
-
-### Empty States
-| # | State Name | When Shown | First-Use? | Primary Action |
-|---|---|---|---|---|
-
----
-
-**Total screens:** [N]
-
-## Prototype Scope Recommendation
-Given the core prototype question "${protoQuestion || "answer the riskiest assumption"}", which screens are:
-
-**Essential (must be in v1 prototype):** [List — with rationale]
-**Defer to v2:** [List — with rationale]
-**Can stub (show as placeholder):** [List]
-
-**Prototype screen count (v1):** [N of N total]`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptInventory() {
-    setInventory(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(4);
-    setStep(5);
-  }
-
-  function handleHandoff() {
-    const sys = "You are a senior UX designer generating a prototype brief. Be specific and actionable — the person receiving this brief should be able to start wireframing immediately without asking any clarifying questions.";
-    const msg = `Generate a prototype brief from this user flow mapping session.
-
-Entry: ${entry}
-Goal: ${goal}
-Persona: ${persona}
-Core prototype question: ${protoQuestion || "Validate the primary user flow"}
-Date: ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-
-Flow summary: ${happyPath}
-Branches + errors: ${branches}
-Screen inventory: ${inventory}
-
-## Prototype Brief: [Feature/Flow Name]
-
-**What we're building:** [One sentence — the flow and its purpose]
-**What we're testing:** [The core prototype question]
-**Fidelity:** [Recommended: Lo-fi / Mid-fi — with rationale]
-
----
-
-### In scope (build this)
-[List each v1 screen with what it must contain — not the design, the content and function]
-
-### Out of scope (do not build)
-[List deferred screens with one-line rationale each]
-
-### The critical path
-[The 3–4 screens that MUST work perfectly to test the prototype question]
-
-### What to watch during testing
-[The specific moments in the flow where the prototype question gets answered]
-
-### Open questions for the wireframer
-[Design decisions the flow raised but didn't resolve]
-
----
-**Estimated build time:** [Hours based on scope and fidelity]
-**Screen count (v1):** [N]`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptHandoff() {
-    setHandoff(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(5);
+Output everything as clean markdown with flow diagrams represented as indented lists or ASCII trees.${conceptContext ? `\n\nConcept or feature being mapped:\n${conceptContext}` : ""}${constraintsContext ? `\n\nConstraints:\n${constraintsContext}` : ""}`;
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: T.bg, fontFamily: "'DM Sans', sans-serif", color: T.text }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
-        :focus-visible { outline: 2px solid #999; outline-offset: 2px; border-radius: 4px; }
-      `}</style>
-
-      <div style={{ borderBottom: `1px solid ${T.border}`, padding: "0 clamp(24px,5vw,80px)", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: T.proto, boxShadow: `0 0 8px ${T.proto}` }} />
-          <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.proto }}>04 — Prototype</span>
-          <span style={{ color: T.dim }}>·</span>
-          <span style={{ fontSize: 15, fontWeight: 600, fontFamily: "'DM Serif Display', serif", color: T.text }}>User Flow Mapper</span>
+    <div style={{ background: T.bg, minHeight: "100vh", padding: "32px 24px", fontFamily: T.font.sans, color: T.text }}>
+      <div style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <span style={{ background: T.accent + "22", color: T.accent, padding: "3px 10px", borderRadius: 99, fontSize: 12, fontWeight: 600, letterSpacing: "0.05em" }}>
+            PROTOTYPE
+          </span>
         </div>
-        {inventory && <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.dim }}>inventory ready</span>}
-      </div>
+        <h1 style={{ margin: "0 0 8px", fontSize: 28, fontWeight: 700, lineHeight: 1.2 }}>User Flow Mapper</h1>
+        <p style={{ margin: "0 0 32px", color: T.muted, fontSize: 16, lineHeight: 1.5 }}>Map happy paths, branches, and error states — producing a screen inventory and prototype brief</p>
 
-      <div style={{ maxWidth: 1440, margin: "0 auto", padding: "48px clamp(24px,5vw,80px) 96px" }}>
-        <StepIndicator current={step} completed={completed} />
-
-        {step === 1 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 28 }}>
           <div>
-            <SectionHeader step={1} title="Flow Setup" desc="Define the entry point, user goal, and what question this prototype needs to answer. Every branch in the flow becomes a screen." />
-            <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: "14px 18px", marginBottom: 24 }}>
-              <div style={{ display: "flex", gap: 32 }}>
-                {[["Happy path", "The optimistic route to success"], ["+ Decision points", "Every choice the user makes"], ["+ Error paths", "Every way the system can fail"], ["= Screen inventory", "Everything that needs to be built"]].map(([label, desc]) => (
-                  <div key={label} style={{ flex: 1 }}>
-                    <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: T.proto, marginBottom: 4 }}>{label}</div>
-                    <div style={{ fontSize: 11, color: T.dim }}>{desc}</div>
-                  </div>
-                ))}
-              </div>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 6, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              CONCEPT OR FEATURE <span style={{ color: T.dim }}>(optional)</span>
+            </label>
+            <Textarea
+              value={conceptContext}
+              onChange={setConceptContext}
+              placeholder="Describe the concept or feature you're mapping. What's the user's goal? What's the starting point and end state?"
+              rows={4}
+            />
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 6, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              CONSTRAINTS <span style={{ color: T.dim }}>(optional)</span>
+            </label>
+            <Textarea
+              value={constraintsContext}
+              onChange={setConstraintsContext}
+              placeholder="Any technical constraints, platform rules, or out-of-scope scenarios to keep in mind?"
+              rows={3}
+            />
+          </div>
+        </div>
+
+        <button
+          onClick={() => setPrompt(buildPrompt())}
+          style={{
+            background: T.accent, color: "#000", border: "none", borderRadius: 8,
+            padding: "12px 28px", fontFamily: T.font.sans, fontSize: 15, fontWeight: 600,
+            cursor: "pointer", marginBottom: 36,
+          }}
+        >
+          Generate Prompt →
+        </button>
+
+        {prompt && (
+          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 24 }}>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 10, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              YOUR CLAUDE PROMPT
+            </label>
+            <pre style={{
+              margin: "0 0 20px", color: T.text, fontSize: 13, fontFamily: T.font.mono,
+              whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: 1.65,
+              background: T.surface, borderRadius: 8, padding: 16, maxHeight: 400, overflowY: "auto",
+            }}>
+              {prompt}
+            </pre>
+            <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
+              <CopyBtn text={prompt} />
+              <a
+                href="https://claude.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: T.accent, fontFamily: T.font.sans, fontSize: 14, fontWeight: 500,
+                  textDecoration: "none", border: `1px solid ${T.accent}44`, borderRadius: 8, padding: "10px 20px",
+                }}
+              >
+                Open Claude.ai ↗
+              </a>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <div>
-                  <Label>Entry point</Label>
-                  <Input value={entry} onChange={setEntry} placeholder="e.g. User taps 'New synthesis' button on the dashboard" />
-                </div>
-                <div>
-                  <Label>User's goal</Label>
-                  <Input value={goal} onChange={setGoal} placeholder="e.g. Upload and synthesize 5 interview transcripts into a shareable brief" />
-                </div>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <div>
-                  <Label>Persona</Label>
-                  <Input value={persona} onChange={setPersona} placeholder="e.g. Senior designer, familiar with research but new to this tool" />
-                </div>
-                <div>
-                  <Label>Core prototype question</Label>
-                  <Input value={protoQuestion} onChange={setProtoQuestion} placeholder="e.g. Can designers upload and process files without guidance?" />
-                </div>
-              </div>
-              <div>
-                <Label>Constraints (technical, permissions, system limits)</Label>
-                <Input value={constraints} onChange={setConstraints} placeholder="e.g. Files must be PDF/doc/txt under 50MB. Free tier limited to 3 uploads. Auth required." />
-              </div>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Btn disabled={!entry.trim() || !goal.trim()} onClick={() => { mark(1); setStep(2); }}>Map Happy Path →</Btn>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div>
-            <SectionHeader step={2} title="Happy Path" desc="Map every step from entry to success — user actions and system responses. Decision points get flagged as branches to map next." />
-            {!happyPath && <div style={{ display: "flex", justifyContent: "flex-end" }}><Btn onClick={handleHappyPath}>Map the Happy Path</Btn></div>}
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small disabled={!pastedResult.trim()} onClick={acceptHappyPath}>Accept Happy Path →</Btn>
-              </div>
-            )}
-            {happyPath && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Step-by-step happy path + decision points</Label>
-                  <CopyBtn text={happyPath} />
-                </div>
-                <OutputBlock content={happyPath} />
-                <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                  <Btn variant="ghost" small onClick={() => setHappyPath("")}>Re-map</Btn>
-                  <Btn small onClick={() => { mark(2); setStep(3); }}>Map Branches + Errors →</Btn>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {step === 3 && (
-          <div>
-            <SectionHeader step={3} title="Branches + Errors" desc="Every decision point branches. Every async step can fail. This step maps all alternative paths, error states, and edge cases." />
-            {!branches && <div style={{ display: "flex", justifyContent: "flex-end" }}><Btn onClick={handleBranches}>Map Branches + Errors</Btn></div>}
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small disabled={!pastedResult.trim()} onClick={acceptBranches}>Accept Branches →</Btn>
-              </div>
-            )}
-            {branches && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Alternative paths · error states · edge cases</Label>
-                  <CopyBtn text={branches} />
-                </div>
-                <OutputBlock content={branches} maxH={520} />
-                <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                  <Btn variant="ghost" small onClick={() => setBranches("")}>Re-map</Btn>
-                  <Btn small onClick={() => { mark(3); setStep(4); }}>Generate Screen Inventory →</Btn>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {step === 4 && (
-          <div>
-            <SectionHeader step={4} title="Screen Inventory" desc="Every state from the flow becomes a screen entry. Generate the complete inventory and recommended v1 prototype scope." />
-            {!inventory && <div style={{ display: "flex", justifyContent: "flex-end" }}><Btn onClick={handleInventory}>Generate Screen Inventory</Btn></div>}
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small disabled={!pastedResult.trim()} onClick={acceptInventory}>Accept Inventory →</Btn>
-              </div>
-            )}
-            {inventory && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Complete screen list · v1 prototype scope</Label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <CopyBtn text={inventory} />
-                    <Btn small variant="ghost" onClick={() => dl([happyPath, branches, inventory].join("\n\n---\n\n"), "user-flow-map.md")}>↓ Full flow .md</Btn>
-                  </div>
-                </div>
-                <OutputBlock content={inventory} maxH={540} />
-                <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                  <Btn variant="ghost" small onClick={() => setInventory("")}>Re-generate</Btn>
-                  <Btn small onClick={() => setStep(5)}>Generate Prototype Brief →</Btn>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {step === 5 && (
-          <div>
-            <SectionHeader step={5} title="Prototype Brief" desc="A complete wireframing brief — scope, critical path, open questions, and estimated build time. Ready to hand to the wireframer." />
-            {!handoff && <div style={{ display: "flex", justifyContent: "flex-end" }}><Btn onClick={handleHandoff}>Generate Prototype Brief</Btn></div>}
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small disabled={!pastedResult.trim()} onClick={acceptHandoff}>Accept Brief →</Btn>
-              </div>
-            )}
-            {handoff && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Wireframing scope + prototype brief</Label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <CopyBtn text={handoff} />
-                    <Btn small variant="ghost" onClick={() => dl(handoff, "prototype-brief.md")}>↓ .md</Btn>
-                  </div>
-                </div>
-                <OutputBlock content={handoff} maxH={520} />
-                <div style={{ marginTop: 20, padding: "14px 16px", background: T.protoDim, border: `1px solid ${T.protoBorder}`, borderRadius: 8 }}>
-                  <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.proto }}>
-                    ✓ Flow mapped — prototype brief ready for wireframing
-                  </span>
-                </div>
-              </div>
-            )}
+            <p style={{ margin: 0, color: T.dim, fontSize: 13, lineHeight: 1.5 }}>
+              Claude will ask follow-up questions to fill in any gaps. You can also upload documents, transcripts, or files directly in Claude.ai.
+            </p>
           </div>
         )}
       </div>

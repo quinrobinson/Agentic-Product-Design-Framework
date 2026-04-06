@@ -1,490 +1,175 @@
 import { useState } from "react";
 
 const T = {
-  bg: "#0F0F0F", surface: "#161616", card: "#1C1C1C", border: "#2A2A2A",
-  text: "#F2F2F2", muted: "#999999", dim: "#666666",
-  deliver: "#14B8A6", deliverDim: "rgba(20,184,166,0.12)", deliverBorder: "rgba(20,184,166,0.25)",
+  bg: "#0F0F0F", surface: "#161616", card: "#1A1A1A",
+  border: "#2C2C2C", text: "#F2F2F2", muted: "#999999", dim: "#787878",
+  accent: "#14B8A6",
+  font: { sans: "'DM Sans', sans-serif", mono: "'JetBrains Mono', monospace" },
 };
 
-const ACCENT = T.deliver;
-
-const STEPS = [
-  { id: 1, label: "Setup",      short: "Feature + screens"        },
-  { id: 2, label: "Issues",     short: "Log discrepancies"        },
-  { id: 3, label: "Prioritize", short: "Severity + fix list"      },
-  { id: 4, label: "Report",     short: "QA log + sign-off"        },
-];
-
-const SEVERITY_COLORS = {
-  "P0": "#EF4444",
-  "P1": "#F59E0B",
-  "P2": "#3B82F6",
-  "P3": "#666666",
-};
-
-function Label({ children, sub }) {
-  return <div style={{ marginBottom: sub ? 4 : 8 }}><span style={{ fontSize: sub ? 11 : 12, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.07em", textTransform: "uppercase", color: sub ? T.muted : T.deliver }}>{children}</span></div>;
-}
-
-function Textarea({ value, onChange, placeholder, rows = 5, disabled }) {
-  return <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows} disabled={disabled} style={{ width: "100%", boxSizing: "border-box", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px", color: T.text, fontSize: 13, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none", opacity: disabled ? 0.5 : 1, transition: "border-color 0.15s" }} onFocus={e => e.target.style.borderColor = T.deliver} onBlur={e => e.target.style.borderColor = T.border} />;
-}
-
-function Input({ value, onChange, placeholder, disabled }) {
-  return <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} disabled={disabled} style={{ width: "100%", boxSizing: "border-box", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "10px 14px", color: T.text, fontSize: 13, fontFamily: "'DM Sans', sans-serif", outline: "none", transition: "border-color 0.15s", opacity: disabled ? 0.5 : 1 }} onFocus={e => e.target.style.borderColor = T.deliver} onBlur={e => e.target.style.borderColor = T.border} />;
-}
-
-function Btn({ children, onClick, disabled, variant = "primary", small }) {
-  const p = variant === "primary";
-  return <button onClick={onClick} disabled={disabled} style={{ padding: small ? "7px 14px" : "10px 20px", fontSize: small ? 11 : 13, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, cursor: disabled ? "not-allowed" : "pointer", borderRadius: 6, border: "1.5px solid", borderColor: p ? T.deliver : T.border, background: p ? T.deliver : "transparent", color: p ? T.bg : T.muted, opacity: disabled ? 0.4 : 1, transition: "all 0.15s" }} onMouseEnter={e => { if (!disabled) e.currentTarget.style.opacity = "0.85"; }} onMouseLeave={e => { if (!disabled) e.currentTarget.style.opacity = "1"; }}>{children}</button>;
+function Textarea({ value, onChange, placeholder, rows = 4 }) {
+  return (
+    <textarea
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      rows={rows}
+      style={{
+        width: "100%", boxSizing: "border-box", background: T.surface,
+        border: `1px solid ${T.border}`, borderRadius: 8, color: T.text,
+        fontFamily: T.font.sans, fontSize: 14, padding: "10px 12px",
+        resize: "vertical", outline: "none",
+      }}
+    />
+  );
 }
 
 function CopyBtn({ text }) {
-  const [c, setC] = useState(false);
-  return <Btn small variant="ghost" onClick={() => { navigator.clipboard.writeText(text); setC(true); setTimeout(() => setC(false), 1800); }}>{c ? "✓ Copied" : "Copy"}</Btn>;
-}
-
-function OutputBlock({ content, maxH = 480 }) {
-  return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "16px 18px", fontSize: 13, lineHeight: 1.7, color: T.text, fontFamily: "'DM Sans', sans-serif", whiteSpace: "pre-wrap", wordBreak: "break-word", maxHeight: maxH, overflowY: "auto" }}>
-      {content || <span style={{ color: T.dim, fontStyle: "italic" }}>Output will appear here…</span>}
-    </div>
-  );
-}
-
-function SectionHeader({ step, title, desc }) {
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-        <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.deliver, background: T.deliverDim, border: `1px solid ${T.deliverBorder}`, padding: "2px 8px", borderRadius: 4 }}>Step {step}</span>
-        <span style={{ fontSize: 16, fontWeight: 600, fontFamily: "'DM Serif Display', serif", color: T.text }}>{title}</span>
-      </div>
-      {desc && <p style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, margin: 0, maxWidth: 600 }}>{desc}</p>}
-    </div>
-  );
-}
-
-function StepIndicator({ current, completed }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 32 }}>
-      {STEPS.map((s, i) => {
-        const done = completed.includes(s.id), active = current === s.id;
-        return (
-          <div key={s.id} style={{ display: "flex", alignItems: "center", flex: i < STEPS.length - 1 ? 1 : "none" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 56 }}>
-              <div style={{ width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", background: done ? T.deliver : active ? T.deliverDim : "transparent", border: `1.5px solid ${done ? T.deliver : active ? T.deliver : T.border}`, color: done ? T.bg : active ? T.deliver : T.dim, transition: "all 0.2s" }}>{done ? "✓" : s.id}</div>
-              <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: active ? T.deliver : done ? T.muted : T.dim, whiteSpace: "nowrap" }}>{s.label}</span>
-            </div>
-            {i < STEPS.length - 1 && <div style={{ flex: 1, height: 1, marginBottom: 18, marginLeft: 4, marginRight: 4, background: done ? T.deliver : T.border, transition: "background 0.3s" }} />}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function PromptPanel({ promptText, pastedResult, setPastedResult }) {
   const [copied, setCopied] = useState(false);
-  if (!promptText) return null;
+  async function copy() {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
   return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "16px 18px", marginTop: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: ACCENT }}>
-          Prompt ready — copy and run in Claude
-        </span>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            onClick={() => { navigator.clipboard.writeText(promptText); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-            style={{ padding: "6px 14px", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, cursor: "pointer", borderRadius: 6, border: `1.5px solid ${ACCENT}`, background: copied ? ACCENT : "transparent", color: copied ? "#fff" : ACCENT, transition: "all 0.15s" }}
-          >{copied ? "✓ Copied" : "Copy Prompt"}</button>
-          <a href="https://claude.ai" target="_blank" rel="noopener noreferrer"
-            style={{ padding: "6px 14px", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, cursor: "pointer", borderRadius: 6, border: `1.5px solid ${T.border}`, background: "transparent", color: T.muted, textDecoration: "none", transition: "all 0.15s" }}
-          >Open Claude.ai →</a>
-        </div>
-      </div>
-      <pre style={{ whiteSpace: "pre-wrap", fontSize: 12, lineHeight: 1.7, color: T.text, fontFamily: "'JetBrains Mono', monospace", background: T.card, border: `1px solid ${T.border}`, borderRadius: 6, padding: "12px 14px", maxHeight: 260, overflowY: "auto", margin: 0 }}>{promptText}</pre>
-      <div style={{ marginTop: 16 }}>
-        <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.07em", textTransform: "uppercase", color: T.muted, marginBottom: 8 }}>Paste Claude's response here</div>
-        <textarea
-          value={pastedResult}
-          onChange={e => setPastedResult(e.target.value)}
-          placeholder="Run the prompt in Claude, then paste the result here to continue…"
-          rows={6}
-          style={{ width: "100%", boxSizing: "border-box", background: T.card, border: `1px solid ${T.border}`, borderRadius: 6, padding: "12px 14px", color: T.text, fontSize: 13, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none" }}
-          onFocus={e => e.target.style.borderColor = ACCENT}
-          onBlur={e => e.target.style.borderColor = T.border}
-        />
-      </div>
-    </div>
+    <button onClick={copy} disabled={!text} style={{
+      background: text ? T.accent : T.border, color: text ? "#000" : T.muted,
+      border: "none", borderRadius: 8, padding: "10px 20px",
+      fontFamily: T.font.sans, fontSize: 14, fontWeight: 600,
+      cursor: text ? "pointer" : "default",
+    }}>
+      {copied ? "Copied!" : "Copy Prompt"}
+    </button>
   );
 }
 
 export default function DesignQALogger() {
-  const [step, setStep] = useState(1);
-  const [completed, setCompleted] = useState([]);
+  const [qaObservations, setQaObservations] = useState("");
+  const [launchContext, setLaunchContext] = useState("");
+  const [prompt, setPrompt] = useState("");
 
-  const [feature, setFeature] = useState("");
-  const [screens, setScreens] = useState("");
-  const [environment, setEnvironment] = useState("");
+  function buildPrompt() {
+    return `You are a senior design engineer running a final design QA review before launch, helping a team structure their observations into an actionable issue log.
 
-  const [rawNotes, setRawNotes] = useState("");
-  const [structuredIssues, setStructuredIssues] = useState("");
-  const [prioritized, setPrioritized] = useState("");
-  const [qaReport, setQaReport] = useState("");
+Start by understanding the QA context:
+- What's being QA'd — a new feature, a redesign, or a bug fix?
+- What's the agreed design spec? (Figma link, Zeplin, or component spec document)
+- What platform and devices were tested?
+- Is this a pre-launch QA or a post-launch audit?
 
-  const [promptText, setPromptText] = useState("");
-  const [pastedResult, setPastedResult] = useState("");
+Guide the QA process systematically:
 
-  const mark = (id) => setCompleted(p => [...new Set([...p, id])]);
+**1. Issue Log**
+For every observation, document:
+- **ID**: QA-001, QA-002...
+- **Screen / Component**: Where the issue appears
+- **Description**: What's wrong (be specific — not "button looks off")
+- **Expected**: What the design spec says
+- **Actual**: What was implemented
+- **Severity**:
+  - P0: Blocking launch (accessibility failure, data loss, broken core flow)
+  - P1: Must fix before launch (visual regression from spec, broken interaction)
+  - P2: Should fix in follow-up sprint (minor spec deviation, polish)
+  - P3: Nice to have (preference, not a spec violation)
+- **Screenshot needed**: Yes / No
 
-  function dl(content, filename) {
-    const blob = new Blob([content], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = filename; a.click();
-    URL.revokeObjectURL(url);
+**2. Summary Dashboard**
+- Total issues by severity
+- Screens or components with most issues
+- % spec compliance (rough estimate)
+
+**3. Launch Recommendation**
+Based on P0/P1 counts:
+- LAUNCH READY: No blockers, all P0/P1 resolved
+- CONDITIONAL LAUNCH: Ship with P2/P3 tracked, P0/P1 resolved
+- NOT READY: P0/P1 issues must be fixed first
+
+**4. Developer Sign-Off Checklist**
+A checklist of P0/P1 items for the developer to confirm fixed before launch, with space for sign-off initials and date.
+
+If the designer has screenshots, recordings, or a Figma spec to share, ask them to upload the files.
+
+Output as clean markdown with a table for the issue log and the checklist at the end.${qaObservations ? `\n\nQA observations provided:\n${qaObservations}` : ""}${launchContext ? `\n\nLaunch context:\n${launchContext}` : ""}`;
   }
-
-  function handleStructure() {
-    const sys = "You are a design QA specialist structuring implementation review notes. Be precise and consistent. Every issue needs a clear spec reference and a specific fix. Design QA is not subjective — it's comparing what was built against what was approved.";
-    const msg = `Structure these design QA notes into a consistent issue log.
-
-Feature: ${feature}
-Screens reviewed: ${screens}
-Environment: ${environment || "Staging"}
-
-Raw QA notes:
-${rawNotes}
-
-For each issue, produce one entry in this format:
-
-## Issue [N]: [Short title — what the problem is, 5–8 words]
-
-**Screen:** [Screen name]
-**Element:** [Specific component, section, or element — be precise]
-**Severity:** P0 / P1 / P2 / P3 (assign in next step)
-**Spec says:** [What the approved design specifies]
-**Build has:** [What was actually implemented]
-**Fix:** [Specific change required — concrete enough for a developer to action]
-**Notes:** [Any context, edge case, or dependency worth flagging]
-
-After all issues, add a summary:
-
-## What's Correct
-[List any screens or elements that match the spec perfectly — equal weight to issues]
-
-## Unclear Scope
-[Anything ambiguous — where the spec and implementation differ but it's unclear if it's intentional]`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptStructuredIssues() {
-    setStructuredIssues(pastedResult);
-    setPromptText(""); setPastedResult("");
-    mark(2);
-  }
-
-  function handlePrioritize() {
-    const sys = "You are a design QA lead prioritizing issues for a production release. Apply severity consistently. P0 = blocks launch (broken functionality or severe accessibility failure). P1 = must fix before launch (significant visual or UX deviation). P2 = fix soon post-launch. P3 = polish when time allows.";
-    const msg = `Rate and prioritize every issue in this QA log.
-
-Feature: ${feature}
-
-Severity scale:
-- P0: Blocks launch — broken functionality, severe accessibility failure, data loss risk, or complete deviation from approved design that breaks user task
-- P1: Must fix before launch — significant visual deviation, wrong copy in prominent location, missing state, layout broken on any supported viewport
-- P2: Fix post-launch (within one sprint) — minor visual discrepancy, spacing off by 4–8px, secondary state inconsistency
-- P3: Polish — preference-level difference, minor spacing, low-visibility element
-
-Issues:
-${structuredIssues}
-
-Produce:
-
-## Severity-Rated Issue List
-
-| Priority | # | Issue title | Screen | Element | Fix |
-|---|---|---|---|---|---|
-| P0 | [N] | [title] | [screen] | [element] | [fix] |
-| P1 | [N] | [title] | [screen] | [element] | [fix] |
-
-## Summary
-- Total issues: [N]
-- P0 (blocks launch): [N]
-- P1 (before launch): [N]
-- P2 (post-launch): [N]
-- P3 (polish): [N]
-
-## Launch recommendation
-[Safe to launch if P0 = 0 / Hold: N P0 issues must resolve first / Launch with known issues: list P1s being deferred with rationale]`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptPrioritized() {
-    setPrioritized(pastedResult);
-    setPromptText(""); setPastedResult("");
-    mark(3);
-  }
-
-  function handleReport() {
-    const sys = "You are a design QA lead generating a final QA report for stakeholders and developers. Be clear about what needs to happen before launch. Sign-off is a real decision — state it explicitly.";
-    const msg = `Generate a complete design QA report.
-
-Feature: ${feature}
-Environment: ${environment || "Staging"}
-Date: ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-
-Structured issues: ${structuredIssues}
-Prioritized list: ${prioritized}
-
-## Design QA Report: ${feature}
-Date: [date] | Environment: [environment] | Reviewed by: [Designer]
-
----
-
-## Summary
-- Screens reviewed: [N]
-- Total issues found: [N]
-- P0 (blocks launch): [N]
-- P1 (before launch): [N]
-- P2 (post-launch): [N]
-- P3 (polish): [N]
-- Elements passing spec: [list]
-
-## Launch Recommendation
-**[HOLD / APPROVED WITH CONDITIONS / APPROVED]**
-[One sentence rationale]
-
----
-
-## P0 Issues — Resolve Before Launch
-For each P0:
-### [Issue title]
-Screen: [name] | Element: [name]
-Spec: [what was approved]
-Build: [what was implemented]
-**Fix required:** [specific action]
-
-## P1 Issues — Resolve Before Launch
-[Same format, briefer]
-
-## P2 Issues — Post-Launch (Sprint [N])
-| # | Issue | Screen | Fix |
-|---|---|---|---|
-
-## P3 Issues — Polish Backlog
-| # | Issue | Screen |
-|---|---|---|
-
----
-
-## What Passed
-[Screens and elements that match spec — document to prevent unnecessary changes]
-
-## Sign-Off Checklist
-- [ ] All P0 issues resolved and verified
-- [ ] All P1 issues resolved or formally deferred with PM sign-off
-- [ ] Accessibility: keyboard nav tested
-- [ ] Accessibility: screen reader tested on primary flow
-- [ ] Responsive: tested on [smallest supported viewport]
-- [ ] Dark mode: tested (if applicable)
-- [ ] Design approved for production: [Designer] — [Date]`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptQaReport() {
-    setQaReport(pastedResult);
-    setPromptText(""); setPastedResult("");
-    mark(4);
-  }
-
-  const issueCount = (structuredIssues.match(/^## Issue/gm) || []).length;
-  const p0Count = (prioritized.match(/\| P0/g) || []).length;
 
   return (
-    <div style={{ minHeight: "100vh", background: T.bg, fontFamily: "'DM Sans', sans-serif", color: T.text }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
-        :focus-visible { outline: 2px solid #999; outline-offset: 2px; border-radius: 4px; }
-      `}</style>
-
-      <div style={{ borderBottom: `1px solid ${T.border}`, padding: "0 clamp(24px,5vw,80px)", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: T.deliver, boxShadow: `0 0 8px ${T.deliver}` }} />
-          <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.deliver }}>06 — Deliver</span>
-          <span style={{ color: T.dim }}>·</span>
-          <span style={{ fontSize: 15, fontWeight: 600, fontFamily: "'DM Serif Display', serif", color: T.text }}>Design QA Logger</span>
+    <div style={{ background: T.bg, minHeight: "100vh", padding: "32px 24px", fontFamily: T.font.sans, color: T.text }}>
+      <div style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <span style={{ background: T.accent + "22", color: T.accent, padding: "3px 10px", borderRadius: 99, fontSize: 12, fontWeight: 600, letterSpacing: "0.05em" }}>
+            DELIVER
+          </span>
         </div>
-        {issueCount > 0 && (
-          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-            {p0Count > 0 && <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: "#EF4444" }}>{p0Count} P0</span>}
-            <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.dim }}>{issueCount} issues</span>
-          </div>
-        )}
-      </div>
+        <h1 style={{ margin: "0 0 8px", fontSize: 28, fontWeight: 700, lineHeight: 1.2 }}>Design QA Logger</h1>
+        <p style={{ margin: "0 0 32px", color: T.muted, fontSize: 16, lineHeight: 1.5 }}>
+          Structure QA notes into a severity-rated issue log with launch recommendation and developer sign-off checklist
+        </p>
 
-      <div style={{ maxWidth: 1440, margin: "0 auto", padding: "48px clamp(24px,5vw,80px) 96px" }}>
-        <StepIndicator current={step} completed={completed} />
-
-        {step === 1 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 28 }}>
           <div>
-            <SectionHeader step={1} title="QA Setup"
-              desc="Define the feature, screens under review, and environment. Then paste your raw notes — scattered, inconsistent, any format." />
-            <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: "14px 18px", marginBottom: 20 }}>
-              <div style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
-                {[["Design QA ≠ Functional QA", "Functional QA: does it work? Design QA: does it match?"], ["Spec vs. actual", "Every issue compares what was approved to what was built"], ["Severity drives action", "P0 blocks launch. P1 must fix. P2 post-launch. P3 polish."]].map(([label, desc]) => (
-                  <div key={label} style={{ flex: 1, minWidth: 160 }}>
-                    <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", color: T.deliver, marginBottom: 4 }}>{label}</div>
-                    <div style={{ fontSize: 12, color: T.dim }}>{desc}</div>
-                  </div>
-                ))}
-              </div>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 6, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              QA OBSERVATIONS <span style={{ color: T.dim }}>(optional)</span>
+            </label>
+            <Textarea
+              value={qaObservations}
+              onChange={setQaObservations}
+              placeholder="Paste your QA notes — screen by screen, interaction by interaction. Raw notes are fine. You can also upload screenshots or screen recordings in Claude.ai."
+              rows={7}
+            />
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 6, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              LAUNCH CONTEXT <span style={{ color: T.dim }}>(optional)</span>
+            </label>
+            <Textarea
+              value={launchContext}
+              onChange={setLaunchContext}
+              placeholder="What's the launch scope? Any known constraints (hard deadline, partial rollout, feature flag)? What was the agreed spec?"
+              rows={3}
+            />
+          </div>
+        </div>
+
+        <button
+          onClick={() => setPrompt(buildPrompt())}
+          style={{
+            background: T.accent, color: "#000", border: "none", borderRadius: 8,
+            padding: "12px 28px", fontFamily: T.font.sans, fontSize: 15, fontWeight: 600,
+            cursor: "pointer", marginBottom: 36,
+          }}
+        >
+          Generate Prompt →
+        </button>
+
+        {prompt && (
+          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 24 }}>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 10, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              YOUR CLAUDE PROMPT
+            </label>
+            <pre style={{
+              margin: "0 0 20px", color: T.text, fontSize: 13, fontFamily: T.font.mono,
+              whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: 1.65,
+              background: T.surface, borderRadius: 8, padding: 16, maxHeight: 400, overflowY: "auto",
+            }}>
+              {prompt}
+            </pre>
+            <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
+              <CopyBtn text={prompt} />
+              <a
+                href="https://claude.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: T.accent, fontFamily: T.font.sans, fontSize: 14, fontWeight: 500,
+                  textDecoration: "none", border: `1px solid ${T.accent}44`, borderRadius: 8, padding: "10px 20px",
+                }}
+              >
+                Open Claude.ai ↗
+              </a>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
-                <div>
-                  <Label>Feature name</Label>
-                  <Input value={feature} onChange={setFeature} placeholder="e.g. File Upload Flow" />
-                </div>
-                <div>
-                  <Label>Screens reviewed</Label>
-                  <Input value={screens} onChange={setScreens} placeholder="e.g. Upload modal, Processing, Results" />
-                </div>
-                <div>
-                  <Label>Environment</Label>
-                  <Input value={environment} onChange={setEnvironment} placeholder="e.g. Staging — build 2.4.1" />
-                </div>
-              </div>
-              <div>
-                <Label>Raw QA notes — paste anything</Label>
-                <Textarea value={rawNotes} onChange={setRawNotes} rows={12}
-                  placeholder={"Paste your raw notes in any format:\n\n- Upload button wrong color — should be teal not blue\n- Drag area too small on mobile, hard to tap\n- Error message missing on invalid file type\n- Loading spinner doesn't match design — wrong size\n- 'Processing...' copy should be 'Analyzing your notes...'\n- Progress bar missing\n- Success state ✓ looks correct\n- File name truncation at 28 chars not 40 as specced\n- Typography on results screen — H2 is 24px not 28px"} />
-              </div>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Btn disabled={!feature.trim() || !rawNotes.trim()} onClick={() => { mark(1); setStep(2); }}>Log Issues →</Btn>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div>
-            <SectionHeader step={2} title="Structure Issues"
-              desc="Claude converts scattered notes into consistent issue entries — each with screen, element, spec vs. actual, and specific fix." />
-            {!structuredIssues && (
-              <div>
-                <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                  <Btn onClick={handleStructure} disabled={!!promptText}>Structure All Issues</Btn>
-                </div>
-                <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-                {promptText && pastedResult.trim() && (
-                  <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                    <Btn variant="ghost" small onClick={() => { setPromptText(""); setPastedResult(""); }}>Cancel</Btn>
-                    <Btn small onClick={acceptStructuredIssues}>Accept Issues</Btn>
-                  </div>
-                )}
-              </div>
-            )}
-            {structuredIssues && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Screen · element · spec says · build has · fix</Label>
-                  <CopyBtn text={structuredIssues} />
-                </div>
-                <OutputBlock content={structuredIssues} maxH={540} />
-                <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                  <Btn variant="ghost" small onClick={() => { setStructuredIssues(""); setPromptText(""); setPastedResult(""); }}>Re-structure</Btn>
-                  <Btn small onClick={() => { mark(2); setStep(3); }}>Prioritize Issues →</Btn>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {step === 3 && (
-          <div>
-            <SectionHeader step={3} title="Severity + Priority"
-              desc="Every issue rated P0–P3. P0 blocks launch. P1 must fix before launch. P2 post-launch. P3 polish backlog." />
-            <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-              {[["P0", "Blocks launch", "#EF4444"], ["P1", "Before launch", "#F59E0B"], ["P2", "Post-launch", "#3B82F6"], ["P3", "Polish", "#666"]].map(([p, label, color]) => (
-                <div key={p} style={{ display: "flex", alignItems: "center", gap: 6, padding: "5px 10px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 6 }}>
-                  <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, color }}>{p}</span>
-                  <span style={{ fontSize: 11, color: T.muted }}>{label}</span>
-                </div>
-              ))}
-            </div>
-            {!prioritized && (
-              <div>
-                <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                  <Btn onClick={handlePrioritize} disabled={!!promptText}>Rate All Issues</Btn>
-                </div>
-                <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-                {promptText && pastedResult.trim() && (
-                  <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                    <Btn variant="ghost" small onClick={() => { setPromptText(""); setPastedResult(""); }}>Cancel</Btn>
-                    <Btn small onClick={acceptPrioritized}>Accept Priority List</Btn>
-                  </div>
-                )}
-              </div>
-            )}
-            {prioritized && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Priority table · summary · launch recommendation</Label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <CopyBtn text={prioritized} />
-                    <Btn small variant="ghost" onClick={() => dl([structuredIssues, prioritized].join("\n\n---\n\n"), "qa-log.md")}>↓ Issue log .md</Btn>
-                  </div>
-                </div>
-                <OutputBlock content={prioritized} maxH={500} />
-                <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                  <Btn variant="ghost" small onClick={() => { setPrioritized(""); setPromptText(""); setPastedResult(""); }}>Re-prioritize</Btn>
-                  <Btn small onClick={() => { mark(3); setStep(4); }}>Generate QA Report →</Btn>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {step === 4 && (
-          <div>
-            <SectionHeader step={4} title="QA Report"
-              desc="Complete QA report with launch recommendation, sign-off checklist, and P0/P1 fix list — ready to share with engineering and PM." />
-            {!qaReport && (
-              <div>
-                <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                  <Btn onClick={handleReport} disabled={!!promptText}>Generate QA Report</Btn>
-                </div>
-                <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-                {promptText && pastedResult.trim() && (
-                  <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                    <Btn variant="ghost" small onClick={() => { setPromptText(""); setPastedResult(""); }}>Cancel</Btn>
-                    <Btn small onClick={acceptQaReport}>Accept QA Report</Btn>
-                  </div>
-                )}
-              </div>
-            )}
-            {qaReport && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Summary · launch decision · P0/P1 fixes · sign-off checklist</Label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <CopyBtn text={qaReport} />
-                    <Btn small variant="ghost" onClick={() => dl(qaReport, `${feature.toLowerCase().replace(/\s+/g, "-")}-qa-report.md`)}>↓ Report .md</Btn>
-                  </div>
-                </div>
-                <OutputBlock content={qaReport} maxH={560} />
-                <div style={{ marginTop: 20, padding: "14px 16px", background: T.deliverDim, border: `1px solid ${T.deliverBorder}`, borderRadius: 8 }}>
-                  <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.deliver }}>
-                    ✓ Share report with engineering — resolve P0s before any production deploy
-                  </span>
-                </div>
-              </div>
-            )}
+            <p style={{ margin: 0, color: T.dim, fontSize: 13, lineHeight: 1.5 }}>
+              Claude will ask follow-up questions to fill in any gaps. You can also upload documents, transcripts, or files directly in Claude.ai.
+            </p>
           </div>
         )}
       </div>

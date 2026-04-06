@@ -1,515 +1,161 @@
 import { useState } from "react";
 
 const T = {
-  bg: "#0F0F0F", surface: "#161616", card: "#1C1C1C", border: "#2A2A2A",
-  text: "#F2F2F2", muted: "#999999", dim: "#666666",
-  proto: "#3B82F6", protoDim: "rgba(59,130,246,0.12)", protoBorder: "rgba(59,130,246,0.25)",
+  bg: "#0F0F0F", surface: "#161616", card: "#1A1A1A",
+  border: "#2C2C2C", text: "#F2F2F2", muted: "#999999", dim: "#787878",
+  accent: "#3B82F6",
+  font: { sans: "'DM Sans', sans-serif", mono: "'JetBrains Mono', monospace" },
 };
 
-const STEPS = [
-  { id: 1, label: "Context",  short: "Product + persona"      },
-  { id: 2, label: "Voice",    short: "Tone + style brief"     },
-  { id: 3, label: "Copy",     short: "Flow copy + CTAs"       },
-  { id: 4, label: "States",   short: "Errors + empty states"  },
-  { id: 5, label: "Handoff",  short: "Full copy document"     },
-];
-
-function PromptPanel({ promptText, pastedResult, setPastedResult }) {
-  const [copied, setCopied] = useState(false);
-  if (!promptText) return null;
+function Textarea({ value, onChange, placeholder, rows = 4 }) {
   return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "16px 18px", marginTop: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.proto }}>
-          Prompt ready — copy and run in Claude
-        </span>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            onClick={() => { navigator.clipboard.writeText(promptText); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-            style={{ padding: "6px 14px", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, cursor: "pointer", borderRadius: 6, border: `1.5px solid ${T.proto}`, background: copied ? T.proto : "transparent", color: copied ? "#fff" : T.proto, transition: "all 0.15s" }}
-          >{copied ? "✓ Copied" : "Copy Prompt"}</button>
-          <a href="https://claude.ai" target="_blank" rel="noopener noreferrer"
-            style={{ padding: "6px 14px", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, borderRadius: 6, border: `1.5px solid ${T.border}`, color: T.muted, textDecoration: "none", display: "inline-block" }}
-          >Open Claude.ai →</a>
-        </div>
-      </div>
-      <pre style={{ whiteSpace: "pre-wrap", fontSize: 12, lineHeight: 1.7, color: T.text, fontFamily: "'DM Sans', sans-serif", margin: 0, maxHeight: 320, overflowY: "auto" }}>{promptText}</pre>
-      <div style={{ marginTop: 16 }}>
-        <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.muted, marginBottom: 8 }}>Paste Claude's response here</div>
-        <textarea
-          value={pastedResult} onChange={e => setPastedResult(e.target.value)}
-          placeholder="Run the prompt in Claude, then paste the result here to continue…" rows={6}
-          style={{ width: "100%", boxSizing: "border-box", background: T.bg, border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px", color: T.text, fontSize: 13, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none" }}
-          onFocus={e => e.target.style.borderColor = T.proto} onBlur={e => e.target.style.borderColor = T.border}
-        />
-      </div>
-    </div>
-  );
-}
-
-function Label({ children, sub }) {
-  return (
-    <div style={{ marginBottom: sub ? 4 : 8 }}>
-      <span style={{ fontSize: sub ? 11 : 12, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.07em", textTransform: "uppercase", color: sub ? T.muted : T.proto }}>{children}</span>
-    </div>
-  );
-}
-
-function Textarea({ value, onChange, placeholder, rows = 5, disabled }) {
-  return (
-    <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows} disabled={disabled}
-      style={{ width: "100%", boxSizing: "border-box", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px", color: T.text, fontSize: 13, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none", opacity: disabled ? 0.5 : 1, transition: "border-color 0.15s" }}
-      onFocus={e => e.target.style.borderColor = T.proto} onBlur={e => e.target.style.borderColor = T.border} />
-  );
-}
-
-function Input({ value, onChange, placeholder, disabled }) {
-  return (
-    <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} disabled={disabled}
-      style={{ width: "100%", boxSizing: "border-box", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "10px 14px", color: T.text, fontSize: 13, fontFamily: "'DM Sans', sans-serif", outline: "none", transition: "border-color 0.15s", opacity: disabled ? 0.5 : 1 }}
-      onFocus={e => e.target.style.borderColor = T.proto} onBlur={e => e.target.style.borderColor = T.border} />
-  );
-}
-
-function Btn({ children, onClick, disabled, variant = "primary", small }) {
-  const isPrimary = variant === "primary";
-  return (
-    <button onClick={onClick} disabled={disabled} style={{ padding: small ? "7px 14px" : "10px 20px", fontSize: small ? 11 : 13, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, cursor: disabled ? "not-allowed" : "pointer", borderRadius: 6, border: "1.5px solid", borderColor: isPrimary ? T.proto : T.border, background: isPrimary ? T.proto : "transparent", color: isPrimary ? "#fff" : T.muted, opacity: disabled ? 0.4 : 1, transition: "all 0.15s" }}
-      onMouseEnter={e => { if (!disabled) e.currentTarget.style.opacity = "0.85"; }}
-      onMouseLeave={e => { if (!disabled) e.currentTarget.style.opacity = "1"; }}
-    >{children}</button>
+    <textarea
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      rows={rows}
+      style={{
+        width: "100%", boxSizing: "border-box", background: T.surface,
+        border: `1px solid ${T.border}`, borderRadius: 8, color: T.text,
+        fontFamily: T.font.sans, fontSize: 14, padding: "10px 12px",
+        resize: "vertical", outline: "none",
+      }}
+    />
   );
 }
 
 function CopyBtn({ text }) {
   const [copied, setCopied] = useState(false);
+  async function copy() {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
   return (
-    <Btn small variant="ghost" onClick={() => { navigator.clipboard.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1800); }}>
-      {copied ? "✓ Copied" : "Copy"}
-    </Btn>
-  );
-}
-
-function OutputBlock({ content, maxH = 480 }) {
-  return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "16px 18px", fontSize: 13, lineHeight: 1.7, color: T.text, fontFamily: "'DM Sans', sans-serif", whiteSpace: "pre-wrap", wordBreak: "break-word", maxHeight: maxH, overflowY: "auto" }}>
-      {content || <span style={{ color: T.dim, fontStyle: "italic" }}>Output will appear here…</span>}
-    </div>
-  );
-}
-
-function SectionHeader({ step, title, desc }) {
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-        <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.proto, background: T.protoDim, border: `1px solid ${T.protoBorder}`, padding: "2px 8px", borderRadius: 4 }}>Step {step}</span>
-        <span style={{ fontSize: 16, fontWeight: 600, fontFamily: "'DM Serif Display', serif", color: T.text }}>{title}</span>
-      </div>
-      {desc && <p style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, margin: 0, maxWidth: 600 }}>{desc}</p>}
-    </div>
-  );
-}
-
-function StepIndicator({ current, completed }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 32 }}>
-      {STEPS.map((s, i) => {
-        const done = completed.includes(s.id), active = current === s.id;
-        return (
-          <div key={s.id} style={{ display: "flex", alignItems: "center", flex: i < STEPS.length - 1 ? 1 : "none" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 56 }}>
-              <div style={{ width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", background: done ? T.proto : active ? T.protoDim : "transparent", border: `1.5px solid ${done ? T.proto : active ? T.proto : T.border}`, color: done ? "#fff" : active ? T.proto : T.dim, transition: "all 0.2s" }}>{done ? "✓" : s.id}</div>
-              <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: active ? T.proto : done ? T.muted : T.dim, whiteSpace: "nowrap" }}>{s.label}</span>
-            </div>
-            {i < STEPS.length - 1 && <div style={{ flex: 1, height: 1, marginBottom: 18, marginLeft: 4, marginRight: 4, background: done ? T.proto : T.border, transition: "background 0.3s" }} />}
-          </div>
-        );
-      })}
-    </div>
+    <button onClick={copy} disabled={!text} style={{
+      background: text ? T.accent : T.border, color: text ? "#000" : T.muted,
+      border: "none", borderRadius: 8, padding: "10px 20px",
+      fontFamily: T.font.sans, fontSize: 14, fontWeight: 600,
+      cursor: text ? "pointer" : "default",
+    }}>
+      {copied ? "Copied!" : "Copy Prompt"}
+    </button>
   );
 }
 
 export default function UXCopyWriter() {
-  const [step, setStep] = useState(1);
-  const [completed, setCompleted] = useState([]);
-  const [promptText, setPromptText] = useState("");
-  const [pastedResult, setPastedResult] = useState("");
+  const [voiceContext, setVoiceContext] = useState("");
+  const [screensContext, setScreensContext] = useState("");
+  const [prompt, setPrompt] = useState("");
 
-  const [product, setProduct] = useState("");
-  const [persona, setPersona] = useState("");
-  const [flow, setFlow] = useState("");
-  const [existingVoice, setExistingVoice] = useState("");
+  function buildPrompt() {
+    return `You are a senior UX writer helping a designer write complete interface copy for a product.
 
-  const [voiceBrief, setVoiceBrief] = useState("");
-  const [flowCopy, setFlowCopy] = useState("");
-  const [errorCopy, setErrorCopy] = useState("");
-  const [handoff, setHandoff] = useState("");
+Start by establishing the voice before writing any copy. Ask about:
+- Who is the user — what's their mental model and vocabulary?
+- What's the brand personality? (Ask for 3 adjectives if not provided)
+- Are there any voice anti-patterns to avoid? (e.g. never be overly casual, never use jargon)
+- What platform is this for — mobile, web, desktop?
 
-  const mark = (id) => setCompleted(p => [...new Set([...p, id])]);
+Then produce copy across these areas:
 
-  function dl(content, filename) {
-    const blob = new Blob([content], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = filename; a.click();
-    URL.revokeObjectURL(url);
-  }
+1. **Voice Brief** — A short guide (1 page) capturing: personality, tone spectrum (formal ↔ casual), vocabulary rules, anti-patterns, and 3 "before/after" examples showing the voice in action
 
-  function handleVoice() {
-    const sys = "You are a UX content strategist. Define a precise, usable voice brief — not aspirational brand fluff. Every element must be actionable: a writer should be able to apply it immediately.";
-    const msg = `Define the voice and tone for this product.
+2. **Screen-by-Screen Copy** — For each screen or flow provided:
+   - Headlines and subheadlines
+   - Button labels and CTAs
+   - Input labels and placeholder text
+   - Helper text and inline guidance
+   - Success messages
 
-Product: ${product}
-Primary user: ${persona}
-Existing voice guidance: ${existingVoice || "None — infer from product and user context"}
+3. **Error States** — For each key action, write:
+   - Validation errors (what went wrong, how to fix it)
+   - System errors (what happened, what to do next)
+   - Empty states (why it's empty, what to do)
 
-Produce a voice reference card:
+4. **Microcopy** — Tooltips, confirmations, loading states, and notifications
 
-## Voice (4 adjectives — what we always sound like)
-[Adjective 1] — [one sentence: what this means in practice]
-[Adjective 2] — [one sentence]
-[Adjective 3] — [one sentence]
-[Adjective 4] — [one sentence]
+If the designer has wireframes, screenshots, or a copy deck to share, ask them to upload the files.
 
-## Tone shifts (how we adjust by moment)
-| Moment | Tone adjustment | Example phrase |
-|---|---|---|
-| First use / onboarding | [tone] | [example] |
-| Mid-flow (task in progress) | [tone] | [example] |
-| Error (something failed) | [tone] | [example] |
-| Success (task complete) | [tone] | [example] |
-| Empty state (nothing yet) | [tone] | [example] |
-
-## We sound like → We don't sound like
-✓ [Phrase they'd use] | ✗ [Phrase they'd never use]
-✓ [Phrase] | ✗ [Phrase]
-✓ [Phrase] | ✗ [Phrase]
-
-## Words we use / avoid
-✓ [Word] — [why] | ✗ [Word] — [why]
-✓ [Word] — [why] | ✗ [Word] — [why]
-
-## Reading level: [target — and why for this user]`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptVoice() {
-    setVoiceBrief(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(2);
-  }
-
-  function handleFlowCopy() {
-    const sys = "You are a UX writer generating complete interface copy. Every element of the copy must be grounded in the voice brief. Apply the copy quality standards: headlines lead with user benefit, CTAs are verb+noun, body copy earns every word.";
-    const msg = `Write complete UX copy for every screen in this flow.
-
-Product: ${product}
-Primary persona: ${persona}
-Voice brief: ${voiceBrief}
-
-Flow to write copy for:
-${flow}
-
-For each screen, write:
-
-## Screen: [Screen name]
-**Headline:** [Primary message — user benefit, ≤7 words, present tense]
-**Body:** [Supporting context — only if needed. 1–2 sentences max. Skip if headline is sufficient.]
-**Primary CTA:** [Verb + noun — specific, not generic. Never just "Continue" or "Next"]
-**Secondary actions:** [Back button, skip link, or alternative path text — if applicable]
-**Form labels:** [Every field label — sentence case, noun phrase]
-**Helper text:** [What user needs to know — what it does for them, not system constraints]
-**Placeholder text:** [Example data, not re-stated label — e.g. "e.g. jane@work.com"]
-
-Quality checks per screen:
-- CTA uses verb + noun? ✓/✗
-- Headline leads with user benefit? ✓/✗
-- Body copy earns every word? ✓/✗`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptFlowCopy() {
-    setFlowCopy(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(3);
-  }
-
-  function handleErrorCopy() {
-    const sys = "You are a UX writer. Write error and empty state copy that is honest, helpful, and never blames the user. Apply the formula: [What happened] + [Why, if actionable] + [What to do]. Match severity to tone — minor errors stay light, data loss errors are serious.";
-    const msg = `Write complete error state and empty state copy.
-
-Product: ${product}
-Voice brief: ${voiceBrief}
-Flow context: ${flow}
-
-## Error States
-
-For each error, write:
-- Headline (what happened — not just "Error")
-- Body (why + what to do — if user can act on it)
-- Primary action (most helpful next step)
-- Secondary action (escape route)
-
-**1. Network / connection failure**
-**2. Form validation — field level** (inline, adjacent to the field)
-**3. Form validation — form level** (summary, top of form)
-**4. Permission denied** (user lacks access)
-**5. Not found** (content or resource doesn't exist)
-**6. Timeout** (async operation too slow)
-**7. [Infer 2 product-specific errors from the flow]**
-
----
-
-## Empty States
-
-For each empty state:
-- Headline (what will appear here when there's content)
-- Body (why it's empty + the first action to take)
-- Primary CTA (to add the first item)
-
-**1. First use** (most important — user has never added anything)
-**2. Search returned no results**
-**3. Filtered results are empty**
-**4. User cleared everything** (intentional empty)
-
----
-
-## Confirmation Dialogs (destructive actions)
-For each irreversible action in the flow:
-- Headline (what's about to happen — not "Are you sure?")
-- Body (consequence in plain language)
-- Confirm CTA (the action, not "Yes")
-- Cancel CTA (always "Cancel" or "Keep [thing]")`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptErrorCopy() {
-    setErrorCopy(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(4);
-    setStep(5);
-  }
-
-  function handleHandoff() {
-    const allCopy = [flowCopy, errorCopy].filter(Boolean).join("\n\n---\n\n");
-    const sys = "You are a senior UX writer generating a complete copy handoff document. Organize the copy clearly for a developer or prototyper who wasn't in this session.";
-    const msg = `Generate a complete UX copy handoff document.
-
-Product: ${product}
-Persona: ${persona}
-Date: ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-
-Voice brief: ${voiceBrief}
-
-All copy generated: ${allCopy}
-
-Structure the handoff as:
-
-# UX Copy Handoff: [Product/Feature Name]
-Date: [date] | Phase: Prototype
-
----
-
-## Voice Reference (3 sentences — key rules for this product)
-[Distill the voice brief to 3 rules a developer can apply when encountering copy decisions]
-
-## Complete Copy Inventory
-[Organize all copy by screen — clearly labeled, easy to find]
-
-## Error State Library
-[All error and empty state copy — organized by error type]
-
-## Copy Still Needed
-[Any screens or states identified during this session that still need copy]
-
-## Test Script Notes
-[3–5 specific copy elements to observe closely during usability testing — labels that might be misread, CTAs that might be ambiguous, error messages to watch users react to]`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptHandoff() {
-    setHandoff(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(5);
+Produce all copy in a clean markdown document organized by screen/flow, ready for Figma handoff.${voiceContext ? `\n\nProduct & voice context:\n${voiceContext}` : ""}${screensContext ? `\n\nScreens or flows to write copy for:\n${screensContext}` : ""}`;
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: T.bg, fontFamily: "'DM Sans', sans-serif", color: T.text }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
-        :focus-visible { outline: 2px solid #999; outline-offset: 2px; border-radius: 4px; }
-      `}</style>
-
-      <div style={{ borderBottom: `1px solid ${T.border}`, padding: "0 clamp(24px,5vw,80px)", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: T.proto, boxShadow: `0 0 8px ${T.proto}` }} />
-          <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.proto }}>04 — Prototype</span>
-          <span style={{ color: T.dim }}>·</span>
-          <span style={{ fontSize: 15, fontWeight: 600, fontFamily: "'DM Serif Display', serif", color: T.text }}>UX Copy Writer</span>
+    <div style={{ background: T.bg, minHeight: "100vh", padding: "32px 24px", fontFamily: T.font.sans, color: T.text }}>
+      <div style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <span style={{ background: T.accent + "22", color: T.accent, padding: "3px 10px", borderRadius: 99, fontSize: 12, fontWeight: 600, letterSpacing: "0.05em" }}>
+            PROTOTYPE
+          </span>
         </div>
-        {voiceBrief && <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.dim }}>voice locked</span>}
-      </div>
+        <h1 style={{ margin: "0 0 8px", fontSize: 28, fontWeight: 700, lineHeight: 1.2 }}>UX Copy Writer</h1>
+        <p style={{ margin: "0 0 32px", color: T.muted, fontSize: 16, lineHeight: 1.5 }}>Generate complete interface copy — voice brief, flow copy, error states, and empty states</p>
 
-      <div style={{ maxWidth: 1440, margin: "0 auto", padding: "48px clamp(24px,5vw,80px) 96px" }}>
-        <StepIndicator current={step} completed={completed} />
-
-        {step === 1 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 28 }}>
           <div>
-            <SectionHeader step={1} title="Product Context" desc="Describe the product, the user, and the feature or flow needing copy. The more specific the input, the more grounded the copy." />
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <div>
-                  <Label>Product</Label>
-                  <Input value={product} onChange={setProduct} placeholder="e.g. AI research synthesis tool for product designers" />
-                </div>
-                <div>
-                  <Label>Primary persona</Label>
-                  <Input value={persona} onChange={setPersona} placeholder="e.g. Senior product designer, time-constrained, uses Figma daily" />
-                </div>
-              </div>
-              <div>
-                <Label>Flow or screens to write copy for</Label>
-                <Textarea value={flow} onChange={setFlow} rows={6} placeholder={"Describe each screen in the flow:\n\nScreen 1: Onboarding — user has just signed up, needs to connect their first project\nScreen 2: Upload — user uploads interview notes (PDF, doc, or text)\nScreen 3: Processing — system is analyzing the notes\nScreen 4: Results — themes and insights displayed\nScreen 5: Export — user sends results to Notion or Figma"} />
-              </div>
-              <div>
-                <Label>Existing voice guidance (optional)</Label>
-                <Input value={existingVoice} onChange={setExistingVoice} placeholder="e.g. Clear, confident, human. We say 'you' not 'users'. We avoid jargon. Comparable to Linear or Notion." />
-              </div>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Btn disabled={!product.trim() || !persona.trim() || !flow.trim()} onClick={() => { mark(1); setStep(2); }}>Define Voice →</Btn>
-              </div>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 6, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              PRODUCT & VOICE CONTEXT <span style={{ color: T.dim }}>(optional)</span>
+            </label>
+            <Textarea
+              value={voiceContext}
+              onChange={setVoiceContext}
+              placeholder="Describe the product, brand voice, and target user. What adjectives describe the voice? (e.g. warm, direct, expert, playful)"
+              rows={4}
+            />
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 6, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              SCREENS OR FLOWS <span style={{ color: T.dim }}>(optional)</span>
+            </label>
+            <Textarea
+              value={screensContext}
+              onChange={setScreensContext}
+              placeholder="Describe the screens or user flows you need copy for. Paste screen names, user actions, or wireframe notes. You can upload wireframes or screenshots in Claude.ai."
+              rows={5}
+            />
+          </div>
+        </div>
+
+        <button
+          onClick={() => setPrompt(buildPrompt())}
+          style={{
+            background: T.accent, color: "#000", border: "none", borderRadius: 8,
+            padding: "12px 28px", fontFamily: T.font.sans, fontSize: 15, fontWeight: 600,
+            cursor: "pointer", marginBottom: 36,
+          }}
+        >
+          Generate Prompt →
+        </button>
+
+        {prompt && (
+          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 24 }}>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 10, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              YOUR CLAUDE PROMPT
+            </label>
+            <pre style={{
+              margin: "0 0 20px", color: T.text, fontSize: 13, fontFamily: T.font.mono,
+              whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: 1.65,
+              background: T.surface, borderRadius: 8, padding: 16, maxHeight: 400, overflowY: "auto",
+            }}>
+              {prompt}
+            </pre>
+            <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
+              <CopyBtn text={prompt} />
+              <a
+                href="https://claude.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: T.accent, fontFamily: T.font.sans, fontSize: 14, fontWeight: 500,
+                  textDecoration: "none", border: `1px solid ${T.accent}44`, borderRadius: 8, padding: "10px 20px",
+                }}
+              >
+                Open Claude.ai ↗
+              </a>
             </div>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div>
-            <SectionHeader step={2} title="Voice and Tone Brief" desc="Before writing a word of copy, lock the voice. Copy written without a voice brief produces generic, corporate-sounding text." />
-            {!voiceBrief && <div style={{ display: "flex", justifyContent: "flex-end" }}><Btn onClick={handleVoice}>Generate Voice Brief</Btn></div>}
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small disabled={!pastedResult.trim()} onClick={acceptVoice}>Accept Voice Brief →</Btn>
-              </div>
-            )}
-            {voiceBrief && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Voice reference card</Label>
-                  <CopyBtn text={voiceBrief} />
-                </div>
-                <OutputBlock content={voiceBrief} />
-                <div style={{ marginTop: 12 }}>
-                  <Label sub>Edit voice brief before locking (optional)</Label>
-                  <Textarea value={voiceBrief} onChange={setVoiceBrief} rows={4} />
-                  <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                    <Btn variant="ghost" small onClick={() => setVoiceBrief("")}>Re-generate</Btn>
-                    <Btn small onClick={() => { mark(2); setStep(3); }}>Write Flow Copy →</Btn>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {step === 3 && (
-          <div>
-            <SectionHeader step={3} title="Flow Copy" desc="Complete copy for every screen — headlines, CTAs, labels, helper text, placeholders. Grounded in the voice brief." />
-            <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 16px", marginBottom: 16 }}>
-              <Label sub>Voice brief (locked)</Label>
-              <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.55, margin: 0 }}>{voiceBrief.split("\n").slice(0, 3).join(" · ")}</p>
-            </div>
-            {!flowCopy && <div style={{ display: "flex", justifyContent: "flex-end" }}><Btn onClick={handleFlowCopy}>Write All Flow Copy</Btn></div>}
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small disabled={!pastedResult.trim()} onClick={acceptFlowCopy}>Accept Flow Copy →</Btn>
-              </div>
-            )}
-            {flowCopy && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Headlines · CTAs · labels · helper text per screen</Label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <CopyBtn text={flowCopy} />
-                    <Btn small variant="ghost" onClick={() => dl(flowCopy, "flow-copy.md")}>↓ .md</Btn>
-                  </div>
-                </div>
-                <OutputBlock content={flowCopy} maxH={520} />
-                <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                  <Btn variant="ghost" small onClick={() => setFlowCopy("")}>Re-write</Btn>
-                  <Btn small onClick={() => { mark(3); setStep(4); }}>Write Error States →</Btn>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {step === 4 && (
-          <div>
-            <SectionHeader step={4} title="Error States + Empty States" desc="The most under-written copy in most products. Complete error library, empty states, and confirmation dialogs." />
-            {!errorCopy && <div style={{ display: "flex", justifyContent: "flex-end" }}><Btn onClick={handleErrorCopy}>Write Error + Empty States</Btn></div>}
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small disabled={!pastedResult.trim()} onClick={acceptErrorCopy}>Accept Error States →</Btn>
-              </div>
-            )}
-            {errorCopy && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Error states · empty states · confirmations</Label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <CopyBtn text={errorCopy} />
-                    <Btn small variant="ghost" onClick={() => dl(errorCopy, "error-empty-states.md")}>↓ .md</Btn>
-                  </div>
-                </div>
-                <OutputBlock content={errorCopy} maxH={520} />
-                <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                  <Btn variant="ghost" small onClick={() => setErrorCopy("")}>Re-write</Btn>
-                  <Btn small onClick={() => setStep(5)}>Generate Handoff →</Btn>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {step === 5 && (
-          <div>
-            <SectionHeader step={5} title="Copy Handoff" desc="Complete copy document — organized for a developer or prototyper, with test script notes for the usability session." />
-            {!handoff && <div style={{ display: "flex", justifyContent: "flex-end" }}><Btn onClick={handleHandoff}>Generate Handoff Document</Btn></div>}
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small disabled={!pastedResult.trim()} onClick={acceptHandoff}>Accept Handoff →</Btn>
-              </div>
-            )}
-            {handoff && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Complete copy handoff document</Label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <CopyBtn text={handoff} />
-                    <Btn small variant="ghost" onClick={() => dl([voiceBrief, flowCopy, errorCopy, handoff].filter(Boolean).join("\n\n---\n\n"), "ux-copy-handoff.md")}>↓ Full .md</Btn>
-                  </div>
-                </div>
-                <OutputBlock content={handoff} maxH={520} />
-                <div style={{ marginTop: 20, padding: "14px 16px", background: T.protoDim, border: `1px solid ${T.protoBorder}`, borderRadius: 8 }}>
-                  <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.proto }}>
-                    ✓ Copy complete — attach to prototype before usability testing
-                  </span>
-                </div>
-              </div>
-            )}
+            <p style={{ margin: 0, color: T.dim, fontSize: 13, lineHeight: 1.5 }}>
+              Claude will ask follow-up questions to fill in any gaps. You can also upload documents, transcripts, or files directly in Claude.ai.
+            </p>
           </div>
         )}
       </div>

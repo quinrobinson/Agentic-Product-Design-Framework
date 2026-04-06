@@ -1,691 +1,154 @@
 import { useState } from "react";
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
 const T = {
-  bg: "#0F0F0F",
-  surface: "#161616",
-  card: "#1C1C1C",
-  border: "#2A2A2A",
-  text: "#F2F2F2",
-  muted: "#999999",
-  dim: "#666666",
-  define: "#8B5CF6",
-  defineDim: "rgba(139,92,246,0.12)",
-  defineBorder: "rgba(139,92,246,0.25)",
+  bg: "#0F0F0F", surface: "#161616", card: "#1A1A1A",
+  border: "#2C2C2C", text: "#F2F2F2", muted: "#999999", dim: "#787878",
+  accent: "#8B5CF6",
+  font: { sans: "'DM Sans', sans-serif", mono: "'JetBrains Mono', monospace" },
 };
 
-const STEPS = [
-  { id: 1, label: "Context",  short: "Research + user + goal"     },
-  { id: 2, label: "Frame",    short: "Three-format statements"    },
-  { id: 3, label: "Test",     short: "Pressure-test the frame"    },
-  { id: 4, label: "HMW",      short: "How Might We questions"     },
-  { id: 5, label: "Handoff",  short: "Ideate handoff block"       },
-];
-
-// ─── Prompt Panel ─────────────────────────────────────────────────────────────
-function PromptPanel({ promptText, pastedResult, setPastedResult }) {
-  const [copied, setCopied] = useState(false);
-  if (!promptText) return null;
+function Textarea({ value, onChange, placeholder, rows = 4 }) {
   return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "16px 18px", marginTop: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.define }}>Prompt ready — copy and run in Claude</span>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={() => { navigator.clipboard.writeText(promptText); setCopied(true); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "6px 12px", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, cursor: "pointer", borderRadius: 5, border: `1.5px solid ${T.define}`, background: copied ? T.define : "transparent", color: copied ? "#fff" : T.define, transition: "all 0.15s" }}>{copied ? "✓ Copied" : "Copy Prompt"}</button>
-          <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" style={{ padding: "6px 12px", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, cursor: "pointer", borderRadius: 5, border: `1.5px solid ${T.border}`, background: "transparent", color: T.muted, textDecoration: "none", display: "inline-block" }}>Open Claude.ai →</a>
-        </div>
-      </div>
-      <pre style={{ whiteSpace: "pre-wrap", fontSize: 12, lineHeight: 1.7, color: T.text, fontFamily: "'DM Sans', sans-serif", margin: 0, maxHeight: 320, overflowY: "auto" }}>{promptText}</pre>
-      <div style={{ marginTop: 16 }}>
-        <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.muted, marginBottom: 8 }}>Paste Claude's response here</div>
-        <textarea value={pastedResult} onChange={e => setPastedResult(e.target.value)} placeholder="Run the prompt in Claude, then paste the result here to continue…" rows={6} style={{ width: "100%", boxSizing: "border-box", background: T.card, border: `1px solid ${T.border}`, borderRadius: 6, padding: "10px 12px", color: T.text, fontSize: 13, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none" }} onFocus={e => e.target.style.borderColor = T.define} onBlur={e => e.target.style.borderColor = T.border} />
-      </div>
-    </div>
-  );
-}
-
-// ─── Shared UI ────────────────────────────────────────────────────────────────
-function Label({ children, sub }) {
-  return (
-    <div style={{ marginBottom: sub ? 4 : 8 }}>
-      <span style={{
-        fontSize: sub ? 11 : 12, fontFamily: "'JetBrains Mono', monospace",
-        letterSpacing: "0.07em", textTransform: "uppercase",
-        color: sub ? T.muted : T.define,
-      }}>{children}</span>
-    </div>
-  );
-}
-
-function Textarea({ value, onChange, placeholder, rows = 5, disabled }) {
-  return (
-    <textarea value={value} onChange={e => onChange(e.target.value)}
-      placeholder={placeholder} rows={rows} disabled={disabled}
+    <textarea
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      rows={rows}
       style={{
-        width: "100%", boxSizing: "border-box",
-        background: T.surface, border: `1px solid ${T.border}`,
-        borderRadius: 8, padding: "12px 14px",
-        color: T.text, fontSize: 13, lineHeight: 1.6,
-        fontFamily: "'DM Sans', sans-serif",
+        width: "100%", boxSizing: "border-box", background: T.surface,
+        border: `1px solid ${T.border}`, borderRadius: 8, color: T.text,
+        fontFamily: T.font.sans, fontSize: 14, padding: "10px 12px",
         resize: "vertical", outline: "none",
-        opacity: disabled ? 0.5 : 1, transition: "border-color 0.15s",
       }}
-      onFocus={e => e.target.style.borderColor = T.define}
-      onBlur={e => e.target.style.borderColor = T.border}
     />
-  );
-}
-
-function Input({ value, onChange, placeholder, disabled }) {
-  return (
-    <input value={value} onChange={e => onChange(e.target.value)}
-      placeholder={placeholder} disabled={disabled}
-      style={{
-        width: "100%", boxSizing: "border-box",
-        background: T.surface, border: `1px solid ${T.border}`,
-        borderRadius: 8, padding: "10px 14px",
-        color: T.text, fontSize: 13,
-        fontFamily: "'DM Sans', sans-serif",
-        outline: "none", transition: "border-color 0.15s",
-        opacity: disabled ? 0.5 : 1,
-      }}
-      onFocus={e => e.target.style.borderColor = T.define}
-      onBlur={e => e.target.style.borderColor = T.border}
-    />
-  );
-}
-
-function Btn({ children, onClick, disabled, variant = "primary", small }) {
-  const isPrimary = variant === "primary";
-  return (
-    <button onClick={onClick} disabled={disabled} style={{
-      padding: small ? "7px 14px" : "10px 20px",
-      fontSize: small ? 11 : 13,
-      fontFamily: "'JetBrains Mono', monospace",
-      letterSpacing: "0.06em", textTransform: "uppercase",
-      fontWeight: 600, cursor: disabled ? "not-allowed" : "pointer",
-      borderRadius: 6, border: "1.5px solid",
-      borderColor: isPrimary ? T.define : T.border,
-      background: isPrimary ? T.define : "transparent",
-      color: isPrimary ? "#fff" : T.muted,
-      opacity: disabled ? 0.4 : 1, transition: "all 0.15s",
-    }}
-      onMouseEnter={e => { if (!disabled) e.target.style.opacity = "0.85"; }}
-      onMouseLeave={e => { if (!disabled) e.target.style.opacity = "1"; }}
-    >{children}</button>
   );
 }
 
 function CopyBtn({ text }) {
   const [copied, setCopied] = useState(false);
+  async function copy() {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
   return (
-    <Btn small variant="ghost" onClick={() => {
-      navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
-    }}>{copied ? "✓ Copied" : "Copy"}</Btn>
-  );
-}
-
-function OutputBlock({ content, maxH = 440 }) {
-  return (
-    <div style={{
-      background: T.surface, border: `1px solid ${T.border}`,
-      borderRadius: 8, padding: "16px 18px",
-      fontSize: 13, lineHeight: 1.7, color: T.text,
-      fontFamily: "'DM Sans', sans-serif",
-      whiteSpace: "pre-wrap", wordBreak: "break-word",
-      maxHeight: maxH, overflowY: "auto",
+    <button onClick={copy} disabled={!text} style={{
+      background: text ? T.accent : T.border, color: text ? "#fff" : T.muted,
+      border: "none", borderRadius: 8, padding: "10px 20px",
+      fontFamily: T.font.sans, fontSize: 14, fontWeight: 600,
+      cursor: text ? "pointer" : "default",
     }}>
-      {content || <span style={{ color: T.dim, fontStyle: "italic" }}>Output will appear here…</span>}
-    </div>
+      {copied ? "Copied!" : "Copy Prompt"}
+    </button>
   );
 }
 
-function SectionHeader({ step, title, desc }) {
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-        <span style={{
-          fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
-          letterSpacing: "0.1em", textTransform: "uppercase",
-          color: T.define, background: T.defineDim,
-          border: `1px solid ${T.defineBorder}`,
-          padding: "2px 8px", borderRadius: 4,
-        }}>Step {step}</span>
-        <span style={{
-          fontSize: 16, fontWeight: 600,
-          fontFamily: "'DM Serif Display', serif", color: T.text,
-        }}>{title}</span>
-      </div>
-      {desc && <p style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, margin: 0, maxWidth: 580 }}>{desc}</p>}
-    </div>
-  );
-}
-
-function StepIndicator({ current, completed }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 32 }}>
-      {STEPS.map((step, i) => {
-        const done = completed.includes(step.id);
-        const active = current === step.id;
-        return (
-          <div key={step.id} style={{ display: "flex", alignItems: "center", flex: i < STEPS.length - 1 ? 1 : "none" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 56 }}>
-              <div style={{
-                width: 32, height: 32, borderRadius: "50%",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 11, fontWeight: 700,
-                fontFamily: "'JetBrains Mono', monospace",
-                background: done ? T.define : active ? T.defineDim : "transparent",
-                border: `1.5px solid ${done ? T.define : active ? T.define : T.border}`,
-                color: done ? "#fff" : active ? T.define : T.dim,
-                transition: "all 0.2s",
-              }}>{done ? "✓" : step.id}</div>
-              <span style={{
-                fontSize: 9, fontFamily: "'JetBrains Mono', monospace",
-                letterSpacing: "0.08em", textTransform: "uppercase",
-                color: active ? T.define : done ? T.muted : T.dim,
-                whiteSpace: "nowrap",
-              }}>{step.label}</span>
-            </div>
-            {i < STEPS.length - 1 && (
-              <div style={{
-                flex: 1, height: 1, marginBottom: 18, marginLeft: 4, marginRight: 4,
-                background: done ? T.define : T.border, transition: "background 0.3s",
-              }} />
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ─── Main ─────────────────────────────────────────────────────────────────────
 export default function ProblemFramingTool() {
-  const [step, setStep] = useState(1);
-  const [completed, setCompleted] = useState([]);
-  const [promptText, setPromptText] = useState("");
-  const [pastedResult, setPastedResult] = useState("");
+  const [research, setResearch] = useState("");
+  const [userContext, setUserContext] = useState("");
+  const [prompt, setPrompt] = useState("");
 
-  // Step 1 — Context
-  const [researchData, setResearchData] = useState("");
-  const [persona, setPersona] = useState("");
-  const [businessGoal, setBusinessGoal] = useState("");
+  function buildPrompt() {
+    return `You are a senior product designer and design strategist helping a team frame their design problem clearly before moving into ideation.
 
-  // Step 2 — Frame
-  const [framings, setFramings] = useState("");
-  const [chosenFraming, setChosenFraming] = useState("");
+Start by asking about anything missing:
+- What decisions does this problem frame need to enable?
+- Are there business constraints or non-negotiables to keep in mind?
+- What has the team already tried or ruled out?
 
-  // Step 3 — Pressure test
-  const [pressureTest, setPressureTest] = useState("");
+Guide the team through four outputs:
 
-  // Step 4 — HMW
-  const [hmw, setHmw] = useState("");
+1. **Problem Statements (×3)** — Generate three distinct problem statement formats:
+   - User-centered: "[User] needs [goal] because [insight]"
+   - Tension-based: "How do we balance [X] while ensuring [Y]?"
+   - Opportunity-based: "The opportunity is to [change] so that [user outcome]"
+   Then evaluate each and recommend one. Be specific — every statement must be concrete enough that a designer could sketch 10 different solutions to it.
 
-  // Step 5 — Handoff
-  const [handoff, setHandoff] = useState("");
+2. **Pressure Test** — Challenge the recommended statement on four fronts:
+   - Is the user real and specific enough?
+   - Is the insight grounded in research, not assumption?
+   - Is the scope achievable within this project?
+   - Does it leave room for creative solutions?
 
-  const markComplete = (id) => setCompleted(prev => [...new Set([...prev, id])]);
+3. **HMW Questions** — Generate 10 How Might We questions from the problem frame. Score and rank the top 5 on: specificity, actionability, and creative potential.
 
-  function dl(content, filename) {
-    const blob = new Blob([content], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = filename; a.click();
-    URL.revokeObjectURL(url);
+4. **Handoff Block** — Produce a Define → Ideate Phase Handoff Block:
+   ## Define → Ideate Handoff
+   **Chosen Problem Statement:** ...
+   **Top HMW Questions:** ...
+   **Key Constraints:** ...
+   **What NOT to explore:** ...
+   **Recommended first concept angle:** ...
+
+If the designer has a Research Brief or other documents to share, ask them to upload the files.${research ? `\n\nResearch insights:\n${research}` : ""}${userContext ? `\n\nTarget user & context:\n${userContext}` : ""}`;
   }
 
-  // ── Step 2: Generate three framings ─────────────────────────────────────────
-  function handleFrame() {
-    const sys = "You are a senior product designer and design strategist. Generate sharp, specific problem framings grounded in the research provided. Never produce generic statements. Every framing must be specific enough that a designer could sketch 10 different solutions to it.";
-    const msg = `Generate the problem statement in three formats, then evaluate and recommend one.
-
-Research context:
-${researchData}
-
-Primary user: ${persona}
-Business goal: ${businessGoal}
-
----
-
-## Format 1 — How Might We (HMW)
-How might we [specific action] for [user] so that [concrete outcome]?
-
-Calibration check: Can a designer imagine 10 meaningfully different solutions to this? If yes, it's well-calibrated. If no — it's either too narrow (solutions all look the same) or too abstract (no solutions come to mind).
-
-## Format 2 — Jobs to Be Done (JTBD)
-When [specific situation/trigger], I want to [motivation], so I can [concrete outcome — user progress, not product usage].
-
-## Format 3 — User + Need + Insight
-[User] needs a way to [verb/need] because [surprising insight from research — not an obvious reason].
-
----
-
-## Evaluation
-For each format:
-- Is it specific enough to guide design?
-- Does it open creative space (multiple possible solutions)?
-- Is it grounded in the research provided?
-- What does it exclude that might matter?
-
-## Recommendation
-Which format best balances specificity and creative space? Why? What were the two strongest alternatives you didn't recommend?`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptFramings() {
-    setFramings(pastedResult);
-    setPromptText(""); setPastedResult("");
-  }
-
-  // ── Step 3: Pressure-test ────────────────────────────────────────────────────
-  function handlePressureTest() {
-    if (!chosenFraming.trim()) return;
-    const sys = "You are a skeptical senior PM reviewing a problem statement. Your job is to find its weaknesses, not validate it. Be direct and specific — not encouraging.";
-    const msg = `Act as a skeptical PM reviewing this problem statement. Challenge it on four fronts.
-
-Problem statement: "${chosenFraming}"
-
-Research context:
-${researchData}
-
----
-
-## Challenge 1 — Calibration
-Is this too broad (any solution qualifies) or too narrow (solution is already embedded)? Give a specific example of the failure mode if present.
-
-## Challenge 2 — Assumptions
-What beliefs are baked into this framing that haven't been validated by the research? List 3–5 specific assumptions, ordered from most to least risky.
-
-## Challenge 3 — Exclusions
-What important user problems or contexts does this framing exclude that we might regret ignoring? Be specific about what gets left out.
-
-## Challenge 4 — Alternative framings
-Generate two alternative framings that would produce completely different design solutions. Explain what each one prioritizes that the original doesn't.
-
----
-
-## Verdict
-Based on this analysis: Proceed with this framing / Refine it / Reframe entirely?
-If refine or reframe — provide the improved version.`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptPressureTest() {
-    setPressureTest(pastedResult);
-    markComplete(3);
-    setPromptText(""); setPastedResult("");
-  }
-
-  // ── Step 4: Generate HMW questions ──────────────────────────────────────────
-  function handleHMW() {
-    const sys = "You are a senior design strategist running an ideation brief. Generate HMW questions that are specific, varied in angle, and grounded in research. Never generate generic HMW questions.";
-    const msg = `Generate 10 How Might We questions from this problem frame, then score and rank the top 5.
-
-Problem statement: "${chosenFraming || framings}"
-
-Research context:
-${researchData}
-
-Primary user: ${persona}
-
----
-
-Generate 2 HMW questions per angle:
-
-**Angle 1 — Root cause:** Address why the problem exists, not just the symptom
-**Angle 2 — Emotional dimension:** Address how users feel during the problem
-**Angle 3 — Constraint reframe:** Use the constraint as an asset, not a barrier
-**Angle 4 — Systemic:** Address an organizational, process, or ecosystem root cause
-**Angle 5 — Ambitious:** What if we eliminated the problem entirely?
-
-For each HMW:
-- Start with "How might we"
-- Name a user or context
-- Point toward an outcome, not a feature
-- Should generate at least 5 meaningfully different solutions
-
----
-
-## Scoring (top 5 only)
-Score each on:
-- User impact: 1–3 (how directly this improves the user's core experience)
-- Design leverage: 1–3 (how much creative space this opens)
-- Feasibility signal: 1–3 (realistic within typical product constraints)
-
-Rank the top 5 by total score. Explain in one sentence why each makes the shortlist.`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptHMW() {
-    setHmw(pastedResult);
-    markComplete(4);
-    setStep(5);
-    setPromptText(""); setPastedResult("");
-  }
-
-  // ── Step 5: Generate handoff ─────────────────────────────────────────────────
-  function handleHandoff() {
-    const sys = "You are a senior product designer generating a structured phase handoff. Extract real content — no placeholders. Be specific and actionable.";
-    const msg = `Generate a Define → Ideate Phase Handoff Block.
-
-Problem statement: "${chosenFraming || framings}"
-Research context: ${researchData}
-Primary user: ${persona}
-Business goal: ${businessGoal}
-Pressure test findings: ${pressureTest}
-HMW questions: ${hmw}
-
-Generate using this exact structure:
-
-## Handoff: Define → Ideate
-### From: Problem Framing Tool
-### Date: ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-
----
-
-### What we completed
-- Problem statement formats generated: 3 (HMW / JTBD / User+Need+Insight)
-- Pressure-tested: Yes
-- HMW questions generated: 10, top 5 selected
-
-### Primary Problem Statement
-> [The recommended framing — one sentence]
-
-### Why this framing
-[1 sentence — what it captures that alternatives don't]
-
-### Primary User
-- Who: [persona + context]
-- Goal: [what they're trying to accomplish]
-- Key insight: [the surprising research finding that drives this framing]
-
-### Validated assumptions (safe to build on)
-- [What research confirmed]
-- [What research confirmed]
-
-### Open assumptions (test in prototyping)
-- [What's believed but unvalidated]
-- [What's believed but unvalidated]
-
-### Top 5 HMW Questions (ranked)
-1. HMW [statement] — Score: [X/9]
-2. HMW [statement] — Score: [X/9]
-3. HMW [statement] — Score: [X/9]
-4. HMW [statement] — Score: [X/9]
-5. HMW [statement] — Score: [X/9]
-
-### Scope
-- In: [what to solve]
-- Out: [explicitly excluded — with rationale]
-
-### Success criteria
-1. [Measurable outcome]
-2. [Measurable outcome]
-
-### Provocation for Ideate
-[One "what if" that pushes ideation beyond the obvious first solution]
-
----
-Paste this block as your first message when opening Concept Generation.`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptHandoff() {
-    setHandoff(pastedResult);
-    markComplete(5);
-    setPromptText(""); setPastedResult("");
-  }
-
-  // ─── Render ──────────────────────────────────────────────────────────────────
   return (
-    <div style={{ minHeight: "100vh", background: T.bg, fontFamily: "'DM Sans', sans-serif", color: T.text }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
-        :focus-visible { outline: 2px solid #999; outline-offset: 2px; border-radius: 4px; }
-      `}</style>
-
-      {/* Header */}
-      <div style={{
-        borderBottom: `1px solid ${T.border}`,
-        padding: "0 clamp(24px,5vw,80px)", height: 60,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: T.define, boxShadow: `0 0 8px ${T.define}` }} />
-          <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.define }}>02 — Define</span>
-          <span style={{ color: T.dim }}>·</span>
-          <span style={{ fontSize: 15, fontWeight: 600, fontFamily: "'DM Serif Display', serif", color: T.text }}>Problem Framing</span>
-        </div>
-        {completed.length > 0 && (
-          <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.dim }}>
-            {completed.length} of {STEPS.length} steps complete
+    <div style={{ background: T.bg, minHeight: "100vh", padding: "32px 24px", fontFamily: T.font.sans, color: T.text }}>
+      <div style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <span style={{ background: T.accent + "22", color: T.accent, padding: "3px 10px", borderRadius: 99, fontSize: 12, fontWeight: 600, letterSpacing: "0.05em" }}>
+            DEFINE
           </span>
-        )}
-      </div>
+        </div>
+        <h1 style={{ margin: "0 0 8px", fontSize: 28, fontWeight: 700, lineHeight: 1.2 }}>Problem Framing</h1>
+        <p style={{ margin: "0 0 32px", color: T.muted, fontSize: 16, lineHeight: 1.5 }}>Generate, pressure-test, and score problem statements + HMW questions</p>
 
-      {/* Main */}
-      <div style={{ maxWidth: 1440, margin: "0 auto", padding: "48px clamp(24px,5vw,80px) 96px" }}>
-        <StepIndicator current={step} completed={completed} />
-
-        {/* ── Step 1: Context ── */}
-        {step === 1 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 28 }}>
           <div>
-            <SectionHeader step={1} title="Research Context"
-              desc="Provide the research data, primary user, and business goal. The more specific the input, the more grounded the problem frame." />
-            <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-              <div>
-                <Label>Research summary</Label>
-                <Textarea value={researchData} onChange={setResearchData} rows={8}
-                  placeholder="Paste your Research Synthesis handoff block, key themes, pain points, or session summaries. Include direct quotes where possible — they ground the framing in real user language." />
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <div>
-                  <Label>Primary user</Label>
-                  <Input value={persona} onChange={setPersona}
-                    placeholder="e.g. Senior product designer, 5+ years, works across 3–5 projects simultaneously" />
-                </div>
-                <div>
-                  <Label>Business goal</Label>
-                  <Input value={businessGoal} onChange={setBusinessGoal}
-                    placeholder="e.g. Reduce time from research to design handoff by 40%" />
-                </div>
-              </div>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Btn onClick={() => { markComplete(1); setStep(2); }}
-                  disabled={!researchData.trim() || !persona.trim() || !businessGoal.trim()}>
-                  Generate Framings →
-                </Btn>
-              </div>
-            </div>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 6, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              RESEARCH INSIGHTS <span style={{ color: T.dim }}>(optional)</span>
+            </label>
+            <Textarea value={research} onChange={setResearch} placeholder="Paste key research findings, themes, or insights from the Discover phase. You can also upload your Research Brief." rows={5} />
           </div>
-        )}
-
-        {/* ── Step 2: Frame ── */}
-        {step === 2 && (
           <div>
-            <SectionHeader step={2} title="Generate Problem Framings"
-              desc="Build the prompt, run it in Claude, then paste the result. Claude generates the problem statement in three formats — HMW, JTBD, and User + Need + Insight — then evaluates and recommends one." />
-
-            {!framings && (
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Btn onClick={handleFrame}>Generate Three Framings</Btn>
-              </div>
-            )}
-
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small onClick={acceptFramings} disabled={!pastedResult.trim()}>Accept Framings →</Btn>
-              </div>
-            )}
-
-            {framings && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Three problem framings + recommendation</Label>
-                  <CopyBtn text={framings} />
-                </div>
-                <OutputBlock content={framings} maxH={480} />
-
-                <div style={{ marginTop: 20 }}>
-                  <Label>Selected framing — edit or paste the recommended statement</Label>
-                  <Textarea value={chosenFraming} onChange={setChosenFraming} rows={3}
-                    placeholder="Paste or type the framing you want to pressure-test. You can edit it here." />
-                  <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                    <Btn variant="ghost" small onClick={() => { setFramings(""); setPromptText(""); }}>Re-generate</Btn>
-                    <Btn small onClick={() => { markComplete(2); setStep(3); }}
-                      disabled={!chosenFraming.trim()}>
-                      Pressure-Test →
-                    </Btn>
-                  </div>
-                </div>
-              </div>
-            )}
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 6, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              TARGET USER &amp; CONTEXT <span style={{ color: T.dim }}>(optional)</span>
+            </label>
+            <Textarea value={userContext} onChange={setUserContext} placeholder="Who is the primary user? What's their context, goal, and biggest pain point?" rows={3} />
           </div>
-        )}
+        </div>
 
-        {/* ── Step 3: Pressure Test ── */}
-        {step === 3 && (
-          <div>
-            <SectionHeader step={3} title="Pressure-Test the Frame"
-              desc="Build the prompt, run it in Claude, then paste the result. Claude acts as a skeptical PM — challenging the framing on calibration, hidden assumptions, exclusions, and alternative framings." />
+        <button
+          onClick={() => setPrompt(buildPrompt())}
+          style={{
+            background: T.accent, color: "#fff", border: "none", borderRadius: 8,
+            padding: "12px 28px", fontFamily: T.font.sans, fontSize: 15, fontWeight: 600,
+            cursor: "pointer", marginBottom: 36,
+          }}
+        >
+          Generate Prompt →
+        </button>
 
-            <div style={{
-              background: T.surface, border: `1px solid ${T.border}`,
-              borderRadius: 8, padding: "14px 16px", marginBottom: 20,
+        {prompt && (
+          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 24 }}>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 10, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              YOUR CLAUDE PROMPT
+            </label>
+            <pre style={{
+              margin: "0 0 20px", color: T.text, fontSize: 13, fontFamily: T.font.mono,
+              whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: 1.65,
+              background: T.surface, borderRadius: 8, padding: 16, maxHeight: 400, overflowY: "auto",
             }}>
-              <Label sub>Framing under review</Label>
-              <p style={{ fontSize: 13, color: T.text, lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>"{chosenFraming}"</p>
+              {prompt}
+            </pre>
+            <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
+              <CopyBtn text={prompt} />
+              <a
+                href="https://claude.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: T.accent, fontFamily: T.font.sans, fontSize: 14, fontWeight: 500,
+                  textDecoration: "none", border: `1px solid ${T.accent}44`, borderRadius: 8, padding: "10px 20px",
+                }}
+              >
+                Open Claude.ai ↗
+              </a>
             </div>
-
-            {!pressureTest && (
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Btn onClick={handlePressureTest}>Run Pressure Test</Btn>
-              </div>
-            )}
-
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small onClick={acceptPressureTest} disabled={!pastedResult.trim()}>Accept Results →</Btn>
-              </div>
-            )}
-
-            {pressureTest && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Skeptical PM review</Label>
-                  <CopyBtn text={pressureTest} />
-                </div>
-                <OutputBlock content={pressureTest} maxH={500} />
-
-                <div style={{ marginTop: 14 }}>
-                  <Label sub>Refine framing based on test (optional)</Label>
-                  <Textarea value={chosenFraming} onChange={setChosenFraming} rows={3} />
-                  <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                    <Btn variant="ghost" small onClick={() => { setPressureTest(""); setPromptText(""); }}>Re-test</Btn>
-                    <Btn small onClick={() => { markComplete(3); setStep(4); }}>Generate HMW →</Btn>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── Step 4: HMW ── */}
-        {step === 4 && (
-          <div>
-            <SectionHeader step={4} title="How Might We Questions"
-              desc="Build the prompt, run it in Claude, then paste the result. 10 HMW questions across 5 angles — scored and ranked to the top 5 for ideation." />
-
-            {!hmw && (
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Btn onClick={handleHMW}>Generate HMW Questions</Btn>
-              </div>
-            )}
-
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small onClick={acceptHMW} disabled={!pastedResult.trim()}>Accept HMW →</Btn>
-              </div>
-            )}
-
-            {hmw && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>10 HMW questions · top 5 ranked</Label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <CopyBtn text={hmw} />
-                    <Btn small variant="ghost" onClick={() => { setHmw(""); setPromptText(""); }}>Re-generate</Btn>
-                  </div>
-                </div>
-                <OutputBlock content={hmw} maxH={520} />
-                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
-                  <Btn small onClick={() => setStep(5)}>Generate Handoff →</Btn>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── Step 5: Handoff ── */}
-        {step === 5 && (
-          <div>
-            <SectionHeader step={5} title="Ideate Handoff"
-              desc="Build the prompt, run it in Claude, then paste the result. A structured summary of the problem frame — paste it as the first message when opening Concept Generation." />
-
-            {!handoff && (
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Btn onClick={handleHandoff}>Generate Handoff Block</Btn>
-              </div>
-            )}
-
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small onClick={acceptHandoff} disabled={!pastedResult.trim()}>Accept Handoff →</Btn>
-              </div>
-            )}
-
-            {handoff && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Define → Ideate handoff block</Label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <CopyBtn text={handoff} />
-                    <Btn small variant="ghost" onClick={() => dl(handoff, "problem-framing-handoff.md")}>↓ .md</Btn>
-                  </div>
-                </div>
-                <OutputBlock content={handoff} maxH={520} />
-                <div style={{
-                  marginTop: 20, padding: "14px 16px",
-                  background: T.defineDim, border: `1px solid ${T.defineBorder}`,
-                  borderRadius: 8,
-                }}>
-                  <span style={{
-                    fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
-                    letterSpacing: "0.08em", textTransform: "uppercase", color: T.define,
-                  }}>
-                    ✓ Problem frame complete — handoff ready for Concept Generation
-                  </span>
-                </div>
-              </div>
-            )}
+            <p style={{ margin: 0, color: T.dim, fontSize: 13, lineHeight: 1.5 }}>
+              Claude will ask follow-up questions to fill in any gaps. You can also upload documents, transcripts, or files directly in Claude.ai.
+            </p>
           </div>
         )}
       </div>

@@ -1,576 +1,187 @@
 import { useState } from "react";
 
 const T = {
-  bg: "#0F0F0F", surface: "#161616", card: "#1C1C1C", border: "#2A2A2A",
-  text: "#F2F2F2", muted: "#999999", dim: "#666666",
-  deliver: "#14B8A6", deliverDim: "rgba(20,184,166,0.12)", deliverBorder: "rgba(20,184,166,0.25)",
+  bg: "#0F0F0F", surface: "#161616", card: "#1A1A1A",
+  border: "#2C2C2C", text: "#F2F2F2", muted: "#999999", dim: "#787878",
+  accent: "#14B8A6",
+  font: { sans: "'DM Sans', sans-serif", mono: "'JetBrains Mono', monospace" },
 };
 
-const STEPS = [
-  { id: 1, label: "Component",  short: "Name + anatomy"           },
-  { id: 2, label: "States",     short: "All interactive states"   },
-  { id: 3, label: "Behavior",   short: "Interactions + timing"    },
-  { id: 4, label: "Spacing",    short: "Tokens + edge cases"      },
-  { id: 5, label: "Handoff",    short: "Complete spec document"   },
-];
-
-function PromptPanel({ promptText, pastedResult, setPastedResult }) {
-  const [copied, setCopied] = useState(false);
-  if (!promptText) return null;
+function Textarea({ value, onChange, placeholder, rows = 4 }) {
   return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "16px 18px", marginTop: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.deliver }}>
-          Prompt ready — copy and run in Claude
-        </span>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            onClick={() => { navigator.clipboard.writeText(promptText); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-            style={{ padding: "6px 14px", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, cursor: "pointer", borderRadius: 6, border: `1.5px solid ${T.deliver}`, background: copied ? T.deliver : "transparent", color: copied ? T.bg : T.deliver, transition: "all 0.15s" }}
-          >{copied ? "✓ Copied" : "Copy Prompt"}</button>
-          <a href="https://claude.ai" target="_blank" rel="noopener noreferrer"
-            style={{ padding: "6px 14px", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, borderRadius: 6, border: `1.5px solid ${T.border}`, color: T.muted, textDecoration: "none", display: "inline-block" }}
-          >Open Claude.ai →</a>
-        </div>
-      </div>
-      <pre style={{ whiteSpace: "pre-wrap", fontSize: 12, lineHeight: 1.7, color: T.text, fontFamily: "'DM Sans', sans-serif", margin: 0, maxHeight: 320, overflowY: "auto" }}>{promptText}</pre>
-      <div style={{ marginTop: 16 }}>
-        <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.muted, marginBottom: 8 }}>Paste Claude's response here</div>
-        <textarea
-          value={pastedResult} onChange={e => setPastedResult(e.target.value)}
-          placeholder="Run the prompt in Claude, then paste the result here to continue…" rows={6}
-          style={{ width: "100%", boxSizing: "border-box", background: T.bg, border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px", color: T.text, fontSize: 13, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none" }}
-          onFocus={e => e.target.style.borderColor = T.deliver} onBlur={e => e.target.style.borderColor = T.border}
-        />
-      </div>
-    </div>
+    <textarea
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      rows={rows}
+      style={{
+        width: "100%", boxSizing: "border-box", background: T.surface,
+        border: `1px solid ${T.border}`, borderRadius: 8, color: T.text,
+        fontFamily: T.font.sans, fontSize: 14, padding: "10px 12px",
+        resize: "vertical", outline: "none",
+      }}
+    />
   );
-}
-
-function Label({ children, sub }) {
-  return <div style={{ marginBottom: sub ? 4 : 8 }}><span style={{ fontSize: sub ? 11 : 12, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.07em", textTransform: "uppercase", color: sub ? T.muted : T.deliver }}>{children}</span></div>;
-}
-
-function Textarea({ value, onChange, placeholder, rows = 5, disabled }) {
-  return <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} rows={rows} disabled={disabled} style={{ width: "100%", boxSizing: "border-box", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "12px 14px", color: T.text, fontSize: 13, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none", opacity: disabled ? 0.5 : 1, transition: "border-color 0.15s" }} onFocus={e => e.target.style.borderColor = T.deliver} onBlur={e => e.target.style.borderColor = T.border} />;
-}
-
-function Input({ value, onChange, placeholder, disabled }) {
-  return <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder} disabled={disabled} style={{ width: "100%", boxSizing: "border-box", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "10px 14px", color: T.text, fontSize: 13, fontFamily: "'DM Sans', sans-serif", outline: "none", transition: "border-color 0.15s", opacity: disabled ? 0.5 : 1 }} onFocus={e => e.target.style.borderColor = T.deliver} onBlur={e => e.target.style.borderColor = T.border} />;
-}
-
-function Btn({ children, onClick, disabled, variant = "primary", small }) {
-  const p = variant === "primary";
-  return <button onClick={onClick} disabled={disabled} style={{ padding: small ? "7px 14px" : "10px 20px", fontSize: small ? 11 : 13, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, cursor: disabled ? "not-allowed" : "pointer", borderRadius: 6, border: "1.5px solid", borderColor: p ? T.deliver : T.border, background: p ? T.deliver : "transparent", color: p ? T.bg : T.muted, opacity: disabled ? 0.4 : 1, transition: "all 0.15s" }} onMouseEnter={e => { if (!disabled) e.currentTarget.style.opacity = "0.85"; }} onMouseLeave={e => { if (!disabled) e.currentTarget.style.opacity = "1"; }}>{children}</button>;
 }
 
 function CopyBtn({ text }) {
-  const [c, setC] = useState(false);
-  return <Btn small variant="ghost" onClick={() => { navigator.clipboard.writeText(text); setC(true); setTimeout(() => setC(false), 1800); }}>{c ? "✓ Copied" : "Copy"}</Btn>;
-}
-
-function OutputBlock({ content, maxH = 480 }) {
+  const [copied, setCopied] = useState(false);
+  async function copy() {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
   return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "16px 18px", fontSize: 13, lineHeight: 1.7, color: T.text, fontFamily: "'DM Sans', sans-serif", whiteSpace: "pre-wrap", wordBreak: "break-word", maxHeight: maxH, overflowY: "auto" }}>
-      {content || <span style={{ color: T.dim, fontStyle: "italic" }}>Output will appear here…</span>}
-    </div>
-  );
-}
-
-function SectionHeader({ step, title, desc }) {
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-        <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.deliver, background: T.deliverDim, border: `1px solid ${T.deliverBorder}`, padding: "2px 8px", borderRadius: 4 }}>Step {step}</span>
-        <span style={{ fontSize: 16, fontWeight: 600, fontFamily: "'DM Serif Display', serif", color: T.text }}>{title}</span>
-      </div>
-      {desc && <p style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, margin: 0, maxWidth: 600 }}>{desc}</p>}
-    </div>
-  );
-}
-
-function StepIndicator({ current, completed }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 32 }}>
-      {STEPS.map((s, i) => {
-        const done = completed.includes(s.id), active = current === s.id;
-        return (
-          <div key={s.id} style={{ display: "flex", alignItems: "center", flex: i < STEPS.length - 1 ? 1 : "none" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 56 }}>
-              <div style={{ width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", background: done ? T.deliver : active ? T.deliverDim : "transparent", border: `1.5px solid ${done ? T.deliver : active ? T.deliver : T.border}`, color: done ? T.bg : active ? T.deliver : T.dim, transition: "all 0.2s" }}>{done ? "✓" : s.id}</div>
-              <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: active ? T.deliver : done ? T.muted : T.dim, whiteSpace: "nowrap" }}>{s.label}</span>
-            </div>
-            {i < STEPS.length - 1 && <div style={{ flex: 1, height: 1, marginBottom: 18, marginLeft: 4, marginRight: 4, background: done ? T.deliver : T.border, transition: "background 0.3s" }} />}
-          </div>
-        );
-      })}
-    </div>
+    <button onClick={copy} disabled={!text} style={{
+      background: text ? T.accent : T.border, color: text ? "#000" : T.muted,
+      border: "none", borderRadius: 8, padding: "10px 20px",
+      fontFamily: T.font.sans, fontSize: 14, fontWeight: 600,
+      cursor: text ? "pointer" : "default",
+    }}>
+      {copied ? "Copied!" : "Copy Prompt"}
+    </button>
   );
 }
 
 export default function ComponentSpecGenerator() {
-  const [step, setStep] = useState(1);
-  const [completed, setCompleted] = useState([]);
-  const [promptText, setPromptText] = useState("");
-  const [pastedResult, setPastedResult] = useState("");
+  const [componentDesign, setComponentDesign] = useState("");
+  const [techStack, setTechStack] = useState("");
+  const [prompt, setPrompt] = useState("");
 
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [variants, setVariants] = useState("");
-  const [tokens, setTokens] = useState("");
+  function buildPrompt() {
+    return `You are a senior design engineer helping a team create production-ready component specifications for developer handoff.
 
-  const [anatomy, setAnatomy] = useState("");
-  const [states, setStates] = useState("");
-  const [behavior, setBehavior] = useState("");
-  const [spacing, setSpacing] = useState("");
-  const [fullSpec, setFullSpec] = useState("");
+Start by understanding what's being specified:
+- Is this a new component or an update to an existing one?
+- What's the design system context — does a token system exist?
+- What's the primary use case and what are the edge cases?
 
-  const mark = (id) => setCompleted(p => [...new Set([...p, id])]);
+Produce a complete component spec document:
 
-  function dl(content, filename) {
-    const blob = new Blob([content], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = filename; a.click();
-    URL.revokeObjectURL(url);
-  }
+**1. Component Overview**
+- Name, purpose, and usage guidance
+- When to use / when NOT to use
+- Relationship to other components (contains, is contained by, composable with)
 
-  function handleAnatomy() {
-    const sys = "You are a design systems expert generating component documentation. Be precise and systematic. Use consistent naming. Flag anything that's missing or ambiguous.";
-    const msg = `Generate the complete anatomy for this component.
+**2. Anatomy**
+- Label every element in the component (e.g. container, icon, label, trailing action)
+- For each element: element type, role, required vs. optional
 
-Component: ${name}
-Description: ${description}
-Variants: ${variants || "None specified — infer from context"}
-Design tokens available: ${tokens || "Not specified"}
+**3. Visual Specifications**
+- Spacing (internal padding, gap between elements) mapped to design tokens
+- Size variants with exact dimensions
+- Color tokens for each element in each state
+- Typography tokens
+- Border, shadow, and radius tokens
 
-Produce:
+**4. States**
+Document every state with visual diff from default:
+default / hover / focus / active / disabled / error / loading / success / selected
 
-## Purpose
-[One sentence: what job this component does and when to use it vs. alternatives]
+**5. Behavior & Interactions**
+- Click/tap behavior
+- Keyboard interactions
+- Focus management
+- Animation/transition specs (duration, easing, properties)
 
-## When to use / When not to use
-✓ Use when: [condition]
-✗ Don't use when: [condition — alternative to use instead]
+**6. Accessibility**
+- ARIA role and required attributes
+- Keyboard navigation
+- Screen reader copy for each state
 
-## Anatomy
-For every element that makes up this component (including optional ones, containers, and invisible structure):
+**7. Edge Cases & Content Guidelines**
+- Min/max content length
+- Truncation behavior
+- RTL layout behavior
+- Responsive behavior
 
-| Element | Type | Required | Notes |
-|---|---|---|---|
-| [Name] | [text/icon/container/interactive/decorative] | Yes/No | [constraints or behavior] |
+**8. Implementation Notes**
+- Any performance considerations
+- Known gotchas for the target tech stack
 
-## Variants
-| Variant | Differs from default in | Use when |
-|---|---|---|
-| [Name] | [what changes visually or functionally] | [context] |
+If the designer has Figma exports, screenshots, or existing specs to share, ask them to upload the files.
 
-Flag any element or variant that needs a design decision before this spec is complete.`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptAnatomy() {
-    setAnatomy(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(1);
-  }
-
-  function handleStates() {
-    const sys = "You are a design systems expert. Document every interactive state completely — developers build from these specs. Default and hover are not enough. Every state needs a trigger, visual change, and functional change. Be specific about timing and transitions.";
-    const msg = `Generate complete state documentation for this component.
-
-Component: ${name}
-Description: ${description}
-Variants: ${variants}
-Anatomy: ${anatomy}
-Design tokens: ${tokens || "Not specified"}
-
-For each state that applies to this component:
-
-**[State Name]**
-Trigger: [what causes this state]
-Visual change: [exactly what changes from default — color token, opacity, border, icon, scale]
-Functional change: [what the component can/can't do]
-Transition: [duration + easing — e.g. 150ms ease-out / none]
-Screen reader: [what gets announced when this state activates]
-
-States to cover (apply all that are relevant):
-- Default — the resting state, no interaction
-- Hover — cursor over component (desktop only)
-- Focus — keyboard focus (tab navigation)
-- Active / Pressed — during click/tap
-- Disabled — not interactive
-- Loading — async operation in progress
-- Error — validation or system failure
-- Success — positive confirmation
-- Empty — no content to display
-
-For each state, flag if it's missing from the current design.`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptStates() {
-    setStates(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(2);
-  }
-
-  function handleBehavior() {
-    const sys = "You are a design systems expert documenting interaction behavior for developers. Be specific about timing, easing, keyboard bindings, and focus management. These are the details that get wrong most often in implementation.";
-    const msg = `Document all interactive behaviors for this component.
-
-Component: ${name}
-Description: ${description}
-States: ${states}
-
-## Interactions
-
-For each user action that triggers a response:
-| Trigger | Response | Duration | Easing |
-|---|---|---|---|
-| [Click/tap/hover/key] | [what happens] | [ms] | [ease type] |
-
-## Keyboard Navigation
-| Key | Action |
-|---|---|
-| Tab | [what receives focus / what is skipped] |
-| Enter | [action] |
-| Space | [action] |
-| Arrow keys | [action — if applicable] |
-| Escape | [dismiss / cancel / nothing] |
-
-## Focus Management
-After [action]: focus moves to [element]
-After [action]: focus returns to [trigger element]
-[Document every focus transition the component causes]
-
-## Touch Behavior
-- Tap target: [minimum size — should be 44×44px minimum]
-- Swipe: [if applicable]
-- Long press: [if applicable]
-
-## Animation and Motion
-- Entrance: [how the component appears — fade, slide, scale, none]
-- Exit: [how it leaves]
-- State transitions: [specific easing for state changes]
-- prefers-reduced-motion: [what happens when user has reduced motion enabled]
-
-## Open Questions
-[Any behavior that hasn't been designed or decided yet]`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptBehavior() {
-    setBehavior(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(3);
-  }
-
-  function handleSpacing() {
-    const sys = "You are a design systems expert generating spacing, typography, and edge case documentation. Use design token names where provided. Be systematic about edge cases — think about content at extremes.";
-    const msg = `Generate spacing, typography, sizing, and edge case documentation.
-
-Component: ${name}
-Description: ${description}
-Anatomy: ${anatomy}
-Design tokens: ${tokens || "Use descriptive values if tokens not specified"}
-
-## Spacing
-External (component margins — relative to its container):
-[Context-determined / specify if the component has built-in margin]
-
-Internal (padding and gaps inside the component):
-- Padding: [top / right / bottom / left — use token names]
-- Gap between [element A] and [element B]: [token or px value]
-[List all internal spacing relationships]
-
-## Typography
-For each text element:
-| Element | Font | Weight | Size | Line height | Color token | Truncation |
-|---|---|---|---|---|---|---|
-| [Name] | [family] | [weight] | [size] | [lh] | [token] | [wrap/clip/ellipsis at N lines] |
-
-## Sizing
-- Default: [width × height or auto/content-driven]
-- Minimum: [min-width / min-height]
-- Maximum: [max-width / max-height]
-- Responsive: [how it adapts at mobile / tablet breakpoints]
-
-## Edge Cases
-For each scenario:
-
-**Long content:** What happens when [text element] reaches 80+ characters?
-**Short/empty content:** What shows when there's no content to display?
-**Special characters:** Emoji, RTL text, numbers-only — does the layout hold?
-**Dark mode:** Are all states and tokens designed for dark mode?
-**High contrast:** Do focus indicators and borders survive forced colors?
-**Reduced motion:** Do transitions respect prefers-reduced-motion?
-**Nested usage:** Inside a disabled container — does the component inherit disabled state?`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptSpacing() {
-    setSpacing(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(4);
-  }
-
-  function handleFullSpec() {
-    const allContent = [anatomy, states, behavior, spacing].filter(Boolean).join("\n\n---\n\n");
-    const sys = "You are a design systems expert assembling a complete component specification document. Organize all generated content into a clean, navigable spec that a developer can use as their single source of truth.";
-    const msg = `Assemble a complete component specification document from this content.
-
-Component: ${name}
-Date: ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-
-All generated content:
-${allContent}
-
-Assemble into this structure:
-
-# Component Spec: ${name}
-Date: [date] | Phase: Deliver
-
----
-
-## Purpose and Usage
-[From anatomy — purpose, when to use, when not to use]
-
-## Anatomy
-[Full anatomy table]
-
-## Variants
-[Variant table]
-
-## States
-[All states — formatted consistently]
-
-## Behavior
-[Interactions, keyboard, focus management, animation]
-
-## Spacing and Typography
-[All spacing, typography, sizing specs]
-
-## Accessibility Summary
-- ARIA role: [infer from component type]
-- Keyboard: [summary of key bindings]
-- Focus indicator: [specification]
-- Screen reader: [key announcements]
-- WCAG level: AA (target)
-
-## Edge Cases
-[All edge cases]
-
-## Open Questions
-[ ] [Any unresolved design decisions flagged during spec generation]
-
----
-*Validate this spec against the Figma file before handoff.*
-*Add Figma frame links to each section.*`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptFullSpec() {
-    setFullSpec(pastedResult);
-    setPromptText("");
-    setPastedResult("");
-    mark(5);
+Output as clean markdown with code examples in the target framework where relevant.${componentDesign ? `\n\nComponent design provided:\n${componentDesign}` : ""}${techStack ? `\n\nTech stack:\n${techStack}` : ""}`;
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: T.bg, fontFamily: "'DM Sans', sans-serif", color: T.text }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
-        :focus-visible { outline: 2px solid #999; outline-offset: 2px; border-radius: 4px; }
-      `}</style>
-
-      <div style={{ borderBottom: `1px solid ${T.border}`, padding: "0 clamp(24px,5vw,80px)", height: 60, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: T.deliver, boxShadow: `0 0 8px ${T.deliver}` }} />
-          <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.deliver }}>06 — Deliver</span>
-          <span style={{ color: T.dim }}>·</span>
-          <span style={{ fontSize: 15, fontWeight: 600, fontFamily: "'DM Serif Display', serif", color: T.text }}>Component Spec Generator</span>
+    <div style={{ background: T.bg, minHeight: "100vh", padding: "32px 24px", fontFamily: T.font.sans, color: T.text }}>
+      <div style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <span style={{ background: T.accent + "22", color: T.accent, padding: "3px 10px", borderRadius: 99, fontSize: 12, fontWeight: 600, letterSpacing: "0.05em" }}>
+            DELIVER
+          </span>
         </div>
-        {name && <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.dim }}>{name}</span>}
-      </div>
+        <h1 style={{ margin: "0 0 8px", fontSize: 28, fontWeight: 700, lineHeight: 1.2 }}>Component Spec Generator</h1>
+        <p style={{ margin: "0 0 32px", color: T.muted, fontSize: 16, lineHeight: 1.5 }}>
+          Generate complete component specs — anatomy, all states, behavior, spacing, and edge cases — ready for developer handoff
+        </p>
 
-      <div style={{ maxWidth: 1440, margin: "0 auto", padding: "48px clamp(24px,5vw,80px) 96px" }}>
-        <StepIndicator current={step} completed={completed} />
-
-        {step === 1 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 28 }}>
           <div>
-            <SectionHeader step={1} title="Component Definition"
-              desc="Describe the component and generate the complete anatomy — every element, variant, and usage rule." />
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <div>
-                  <Label>Component name</Label>
-                  <Input value={name} onChange={setName} placeholder="e.g. Primary Button" />
-                </div>
-                <div>
-                  <Label>Design tokens (optional)</Label>
-                  <Input value={tokens} onChange={setTokens} placeholder="e.g. --color-primary-500, --spacing-4, --radius-md" />
-                </div>
-              </div>
-              <div>
-                <Label>Component description</Label>
-                <Textarea value={description} onChange={setDescription} rows={3}
-                  placeholder="e.g. The primary action button. Appears in forms, dialogs, and page headers. Triggers the most important action on a screen. Always one per screen section." />
-              </div>
-              <div>
-                <Label>Variants</Label>
-                <Textarea value={variants} onChange={setVariants} rows={3}
-                  placeholder={"e.g.\n- Size: Small (32px), Default (40px), Large (48px)\n- Style: Filled (primary), Outlined (secondary), Ghost (tertiary)\n- With/without icon"} />
-              </div>
-              {anatomy && (
-                <div>
-                  <Label sub>Anatomy (editable)</Label>
-                  <Textarea value={anatomy} onChange={setAnatomy} rows={6} />
-                </div>
-              )}
-              {!anatomy ? (
-                <div>
-                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                    <Btn disabled={!name.trim() || !description.trim()} onClick={handleAnatomy}>
-                      Generate Anatomy →
-                    </Btn>
-                  </div>
-                  <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-                  {promptText && (
-                    <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                      <Btn small disabled={!pastedResult.trim()} onClick={acceptAnatomy}>Accept Anatomy →</Btn>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-                  <Btn variant="ghost" small onClick={() => setAnatomy("")}>Re-generate</Btn>
-                  <Btn small onClick={() => { mark(1); setStep(2); }}>Document States →</Btn>
-                </div>
-              )}
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 6, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              COMPONENT DESIGN <span style={{ color: T.dim }}>(optional)</span>
+            </label>
+            <Textarea
+              value={componentDesign}
+              onChange={setComponentDesign}
+              placeholder="Describe the component — what it does, what interactions it supports, and any relevant design decisions. Paste screenshots, Figma URLs, or design notes. You can also upload Figma exports or screenshots directly in Claude.ai."
+              rows={5}
+            />
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 6, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              TECH STACK <span style={{ color: T.dim }}>(optional)</span>
+            </label>
+            <Textarea
+              value={techStack}
+              onChange={setTechStack}
+              placeholder="What framework and design system are you delivering to? (e.g. React + Tailwind, iOS SwiftUI, Android Compose, Vue + custom CSS)"
+              rows={3}
+            />
+          </div>
+        </div>
+
+        <button
+          onClick={() => setPrompt(buildPrompt())}
+          style={{
+            background: T.accent, color: "#000", border: "none", borderRadius: 8,
+            padding: "12px 28px", fontFamily: T.font.sans, fontSize: 15, fontWeight: 600,
+            cursor: "pointer", marginBottom: 36,
+          }}
+        >
+          Generate Prompt →
+        </button>
+
+        {prompt && (
+          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 24 }}>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 10, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              YOUR CLAUDE PROMPT
+            </label>
+            <pre style={{
+              margin: "0 0 20px", color: T.text, fontSize: 13, fontFamily: T.font.mono,
+              whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: 1.65,
+              background: T.surface, borderRadius: 8, padding: 16, maxHeight: 400, overflowY: "auto",
+            }}>
+              {prompt}
+            </pre>
+            <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
+              <CopyBtn text={prompt} />
+              <a
+                href="https://claude.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: T.accent, fontFamily: T.font.sans, fontSize: 14, fontWeight: 500,
+                  textDecoration: "none", border: `1px solid ${T.accent}44`, borderRadius: 8, padding: "10px 20px",
+                }}
+              >
+                Open Claude.ai ↗
+              </a>
             </div>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div>
-            <SectionHeader step={2} title="Interactive States"
-              desc="Every state this component can be in — Default through Error — with triggers, visual changes, timing, and screen reader announcements." />
-            {!states && <div style={{ display: "flex", justifyContent: "flex-end" }}><Btn onClick={handleStates}>Generate All States</Btn></div>}
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small disabled={!pastedResult.trim()} onClick={acceptStates}>Accept States →</Btn>
-              </div>
-            )}
-            {states && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Default · Hover · Focus · Active · Disabled · Loading · Error · Success · Empty</Label>
-                  <CopyBtn text={states} />
-                </div>
-                <OutputBlock content={states} maxH={520} />
-                <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                  <Btn variant="ghost" small onClick={() => setStates("")}>Re-generate</Btn>
-                  <Btn small onClick={() => { mark(2); setStep(3); }}>Document Behavior →</Btn>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {step === 3 && (
-          <div>
-            <SectionHeader step={3} title="Behavior and Interactions"
-              desc="What happens on every click, key press, and touch — with timing, easing, keyboard navigation, and focus management." />
-            {!behavior && <div style={{ display: "flex", justifyContent: "flex-end" }}><Btn onClick={handleBehavior}>Generate Behavior Docs</Btn></div>}
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small disabled={!pastedResult.trim()} onClick={acceptBehavior}>Accept Behavior →</Btn>
-              </div>
-            )}
-            {behavior && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Interactions · keyboard · focus management · animation</Label>
-                  <CopyBtn text={behavior} />
-                </div>
-                <OutputBlock content={behavior} maxH={500} />
-                <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                  <Btn variant="ghost" small onClick={() => setBehavior("")}>Re-generate</Btn>
-                  <Btn small onClick={() => { mark(3); setStep(4); }}>Spacing + Edge Cases →</Btn>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {step === 4 && (
-          <div>
-            <SectionHeader step={4} title="Spacing, Typography + Edge Cases"
-              desc="Token-mapped spacing and typography values, sizing rules, and systematic edge cases — content extremes, responsive behavior, accessibility modes." />
-            {!spacing && <div style={{ display: "flex", justifyContent: "flex-end" }}><Btn onClick={handleSpacing}>Generate Spacing + Edge Cases</Btn></div>}
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small disabled={!pastedResult.trim()} onClick={acceptSpacing}>Accept Spacing →</Btn>
-              </div>
-            )}
-            {spacing && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Spacing · typography · sizing · edge cases</Label>
-                  <CopyBtn text={spacing} />
-                </div>
-                <OutputBlock content={spacing} maxH={500} />
-                <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                  <Btn variant="ghost" small onClick={() => setSpacing("")}>Re-generate</Btn>
-                  <Btn small onClick={() => { mark(4); setStep(5); }}>Assemble Full Spec →</Btn>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {step === 5 && (
-          <div>
-            <SectionHeader step={5} title="Complete Spec Document"
-              desc="All four sections assembled into a single, navigable spec. Validate against the Figma file before handoff." />
-            {!fullSpec && <div style={{ display: "flex", justifyContent: "flex-end" }}><Btn onClick={handleFullSpec}>Generate Full Spec</Btn></div>}
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small disabled={!pastedResult.trim()} onClick={acceptFullSpec}>Accept Full Spec →</Btn>
-              </div>
-            )}
-            {fullSpec && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Complete component specification — ready for handoff review</Label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <CopyBtn text={fullSpec} />
-                    <Btn small variant="ghost" onClick={() => dl(fullSpec, `${name.toLowerCase().replace(/\s+/g, "-")}-spec.md`)}>↓ .md</Btn>
-                  </div>
-                </div>
-                <OutputBlock content={fullSpec} maxH={560} />
-                <div style={{ marginTop: 20, padding: "14px 16px", background: T.deliverDim, border: `1px solid ${T.deliverBorder}`, borderRadius: 8 }}>
-                  <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.deliver }}>
-                    ✓ Validate against Figma before sharing — Claude generates, designer confirms
-                  </span>
-                </div>
-              </div>
-            )}
+            <p style={{ margin: 0, color: T.dim, fontSize: 13, lineHeight: 1.5 }}>
+              Claude will ask follow-up questions to fill in any gaps. You can also upload documents, transcripts, or files directly in Claude.ai.
+            </p>
           </div>
         )}
       </div>

@@ -1,768 +1,146 @@
 import { useState } from "react";
 
-// ─── Design tokens ────────────────────────────────────────────────────────────
 const T = {
-  bg: "#0F0F0F",
-  surface: "#161616",
-  card: "#1C1C1C",
-  border: "#2A2A2A",
-  text: "#F2F2F2",
-  muted: "#999999",
-  dim: "#666666",
-  define: "#8B5CF6",
-  defineDim: "rgba(139,92,246,0.12)",
-  defineBorder: "rgba(139,92,246,0.25)",
+  bg: "#0F0F0F", surface: "#161616", card: "#1A1A1A",
+  border: "#2C2C2C", text: "#F2F2F2", muted: "#999999", dim: "#787878",
+  accent: "#8B5CF6",
+  font: { sans: "'DM Sans', sans-serif", mono: "'JetBrains Mono', monospace" },
 };
 
-const STEPS = [
-  { id: 1, label: "Scenario", short: "Persona + situation"     },
-  { id: 2, label: "Stages",   short: "Define journey stages"   },
-  { id: 3, label: "Map",      short: "Generate six lanes"      },
-  { id: 4, label: "Moments",  short: "Critical moments"        },
-  { id: 5, label: "Handoff",  short: "Ideate handoff block"    },
-];
-
-const LANES = [
-  { id: "actions",     label: "Actions",     desc: "What the user does — observed behaviors and workarounds" },
-  { id: "thoughts",    label: "Thoughts",    desc: "What they're thinking — questions, doubts, mental models" },
-  { id: "emotions",    label: "Emotions",    desc: "How they feel — emotional curve across the stage" },
-  { id: "touchpoints", label: "Touchpoints", desc: "Every interface, person, or channel they interact with" },
-  { id: "painpoints",  label: "Pain Points", desc: "Friction with severity rating and research citation" },
-  { id: "opportunity", label: "Opportunity", desc: "Where design intervention has the most leverage" },
-];
-
-// ─── Prompt Panel ─────────────────────────────────────────────────────────────
-function PromptPanel({ promptText, pastedResult, setPastedResult }) {
-  const [copied, setCopied] = useState(false);
-  if (!promptText) return null;
+function Textarea({ value, onChange, placeholder, rows = 4 }) {
   return (
-    <div style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "16px 18px", marginTop: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.define }}>Prompt ready — copy and run in Claude</span>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={() => { navigator.clipboard.writeText(promptText); setCopied(true); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "6px 12px", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, cursor: "pointer", borderRadius: 5, border: `1.5px solid ${T.define}`, background: copied ? T.define : "transparent", color: copied ? "#fff" : T.define, transition: "all 0.15s" }}>{copied ? "✓ Copied" : "Copy Prompt"}</button>
-          <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" style={{ padding: "6px 12px", fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600, cursor: "pointer", borderRadius: 5, border: `1.5px solid ${T.border}`, background: "transparent", color: T.muted, textDecoration: "none", display: "inline-block" }}>Open Claude.ai →</a>
-        </div>
-      </div>
-      <pre style={{ whiteSpace: "pre-wrap", fontSize: 12, lineHeight: 1.7, color: T.text, fontFamily: "'DM Sans', sans-serif", margin: 0, maxHeight: 320, overflowY: "auto" }}>{promptText}</pre>
-      <div style={{ marginTop: 16 }}>
-        <div style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.muted, marginBottom: 8 }}>Paste Claude's response here</div>
-        <textarea value={pastedResult} onChange={e => setPastedResult(e.target.value)} placeholder="Run the prompt in Claude, then paste the result here to continue…" rows={6} style={{ width: "100%", boxSizing: "border-box", background: T.card, border: `1px solid ${T.border}`, borderRadius: 6, padding: "10px 12px", color: T.text, fontSize: 13, lineHeight: 1.6, fontFamily: "'DM Sans', sans-serif", resize: "vertical", outline: "none" }} onFocus={e => e.target.style.borderColor = T.define} onBlur={e => e.target.style.borderColor = T.border} />
-      </div>
-    </div>
-  );
-}
-
-// ─── Shared UI ────────────────────────────────────────────────────────────────
-function Label({ children, sub }) {
-  return (
-    <div style={{ marginBottom: sub ? 4 : 8 }}>
-      <span style={{
-        fontSize: sub ? 11 : 12, fontFamily: "'JetBrains Mono', monospace",
-        letterSpacing: "0.07em", textTransform: "uppercase",
-        color: sub ? T.muted : T.define,
-      }}>{children}</span>
-    </div>
-  );
-}
-
-function Textarea({ value, onChange, placeholder, rows = 5, disabled }) {
-  return (
-    <textarea value={value} onChange={e => onChange(e.target.value)}
-      placeholder={placeholder} rows={rows} disabled={disabled}
+    <textarea
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      rows={rows}
       style={{
-        width: "100%", boxSizing: "border-box",
-        background: T.surface, border: `1px solid ${T.border}`,
-        borderRadius: 8, padding: "12px 14px",
-        color: T.text, fontSize: 13, lineHeight: 1.6,
-        fontFamily: "'DM Sans', sans-serif",
+        width: "100%", boxSizing: "border-box", background: T.surface,
+        border: `1px solid ${T.border}`, borderRadius: 8, color: T.text,
+        fontFamily: T.font.sans, fontSize: 14, padding: "10px 12px",
         resize: "vertical", outline: "none",
-        opacity: disabled ? 0.5 : 1, transition: "border-color 0.15s",
       }}
-      onFocus={e => e.target.style.borderColor = T.define}
-      onBlur={e => e.target.style.borderColor = T.border}
     />
-  );
-}
-
-function Input({ value, onChange, placeholder, disabled }) {
-  return (
-    <input value={value} onChange={e => onChange(e.target.value)}
-      placeholder={placeholder} disabled={disabled}
-      style={{
-        width: "100%", boxSizing: "border-box",
-        background: T.surface, border: `1px solid ${T.border}`,
-        borderRadius: 8, padding: "10px 14px",
-        color: T.text, fontSize: 13,
-        fontFamily: "'DM Sans', sans-serif",
-        outline: "none", transition: "border-color 0.15s",
-        opacity: disabled ? 0.5 : 1,
-      }}
-      onFocus={e => e.target.style.borderColor = T.define}
-      onBlur={e => e.target.style.borderColor = T.border}
-    />
-  );
-}
-
-function Btn({ children, onClick, disabled, variant = "primary", small }) {
-  const isPrimary = variant === "primary";
-  return (
-    <button onClick={onClick} disabled={disabled} style={{
-      padding: small ? "7px 14px" : "10px 20px",
-      fontSize: small ? 11 : 13,
-      fontFamily: "'JetBrains Mono', monospace",
-      letterSpacing: "0.06em", textTransform: "uppercase",
-      fontWeight: 600, cursor: disabled ? "not-allowed" : "pointer",
-      borderRadius: 6, border: "1.5px solid",
-      borderColor: isPrimary ? T.define : T.border,
-      background: isPrimary ? T.define : "transparent",
-      color: isPrimary ? "#fff" : T.muted,
-      opacity: disabled ? 0.4 : 1, transition: "all 0.15s",
-    }}
-      onMouseEnter={e => { if (!disabled) e.target.style.opacity = "0.85"; }}
-      onMouseLeave={e => { if (!disabled) e.target.style.opacity = "1"; }}
-    >{children}</button>
   );
 }
 
 function CopyBtn({ text }) {
   const [copied, setCopied] = useState(false);
+  async function copy() {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
   return (
-    <Btn small variant="ghost" onClick={() => {
-      navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
-    }}>{copied ? "✓ Copied" : "Copy"}</Btn>
-  );
-}
-
-function OutputBlock({ content, maxH = 480 }) {
-  return (
-    <div style={{
-      background: T.surface, border: `1px solid ${T.border}`,
-      borderRadius: 8, padding: "16px 18px",
-      fontSize: 13, lineHeight: 1.7, color: T.text,
-      fontFamily: "'DM Sans', sans-serif",
-      whiteSpace: "pre-wrap", wordBreak: "break-word",
-      maxHeight: maxH, overflowY: "auto",
+    <button onClick={copy} disabled={!text} style={{
+      background: text ? T.accent : T.border, color: text ? "#fff" : T.muted,
+      border: "none", borderRadius: 8, padding: "10px 20px",
+      fontFamily: T.font.sans, fontSize: 14, fontWeight: 600,
+      cursor: text ? "pointer" : "default",
     }}>
-      {content || <span style={{ color: T.dim, fontStyle: "italic" }}>Output will appear here…</span>}
-    </div>
+      {copied ? "Copied!" : "Copy Prompt"}
+    </button>
   );
 }
 
-function SectionHeader({ step, title, desc }) {
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
-        <span style={{
-          fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
-          letterSpacing: "0.1em", textTransform: "uppercase",
-          color: T.define, background: T.defineDim,
-          border: `1px solid ${T.defineBorder}`,
-          padding: "2px 8px", borderRadius: 4,
-        }}>Step {step}</span>
-        <span style={{
-          fontSize: 16, fontWeight: 600,
-          fontFamily: "'DM Serif Display', serif", color: T.text,
-        }}>{title}</span>
-      </div>
-      {desc && <p style={{ fontSize: 13, color: T.muted, lineHeight: 1.6, margin: 0, maxWidth: 600 }}>{desc}</p>}
-    </div>
-  );
-}
-
-function StepIndicator({ current, completed }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 32 }}>
-      {STEPS.map((step, i) => {
-        const done = completed.includes(step.id);
-        const active = current === step.id;
-        return (
-          <div key={step.id} style={{ display: "flex", alignItems: "center", flex: i < STEPS.length - 1 ? 1 : "none" }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6, minWidth: 56 }}>
-              <div style={{
-                width: 32, height: 32, borderRadius: "50%",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 11, fontWeight: 700,
-                fontFamily: "'JetBrains Mono', monospace",
-                background: done ? T.define : active ? T.defineDim : "transparent",
-                border: `1.5px solid ${done ? T.define : active ? T.define : T.border}`,
-                color: done ? "#fff" : active ? T.define : T.dim,
-                transition: "all 0.2s",
-              }}>{done ? "✓" : step.id}</div>
-              <span style={{
-                fontSize: 9, fontFamily: "'JetBrains Mono', monospace",
-                letterSpacing: "0.08em", textTransform: "uppercase",
-                color: active ? T.define : done ? T.muted : T.dim,
-                whiteSpace: "nowrap",
-              }}>{step.label}</span>
-            </div>
-            {i < STEPS.length - 1 && (
-              <div style={{
-                flex: 1, height: 1, marginBottom: 18, marginLeft: 4, marginRight: 4,
-                background: done ? T.define : T.border, transition: "background 0.3s",
-              }} />
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-// ─── Main ─────────────────────────────────────────────────────────────────────
 export default function JourneyMappingTool() {
-  const [step, setStep] = useState(1);
-  const [completed, setCompleted] = useState([]);
-  const [promptText, setPromptText] = useState("");
-  const [pastedResult, setPastedResult] = useState("");
+  const [researchPersona, setResearchPersona] = useState("");
+  const [scenario, setScenario] = useState("");
+  const [prompt, setPrompt] = useState("");
 
-  // Step 1 — Scenario
-  const [persona, setPersona] = useState("");
-  const [goal, setGoal] = useState("");
-  const [trigger, setTrigger] = useState("");
-  const [researchData, setResearchData] = useState("");
+  function buildPrompt() {
+    return `You are a senior experience designer helping a team build a research-grounded journey map.
 
-  // Step 2 — Stages
-  const [stagesSuggested, setStagesSuggested] = useState("");
-  const [stagesRaw, setStagesRaw] = useState("");
-  const [stagesApproved, setStagesApproved] = useState([]);
+Start by clarifying:
+- Are we mapping current state, future state, or both?
+- What's the start and end point of the journey?
+- What are the key stages? (e.g. Awareness → Onboarding → Core Use → Return)
+- What data sources do we have (interviews, observations, support tickets, analytics)?
 
-  // Step 3 — Map
-  const [journeyMap, setJourneyMap] = useState("");
+Build the journey map across six lanes:
+1. **User Actions** — What the user does at each stage
+2. **Thoughts** — What they're thinking (direct quotes where possible)
+3. **Emotions** — Emotional arc from frustrated to delighted (use a simple scale: frustrated / neutral / satisfied / delighted)
+4. **Touchpoints** — Every interaction point with your product, service, or team
+5. **Pain Points** — Specific friction at each stage
+6. **Opportunities** — Design opportunities at each stage
 
-  // Step 4 — Moments
-  const [moments, setMoments] = useState("");
+Then identify:
+- **Critical Moments** — The 2-3 moments that most determine whether the user succeeds or abandons
+- **Biggest Gaps** — Where the current experience most fails the user
+- **Quick Wins** — What could be improved without a redesign
 
-  // Step 5 — Handoff
-  const [handoff, setHandoff] = useState("");
+If the designer has interview transcripts, observation notes, or existing journey maps to share, ask them to upload the files.
 
-  const markComplete = (id) => setCompleted(prev => [...new Set([...prev, id])]);
-
-  function dl(content, filename) {
-    const blob = new Blob([content], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = filename; a.click();
-    URL.revokeObjectURL(url);
+Produce the journey map as a clean markdown table with all six lanes, plus a Critical Moments summary and Opportunity Ranking.${researchPersona ? `\n\nResearch & persona:\n${researchPersona}` : ""}${scenario ? `\n\nScenario to map:\n${scenario}` : ""}`;
   }
 
-  // ── Step 2: Suggest stages ───────────────────────────────────────────────────
-  function handleSuggestStages() {
-    const sys = "You are a senior UX researcher designing a journey map. Stage names should be specific to this user and scenario — never generic like 'Awareness → Consideration → Purchase'. Ground stage names in what actually happens in the research.";
-    const msg = `Suggest 5–7 journey stage names for this scenario.
-
-Persona: ${persona}
-Goal: ${goal}
-Trigger (what starts the experience): ${trigger}
-Research data: ${researchData || "Not provided — infer from persona and goal"}
-
-Rules:
-- Stage names should be specific to THIS user and scenario
-- Use active, descriptive phrases (e.g. "Realizes the problem exists", "Tries to make sense of the data") not generic nouns
-- Each stage should be meaningfully distinct from the others
-- Stages should cover start to end of the experience
-
-Return ONLY a numbered list of stage names. No descriptions. No extra text.`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptSuggestedStages() {
-    setStagesSuggested(pastedResult);
-    setStagesRaw(pastedResult);
-    setPromptText(""); setPastedResult("");
-  }
-
-  function approveStages() {
-    const lines = stagesRaw.split("\n").filter(l => l.trim());
-    const parsed = lines.map((l, i) => ({
-      id: i + 1,
-      name: l.replace(/^\d+[\.\)]\s*/, "").trim(),
-    })).filter(s => s.name);
-    setStagesApproved(parsed);
-    markComplete(2);
-    setStep(3);
-  }
-
-  // ── Step 3: Generate journey map ─────────────────────────────────────────────
-  function handleGenerateMap() {
-    const stages = stagesApproved.map(s => s.name).join(", ");
-    const sys = "You are a senior UX researcher generating a detailed, research-grounded journey map. Mark pain points with ⚠️ and cite research source. Mark workarounds with 🔧. Mark emotional high points with 📈 and low points with 📉. Flag anything not directly from research as [inferred] or [unknown]. Never invent data.";
-    const msg = `Generate a complete journey map across all 6 lanes for each stage.
-
-Persona: ${persona}
-Goal: ${goal}
-Trigger: ${trigger}
-Stages: ${stages}
-Research data:
-${researchData}
-
-For each stage, populate all 6 lanes:
-
-1. **Actions** — What the user actually does (specific behaviors, not what they should do). Mark workarounds with 🔧
-2. **Thoughts** — What they're thinking — questions, doubts, mental model assumptions. Use direct quotes where possible.
-3. **Emotions** 📈/📉 — Emotional state and intensity. What specifically drives it. Show the curve rising and falling.
-4. **Touchpoints** — Every interface, person, channel, or tool they interact with at this stage.
-5. **Pain Points** ⚠️ — Table format: | Pain | Severity (Critical/Major/Minor) | Source (session ref or [inferred]) |
-6. **Opportunities** — Leave for Step 4. Mark as [TBD — generated after critical moments analysis]
-
-Use this structure per stage:
-
-## Stage [N]: [Name]
-
-**Actions**
-[content]
-
-**Thoughts**
-[content]
-
-**Emotions** [📈/📉]
-[content]
-
-**Touchpoints**
-[content]
-
-**Pain Points** ⚠️
-| Pain | Severity | Source |
-|---|---|---|
-| [pain] | [level] | [ref] |
-
-**Opportunities**
-[TBD — generated after critical moments analysis]
-
----
-
-After all stages, add:
-
-## Emotional Arc Summary
-Brief narrative (2–3 sentences) describing the shape of the emotional journey — where it starts, where it bottoms out, and whether/where it recovers.`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptMap() {
-    setJourneyMap(pastedResult);
-    markComplete(3);
-    setStep(4);
-    setPromptText(""); setPastedResult("");
-  }
-
-  // ── Step 4: Critical moments ─────────────────────────────────────────────────
-  function handleMoments() {
-    const sys = "You are a senior UX strategist synthesizing a journey map into design priorities. Be specific — cite stages and research evidence. Generate opportunities as HMW questions, not feature ideas.";
-    const msg = `Analyze this journey map and identify critical moments, then generate design opportunities.
-
-Journey map:
-${journeyMap}
-
-Persona: ${persona}
-Goal: ${goal}
-
-## Part 1 — Critical Moments
-
-### Moment of Highest Friction
-- Stage: [which stage]
-- What happens: [specific description]
-- Evidence: [research citations from the map]
-- Design implication: [what ideation needs to address here]
-
-### Moment of Highest Opportunity
-- Stage: [which stage]
-- What happens: [where design intervention creates the most user value]
-- Evidence: [research citations]
-- Design implication: [where to focus creative energy]
-
-### Moment of Truth
-- Stage: [which stage]
-- The decision: [what the user decides — commit or abandon — and what makes the difference]
-- Evidence: [research citations]
-- Design implication: [what must be true here for the user to continue]
-
-### Systemic Gap (if present)
-- Stage: [which stage]
-- What happens: [disconnect between frontstage experience and backstage cause]
-- Evidence: [research citations]
-- Design implication: [organizational or process change required, not just UI]
-
----
-
-## Part 2 — Top 8 Opportunities
-
-Generate 8 design opportunities as HMW questions. Each must:
-- Start with "How might we"
-- Reference a specific stage or pain point from the map
-- Point toward a user outcome, not a feature
-- Generate at least 5 meaningfully different solutions
-
-Then rank by design leverage:
-- **High** — addresses a critical moment or systemic gap
-- **Medium** — addresses a major pain point
-- **Low** — addresses a minor friction
-
-Select the top 3 highest-leverage opportunities. Explain in one sentence each why they make the shortlist.`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptMoments() {
-    setMoments(pastedResult);
-    markComplete(4);
-    setStep(5);
-    setPromptText(""); setPastedResult("");
-  }
-
-  // ── Step 5: Generate handoff ─────────────────────────────────────────────────
-  function handleHandoff() {
-    const sys = "You are a senior product designer generating a structured phase handoff. Extract real content — no placeholders. Be specific and actionable.";
-    const msg = `Generate a Define → Ideate Phase Handoff Block from this journey map.
-
-Persona: ${persona}
-Goal: ${goal}
-Trigger: ${trigger}
-Stages: ${stagesApproved.map(s => s.name).join(", ")}
-
-Journey map:
-${journeyMap}
-
-Critical moments:
-${moments}
-
-Use this exact structure:
-
-## Handoff: Define → Ideate
-### From: Journey Mapping Tool
-### Date: ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-
----
-
-### What we completed
-- Scenario: ${persona} — ${goal}
-- Stages mapped: ${stagesApproved.length} (${stagesApproved.map(s => s.name).join(", ")})
-- Research basis: [summarize research coverage]
-- Critical moments identified: Yes
-
-### Persona
-- Who: [name + context]
-- Goal: [what they're trying to accomplish]
-- Trigger: ${trigger}
-
-### Moment of highest friction
-- Stage: [name]
-- What happens: [one sentence]
-- Design implication: [what ideation must address]
-
-### Moment of highest opportunity
-- Stage: [name]
-- What happens: [one sentence]
-- Design implication: [where to focus creative energy]
-
-### Moment of truth
-- Stage: [name]
-- The decision: [what makes the user commit or abandon]
-
-### Top 3 opportunities (ranked by design leverage)
-1. HMW [statement] — Leverage: High
-2. HMW [statement] — Leverage: High/Medium
-3. HMW [statement] — Leverage: Medium
-
-### Emotional arc
-[2–3 sentence narrative — where it starts, where it breaks down, where it recovers]
-
-### Open questions for Ideate
-- [What the map surfaced but couldn't resolve]
-- [Moments marked [unknown] that need more research]
-- [Systemic gaps that may require organizational change]
-
----
-Combine with Problem Framing handoff when opening Concept Generation.`;
-    setPromptText(sys + "\n\n" + msg);
-    setPastedResult("");
-  }
-
-  function acceptHandoff() {
-    setHandoff(pastedResult);
-    markComplete(5);
-    setPromptText(""); setPastedResult("");
-  }
-
-  // ─── Render ──────────────────────────────────────────────────────────────────
   return (
-    <div style={{ minHeight: "100vh", background: T.bg, fontFamily: "'DM Sans', sans-serif", color: T.text }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600;700&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
-        :focus-visible { outline: 2px solid #999; outline-offset: 2px; border-radius: 4px; }
-      `}</style>
-
-      {/* Header */}
-      <div style={{
-        borderBottom: `1px solid ${T.border}`,
-        padding: "0 clamp(24px,5vw,80px)", height: 60,
-        display: "flex", alignItems: "center", justifyContent: "space-between",
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 8, height: 8, borderRadius: "50%", background: T.define, boxShadow: `0 0 8px ${T.define}` }} />
-          <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.define }}>02 — Define</span>
-          <span style={{ color: T.dim }}>·</span>
-          <span style={{ fontSize: 15, fontWeight: 600, fontFamily: "'DM Serif Display', serif", color: T.text }}>Journey Mapping</span>
+    <div style={{ background: T.bg, minHeight: "100vh", padding: "32px 24px", fontFamily: T.font.sans, color: T.text }}>
+      <div style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+          <span style={{ background: T.accent + "22", color: T.accent, padding: "3px 10px", borderRadius: 99, fontSize: 12, fontWeight: 600, letterSpacing: "0.05em" }}>
+            DEFINE
+          </span>
         </div>
-        {stagesApproved.length > 0 && (
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "flex-end" }}>
-            {stagesApproved.map(s => (
-              <span key={s.id} style={{
-                fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
-                letterSpacing: "0.05em", padding: "2px 8px", borderRadius: 20,
-                background: T.defineDim, border: `1px solid ${T.defineBorder}`,
-                color: T.define,
-              }}>{s.id}. {s.name}</span>
-            ))}
-          </div>
-        )}
-      </div>
+        <h1 style={{ margin: "0 0 8px", fontSize: 28, fontWeight: 700, lineHeight: 1.2 }}>Journey Mapping</h1>
+        <p style={{ margin: "0 0 32px", color: T.muted, fontSize: 16, lineHeight: 1.5 }}>Generate research-grounded journey maps across six lanes with critical moments</p>
 
-      {/* Main */}
-      <div style={{ maxWidth: 1440, margin: "0 auto", padding: "48px clamp(24px,5vw,80px) 96px" }}>
-        <StepIndicator current={step} completed={completed} />
-
-        {/* ── Step 1: Scenario ── */}
-        {step === 1 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 20, marginBottom: 28 }}>
           <div>
-            <SectionHeader step={1} title="Scenario Setup"
-              desc="One journey map = one persona + one goal + one context. Lock the scenario before generating anything." />
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 6, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              RESEARCH &amp; PERSONA <span style={{ color: T.dim }}>(optional)</span>
+            </label>
+            <Textarea value={researchPersona} onChange={setResearchPersona} placeholder="Describe the user persona, their goal, and key research findings about their experience. Paste or upload research notes." rows={5} />
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 6, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              SCENARIO TO MAP <span style={{ color: T.dim }}>(optional)</span>
+            </label>
+            <Textarea value={scenario} onChange={setScenario} placeholder="What journey or scenario are we mapping? (e.g. first-time signup, completing a core task, recovering from an error)" rows={3} />
+          </div>
+        </div>
 
-            {/* Lane reference */}
-            <div style={{
-              background: T.surface, border: `1px solid ${T.border}`,
-              borderRadius: 10, padding: "16px 20px", marginBottom: 24,
+        <button
+          onClick={() => setPrompt(buildPrompt())}
+          style={{
+            background: T.accent, color: "#fff", border: "none", borderRadius: 8,
+            padding: "12px 28px", fontFamily: T.font.sans, fontSize: 15, fontWeight: 600,
+            cursor: "pointer", marginBottom: 36,
+          }}
+        >
+          Generate Prompt →
+        </button>
+
+        {prompt && (
+          <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: 24 }}>
+            <label style={{ display: "block", fontSize: 12, color: T.muted, marginBottom: 10, fontFamily: T.font.mono, letterSpacing: "0.08em" }}>
+              YOUR CLAUDE PROMPT
+            </label>
+            <pre style={{
+              margin: "0 0 20px", color: T.text, fontSize: 13, fontFamily: T.font.mono,
+              whiteSpace: "pre-wrap", wordBreak: "break-word", lineHeight: 1.65,
+              background: T.surface, borderRadius: 8, padding: 16, maxHeight: 400, overflowY: "auto",
             }}>
-              <div style={{ marginBottom: 12 }}>
-                <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.muted }}>Six lanes — every journey map</span>
-              </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-                {LANES.map(lane => (
-                  <div key={lane.id} style={{ padding: "8px 12px", background: T.card, borderRadius: 6, border: `1px solid ${T.border}` }}>
-                    <div style={{ fontSize: 11, fontWeight: 600, color: T.text, marginBottom: 3 }}>{lane.label}</div>
-                    <div style={{ fontSize: 11, color: T.dim, lineHeight: 1.4 }}>{lane.desc}</div>
-                  </div>
-                ))}
-              </div>
+              {prompt}
+            </pre>
+            <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap", marginBottom: 16 }}>
+              <CopyBtn text={prompt} />
+              <a
+                href="https://claude.ai"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: T.accent, fontFamily: T.font.sans, fontSize: 14, fontWeight: 500,
+                  textDecoration: "none", border: `1px solid ${T.accent}44`, borderRadius: 8, padding: "10px 20px",
+                }}
+              >
+                Open Claude.ai ↗
+              </a>
             </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <div>
-                  <Label>Persona</Label>
-                  <Input value={persona} onChange={setPersona} placeholder="e.g. Senior Product Designer — 5+ yrs, multi-project context" />
-                </div>
-                <div>
-                  <Label>Their goal in this scenario</Label>
-                  <Input value={goal} onChange={setGoal} placeholder="e.g. Synthesize 8 interviews into a shareable brief" />
-                </div>
-              </div>
-              <div>
-                <Label>Trigger — what starts this experience</Label>
-                <Input value={trigger} onChange={setTrigger} placeholder="e.g. Finishes conducting the last user interview" />
-              </div>
-              <div>
-                <Label>Research data (paste session summaries, themes, or pain points)</Label>
-                <Textarea value={researchData} onChange={setResearchData} rows={7}
-                  placeholder="Paste research synthesis outputs — themes, pain points, session summaries, direct quotes. The more grounded the input, the more accurate the map." />
-              </div>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Btn onClick={() => { markComplete(1); setStep(2); }}
-                  disabled={!persona.trim() || !goal.trim()}>
-                  Define Stages →
-                </Btn>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── Step 2: Stages ── */}
-        {step === 2 && (
-          <div>
-            <SectionHeader step={2} title="Define Journey Stages"
-              desc="Stages are the backbone of the map. Get Claude to suggest them from your research, then edit before confirming. Aim for 5–7 specific, descriptive stage names." />
-
-            <div style={{
-              background: T.surface, border: `1px solid ${T.border}`,
-              borderRadius: 8, padding: "14px 16px", marginBottom: 20,
-              display: "flex", alignItems: "flex-start", gap: 12,
-            }}>
-              <span style={{ fontSize: 18 }}>👤</span>
-              <div>
-                <span style={{ fontSize: 13, fontWeight: 500, color: T.text }}>{persona}</span>
-                <div style={{ fontSize: 12, color: T.muted, marginTop: 2 }}>{goal}</div>
-                {trigger && <div style={{ fontSize: 11, color: T.dim, marginTop: 2 }}>Starts: {trigger}</div>}
-              </div>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Btn variant="ghost" small onClick={handleSuggestStages}>
-                  Suggest Stages from Research
-                </Btn>
-              </div>
-
-              <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-
-              {promptText && (
-                <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
-                  <Btn small onClick={acceptSuggestedStages} disabled={!pastedResult.trim()}>Use These Stages</Btn>
-                </div>
-              )}
-
-              <div>
-                <Label>Stages — edit or write your own (one per line, numbered)</Label>
-                <Textarea value={stagesRaw} onChange={setStagesRaw} rows={8}
-                  placeholder={"1. Realizes the backlog is unmanageable\n2. Tries to prioritize manually\n3. Looks for a pattern across tickets\n4. Gets stuck on conflicting priorities\n5. Escalates to PM for guidance\n6. Commits to a scope"} />
-              </div>
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Btn disabled={!stagesRaw.trim()} onClick={approveStages}>
-                  Confirm Stages →
-                </Btn>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ── Step 3: Map ── */}
-        {step === 3 && (
-          <div>
-            <SectionHeader step={3} title="Generate Journey Map"
-              desc={`Build the prompt, run it in Claude, then paste the result. Claude populates all 6 lanes across ${stagesApproved.length} stages using your research data.`} />
-
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 20 }}>
-              {stagesApproved.map(s => (
-                <span key={s.id} style={{
-                  padding: "3px 10px", borderRadius: 20, fontSize: 11,
-                  fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.05em",
-                  background: T.defineDim, border: `1px solid ${T.defineBorder}`, color: T.define,
-                }}>{s.id}. {s.name}</span>
-              ))}
-            </div>
-
-            {!journeyMap && (
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Btn onClick={handleGenerateMap}>
-                  Generate {stagesApproved.length}-Stage Journey Map
-                </Btn>
-              </div>
-            )}
-
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small onClick={acceptMap} disabled={!pastedResult.trim()}>Accept Map →</Btn>
-              </div>
-            )}
-
-            {journeyMap && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Journey map — all 6 lanes</Label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <CopyBtn text={journeyMap} />
-                    <Btn small variant="ghost" onClick={() => dl(journeyMap, "journey-map.md")}>↓ .md</Btn>
-                  </div>
-                </div>
-                <OutputBlock content={journeyMap} maxH={560} />
-                <div style={{ display: "flex", gap: 8, marginTop: 12, justifyContent: "flex-end" }}>
-                  <Btn variant="ghost" small onClick={() => { setJourneyMap(""); setPromptText(""); }}>Re-generate</Btn>
-                  <Btn small onClick={() => setStep(4)}>Identify Critical Moments →</Btn>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── Step 4: Moments ── */}
-        {step === 4 && (
-          <div>
-            <SectionHeader step={4} title="Critical Moments + Opportunities"
-              desc="Build the prompt, run it in Claude, then paste the result. Claude identifies the four critical moments and generates 8 HMW opportunities ranked by design leverage." />
-
-            {!moments && (
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Btn onClick={handleMoments}>Identify Critical Moments</Btn>
-              </div>
-            )}
-
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small onClick={acceptMoments} disabled={!pastedResult.trim()}>Accept Moments →</Btn>
-              </div>
-            )}
-
-            {moments && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Critical moments · top 3 opportunities</Label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <CopyBtn text={moments} />
-                    <Btn small variant="ghost" onClick={() => { setMoments(""); setPromptText(""); }}>Re-analyze</Btn>
-                  </div>
-                </div>
-                <OutputBlock content={moments} maxH={520} />
-                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
-                  <Btn small onClick={() => { markComplete(4); setStep(5); }}>Generate Handoff →</Btn>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── Step 5: Handoff ── */}
-        {step === 5 && (
-          <div>
-            <SectionHeader step={5} title="Ideate Handoff"
-              desc="Build the prompt, run it in Claude, then paste the result. A structured summary of the journey map — paste it alongside the Problem Framing handoff when opening Concept Generation." />
-
-            {!handoff && (
-              <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <Btn onClick={handleHandoff}>Generate Handoff Block</Btn>
-              </div>
-            )}
-
-            <PromptPanel promptText={promptText} pastedResult={pastedResult} setPastedResult={setPastedResult} />
-
-            {promptText && (
-              <div style={{ display: "flex", gap: 10, marginTop: 12, justifyContent: "flex-end" }}>
-                <Btn small onClick={acceptHandoff} disabled={!pastedResult.trim()}>Accept Handoff →</Btn>
-              </div>
-            )}
-
-            {handoff && !promptText && (
-              <div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
-                  <Label sub>Define → Ideate handoff block</Label>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <CopyBtn text={handoff} />
-                    <Btn small variant="ghost" onClick={() => dl(handoff, "journey-map-handoff.md")}>↓ .md</Btn>
-                  </div>
-                </div>
-                <OutputBlock content={handoff} maxH={520} />
-                <div style={{
-                  marginTop: 20, padding: "14px 16px",
-                  background: T.defineDim, border: `1px solid ${T.defineBorder}`,
-                  borderRadius: 8,
-                }}>
-                  <span style={{
-                    fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
-                    letterSpacing: "0.08em", textTransform: "uppercase", color: T.define,
-                  }}>
-                    ✓ Journey map complete — combine handoff with Problem Framing when opening Concept Generation
-                  </span>
-                </div>
-              </div>
-            )}
+            <p style={{ margin: 0, color: T.dim, fontSize: 13, lineHeight: 1.5 }}>
+              Claude will ask follow-up questions to fill in any gaps. You can also upload documents, transcripts, or files directly in Claude.ai.
+            </p>
           </div>
         )}
       </div>
