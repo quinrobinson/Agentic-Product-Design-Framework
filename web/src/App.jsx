@@ -3441,29 +3441,82 @@ function SkillDrawer({ skill, onClose }) {
   );
 }
 
-// ── Skill content: parse into intro + H2 accordion sections ──────────────────
+// ── Skill content: group H2s into 4 semantic buckets ─────────────────────────
+const SKILL_GROUPS = [
+  {
+    key: "overview", label: "Overview",
+    patterns: [/^when to use/i, /^the core principle/i, /^what claude needs/i,
+               /^claude surface/i, /^prerequisites/i, /^how this playbook/i,
+               /^before you start/i, /^how to use/i],
+  },
+  {
+    key: "workflow", label: "Workflow",
+    patterns: [/^step \d+/i, /^phase 0?\d/i],
+  },
+  {
+    key: "templates", label: "Templates & Output",
+    patterns: [/^output:/i, /^building the prototype/i, /^ux copy/i,
+               /^touch &/i, /^micro-interaction/i, /^navigation pattern/i,
+               /^component spec/i, /^platform-specific/i, /^web handoff/i,
+               /^ios handoff/i, /^android handoff/i, /^developer handoff/i,
+               /^design decision/i, /^release notes/i, /^design system doc/i,
+               /^pre-delivery/i, /^accessibility audit/i, /^prototype spec/i],
+  },
+  {
+    key: "handoff", label: "Quality & Handoff",
+    patterns: [/^quality checklist/i, /^quality standards/i,
+               /^phase handoff/i, /^handoff:/i, /^error handling/i],
+  },
+];
+
 function parseSkillSections(text) {
   if (!text) return { intro: "", sections: [] };
+
+  function getGroupKey(heading) {
+    for (const g of SKILL_GROUPS) {
+      if (g.patterns.some(p => p.test(heading.trim()))) return g.key;
+    }
+    return null; // inherit current bucket
+  }
+
   const lines = text.split("\n");
   const intro = [];
-  const sections = [];
-  let current = null;
+  const sectionMap = {};   // key → { label, lines[] }
+  const sectionOrder = []; // preserves insertion order
+  let seenH2 = false;
+  let currentKey = null;
 
   for (const line of lines) {
     if (line.startsWith("## ")) {
-      if (current) sections.push(current);
-      current = { title: line.slice(3).trim(), lines: [] };
-    } else if (current) {
-      current.lines.push(line);
-    } else {
+      const heading = line.slice(3).trim();
+      const key = getGroupKey(heading);
+      seenH2 = true;
+
+      if (key && key !== currentKey) {
+        currentKey = key;
+        if (!sectionMap[key]) {
+          sectionMap[key] = { label: SKILL_GROUPS.find(g => g.key === key).label, lines: [] };
+          sectionOrder.push(key);
+        }
+      } else if (!key && !currentKey) {
+        // Unknown heading before any recognised group → Overview
+        currentKey = "overview";
+        if (!sectionMap["overview"]) {
+          sectionMap["overview"] = { label: "Overview", lines: [] };
+          sectionOrder.push("overview");
+        }
+      }
+      if (currentKey && sectionMap[currentKey]) sectionMap[currentKey].lines.push(line);
+    } else if (seenH2 && currentKey && sectionMap[currentKey]) {
+      sectionMap[currentKey].lines.push(line);
+    } else if (!seenH2) {
       intro.push(line);
     }
   }
-  if (current) sections.push(current);
 
   return {
     intro: intro.join("\n"),
-    sections: sections.map(s => ({ title: s.title, content: s.lines.join("\n") })),
+    sections: sectionOrder.map(key => ({ title: sectionMap[key].label, content: sectionMap[key].lines.join("\n") })),
   };
 }
 
