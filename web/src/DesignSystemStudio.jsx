@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 function typeScale(base, ratio, step) {
@@ -1087,6 +1087,8 @@ export default function DesignSystemStudio() {
   const [previewType, setPreviewType] = useState("website");
   const [tokenPanelOpen, setTokenPanelOpen] = useState({ color: true, typography: false, spacing: false, shapes: false });
   const toggleAccordion = (key) => setTokenPanelOpen(prev => ({ ...prev, [key]: !prev[key] }));
+  const [tokenPanelCollapsed, setTokenPanelCollapsed] = useState(false);
+  useEffect(() => { setTokenPanelCollapsed(activeNav.type === "preview"); }, [activeNav.type]);
 
   const applyTheme = useCallback((key) => {
     setActiveTheme(key);
@@ -1206,7 +1208,7 @@ export default function DesignSystemStudio() {
       );
     };
     const sectionHead = (label) => (
-      <div style={{ fontSize: 9, fontFamily: APP.mono, color: "#444", textTransform: "uppercase", letterSpacing: 1.5, padding: "12px 14px 3px" }}>{label}</div>
+      <div style={{ fontSize: 10, fontFamily: APP.mono, color: "#888", textTransform: "uppercase", letterSpacing: 2, padding: "14px 14px 5px", fontWeight: 600 }}>{label}</div>
     );
     const cats = [...new Set(COMPONENTS.map(c => c.cat))];
     return (
@@ -1268,20 +1270,33 @@ export default function DesignSystemStudio() {
     const sizes = {};
     for (let i = -2; i <= 5; i++) sizes[i] = typeScale(tokens.baseSize, tokens.scaleRatio, i);
 
+    if (tokenPanelCollapsed) {
+      return (
+        <div style={{ width: 36, borderLeft: `1px solid ${panelBorder}`, background: panelBg, flexShrink: 0, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 12 }}>
+          <button onClick={() => setTokenPanelCollapsed(false)} title="Expand token panel" style={{ background: "none", border: "none", cursor: "pointer", color: labelCol, fontSize: 14, padding: "6px 0", lineHeight: 1 }}>‹</button>
+          <div style={{ marginTop: 12, writingMode: "vertical-rl", textOrientation: "mixed", fontSize: 9, fontFamily: APP.mono, fontWeight: 600, textTransform: "uppercase", letterSpacing: 2, color: "#A1A1AA", userSelect: "none" }}>Tokens</div>
+        </div>
+      );
+    }
+
     return (
       <div style={{ width: APP.inspector, borderLeft: `1px solid ${panelBorder}`, background: panelBg, overflowY: "auto", flexShrink: 0, display: "flex", flexDirection: "column" }}>
         {/* Panel header */}
-        <div style={{ padding: "14px 16px 10px", borderBottom: `1px solid ${panelBorder}`, flexShrink: 0 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, fontFamily: APP.mono, color: textCol, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6 }}>Tokens</div>
-          <button onClick={() => go("themes")} style={{ display: "flex", alignItems: "center", gap: 6, background: "#E4E4E7", border: "none", borderRadius: 5, padding: "4px 8px", cursor: "pointer", width: "100%" }}>
-            <div style={{ display: "flex", gap: 3 }}>
-              {[tokens.primary, tokens.secondary, tokens.accent].map((c, i) => (
-                <div key={i} style={{ width: 10, height: 10, borderRadius: 2, background: c }} />
-              ))}
+        <div style={{ padding: "14px 16px 12px", borderBottom: `1px solid ${panelBorder}`, flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, fontFamily: APP.mono, color: textCol, textTransform: "uppercase", letterSpacing: 1.5 }}>Tokens</div>
+            <button onClick={() => setTokenPanelCollapsed(true)} title="Collapse token panel" style={{ background: "none", border: "none", cursor: "pointer", color: labelCol, fontSize: 14, padding: "0 2px", lineHeight: 1 }}>›</button>
+          </div>
+          <button onClick={() => go("themes")} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#E4E4E7", border: "none", borderRadius: 6, padding: "8px 10px", cursor: "pointer", width: "100%", marginBottom: 10 }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: textCol, fontFamily: APP.sans, textAlign: "left", lineHeight: 1.2 }}>{tokens.name}</div>
+              <div style={{ fontSize: 11, color: labelCol, fontFamily: APP.mono, textAlign: "left", marginTop: 2 }}>{THEMES[activeTheme]?.archetype}</div>
             </div>
-            <span style={{ fontSize: 11, fontWeight: 500, color: textCol, fontFamily: APP.sans, flex: 1, textAlign: "left" }}>{tokens.name}</span>
-            <span style={{ fontSize: 10, color: labelCol }}>→</span>
+            <span style={{ fontSize: 12, color: labelCol }}>→</span>
           </button>
+          <p style={{ fontSize: 11, color: labelCol, lineHeight: 1.55, margin: 0 }}>
+            Edit tokens below to customize your theme. Changes update all component previews live.
+          </p>
         </div>
 
         {/* Color accordion */}
