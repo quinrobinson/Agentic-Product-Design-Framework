@@ -616,10 +616,10 @@ const SKILL_FILES = [
   { file: "assumption-mapping.md",     phase: "02", leverage: "high",   surface: "chat",         desc: "Surfaces and prioritizes implicit team assumptions across desirability, feasibility, viability, and usability — with validation plans for critical risks." },
   { file: "requirements-prioritization.md", phase: "02", leverage: "high", surface: "chat",     desc: "Applies MoSCoW, RICE, and Impact/Effort frameworks to produce a defensible MVP scope and phased delivery plan grounded in research." },
   { file: "concept-generation.md",    phase: "03", leverage: "high",   surface: "chat",         desc: "Generate a broad set of concept directions using structured brainstorming, multi-angle techniques, and outside-the-box thinking drawn from unrelated domains." },
-  { file: "concept-proof.md",          phase: "03", leverage: "high",   surface: "chat",         desc: "Generate Figma Make prompts that turn written concept cards into throwaway interactive prototypes — so concept selection is grounded in tangible artifacts, not text descriptions.", figmaMake: "concept" },
+  { file: "concept-proof.md",          phase: "03", leverage: "high",   surface: "chat",         desc: "Generate Figma Make prompts that turn written concept cards into throwaway interactive prototypes — so concept selection is grounded in tangible artifacts, not text descriptions." },
   { file: "idea-clustering.md",        phase: "03", leverage: "high",   surface: "chat",         desc: "Transform 15–50 raw concepts into a navigable landscape of strategic directions — grouping by underlying approach, naming clusters, and mapping key tensions." },
   { file: "concept-critique.md",       phase: "03", leverage: "high",   surface: "chat",         desc: "Systematically evaluate promising concepts before prototyping across five lenses: user reality, assumption audit, adversarial review, competitive displacement, and failure modes." },
-  { file: "storyboarding.md",          phase: "03", leverage: "high",   surface: "chat",         desc: "Translate a selected concept into a scene-by-scene narrative of the user experience — with emotional arc, forced design decisions, and a prototype brief.", figmaMake: "storyboard" },
+  { file: "storyboarding.md",          phase: "03", leverage: "high",   surface: "chat",         desc: "Translate a selected concept into a scene-by-scene narrative of the user experience — with emotional arc, forced design decisions, and a prototype brief." },
   { file: "visual-design-execution.md",phase: "03", leverage: "high", surface: "chat",           desc: "Selects a visual style, builds a color token architecture, defines type scale and spacing." },
   { file: "user-flow-mapping.md",     phase: "04", leverage: "high",      surface: "chat",         desc: "Map every path a user can take — happy path, branches, error states, and edge cases — before wireframing begins." },
   { file: "ux-copy-writing.md",       phase: "04", leverage: "very high",  surface: "chat",         desc: "Write all interface text for a prototype — labels, CTAs, errors, empty states, onboarding, and confirmations — grounded in the product voice." },
@@ -3290,8 +3290,6 @@ function SkillDrawer({ skill, onClose }) {
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [showMake, setShowMake] = useState(false);
-
   const phaseLabel = skill.phase ? T.phases[skill.phase]?.label?.toLowerCase() : "";
   const dir = skill.phase ? `${skill.phase}-${phaseLabel}` : "";
   const url = dir ? `${RAW}/${dir}/${skill.file}` : `${RAW}/${skill.file}`;
@@ -3345,20 +3343,6 @@ function SkillDrawer({ skill, onClose }) {
             <SkillBadge surface={skill.surface} />
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
-            {skill.figmaMake && (
-              <button
-                onClick={() => setShowMake(m => !m)}
-                style={{
-                  padding: "5px 14px", borderRadius: 5,
-                  fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: "0.06em", textTransform: "uppercase",
-                  background: showMake ? "#F59E0B" : "transparent",
-                  border: `1px solid ${showMake ? "#F59E0B" : "#F59E0B"}`,
-                  color: showMake ? "#000" : "#F59E0B",
-                  cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap", fontWeight: showMake ? 600 : 400,
-                }}
-              >✦ Make Prompt</button>
-            )}
             <a href={url} download style={{
               padding: "5px 14px", borderRadius: 5,
               fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
@@ -3374,10 +3358,8 @@ function SkillDrawer({ skill, onClose }) {
         </div>
 
         {/* Drawer content */}
-        <div style={{ flex: 1, overflowY: showMake ? "hidden" : "auto", padding: showMake ? 0 : "32px clamp(20px, 4vw, 48px) 48px", display: showMake ? "flex" : "block", flexDirection: "column" }}>
-          {showMake && skill.figmaMake ? (
-            <FigmaMakePanel mode={skill.figmaMake} onClose={() => setShowMake(false)} />
-          ) : (<>
+        <div style={{ flex: 1, overflowY: "auto", padding: "32px clamp(20px, 4vw, 48px) 48px" }}>
+          <>
           {loading && (
             <div style={{ textAlign: "center", padding: "80px 0" }}>
               <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", color: T.dim, letterSpacing: "0.08em", textTransform: "uppercase" }}>Loading skill…</span>
@@ -3405,7 +3387,7 @@ function SkillDrawer({ skill, onClose }) {
               </div>
             );
           })()}
-          </>)}
+          </>
         </div>
       </div>
     </>
@@ -3753,198 +3735,6 @@ function renderMarkdown(text) {
 
   if (inTable) flushTable();
   return elements;
-}
-
-// ── Figma Make Panel ──────────────────────────────────────────────────────────
-function FigmaMakePanel({ mode, onClose }) {
-  const [conceptName, setConceptName] = useState("");
-  const [platform, setPlatform] = useState("web");
-  const [generated, setGenerated] = useState("");
-  const [copied, setCopied] = useState(false);
-
-  // concept mode fields
-  const [oneLiner, setOneLiner] = useState("");
-  const [coreMechanism, setCoreMechanism] = useState("");
-  const [persona, setPersona] = useState("");
-  const [scenario, setScenario] = useState("");
-
-  // storyboard mode fields
-  const [criticalScenes, setCriticalScenes] = useState("");
-  const [riskMoment, setRiskMoment] = useState("");
-
-  function generate() {
-    if (mode === "concept") {
-      setGenerated([
-        `Build a ${platform} prototype demonstrating ${conceptName}.`,
-        "",
-        `${persona}. They need to ${scenario}.`,
-        "",
-        `Show 3 screens:`,
-        `1. Entry — The user arrives at the starting state: "${oneLiner}". Show the primary action available.`,
-        `2. Core Interaction — ${coreMechanism}. Show the screen immediately after the user triggers this — what changed, what's now visible.`,
-        `3. Resolution — The user's goal is achieved. Show the resolved state clearly.`,
-        "",
-        `Key interaction: Tapping or clicking the primary element on screen 1 advances to screen 2. Screen 2's confirmation advances to screen 3.`,
-        "",
-        `Use realistic placeholder content relevant to the scenario — not Lorem Ipsum. Wireframe fidelity only. No brand colors or styled design.`,
-      ].join("\n"));
-    } else {
-      setGenerated([
-        `Build a ${platform} interactive flow for: ${conceptName}.`,
-        "",
-        `Critical scenes to include:`,
-        criticalScenes,
-        "",
-        riskMoment ? `Risk moment to make interactive:\n${riskMoment}\n` : "",
-        `Implementation:`,
-        `- Each scene becomes one screen. Show what the user sees at that moment.`,
-        `- The primary action in each scene advances to the next screen.`,
-        riskMoment ? `- Make the risk moment screen the most interactive — the user should complete the action and see the outcome.` : "",
-        `- Final screen shows the emotional resolution from the storyboard.`,
-        "",
-        `Use the storyboard's realistic content — specific names, data, and context from the scenario. No brand styling. Wireframe fidelity is fine.`,
-      ].filter(l => l !== "").join("\n"));
-    }
-  }
-
-  function copy() {
-    navigator.clipboard.writeText(generated).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  }
-
-  const inp = {
-    width: "100%", background: T.card, border: `1px solid ${T.border}`,
-    borderRadius: 6, padding: "8px 12px", color: T.text,
-    fontSize: 13, fontFamily: "inherit", outline: "none",
-    boxSizing: "border-box", resize: "vertical", transition: "border-color 0.15s",
-  };
-  const lbl = {
-    fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
-    letterSpacing: "0.06em", textTransform: "uppercase",
-    color: T.muted, display: "block", marginBottom: 6,
-  };
-  const field = { marginBottom: 16 };
-
-  const canGenerate = mode === "concept"
-    ? (conceptName && oneLiner && coreMechanism && persona && scenario)
-    : (conceptName && criticalScenes);
-
-  return (
-    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      {/* Panel header */}
-      <div style={{ padding: "20px 24px 16px", borderBottom: `1px solid ${T.border}`, flexShrink: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: T.text }}>
-            {mode === "concept" ? "Concept Proof Prompt" : "Storyboard Bridge Prompt"}
-          </span>
-          <button onClick={onClose} style={{
-            background: "none", border: "none", color: T.muted, cursor: "pointer",
-            fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
-            letterSpacing: "0.05em", padding: 0,
-          }}>← Back to skill</button>
-        </div>
-        <p style={{ fontSize: 12, color: T.dim, margin: 0, lineHeight: 1.5 }}>
-          {mode === "concept"
-            ? "Fill in your concept card to generate a Figma Make prompt."
-            : "Paste your critical storyboard scenes to generate a Figma Make flow prompt."}
-        </p>
-      </div>
-
-      {/* Scrollable body */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "24px" }}>
-        {/* Shared: concept name + platform */}
-        <div style={field}>
-          <label style={lbl}>Concept Name</label>
-          <input style={inp} value={conceptName} onChange={e => setConceptName(e.target.value)} placeholder="e.g. Instant Synthesis" />
-        </div>
-
-        {mode === "concept" && (<>
-          <div style={field}>
-            <label style={lbl}>One-liner</label>
-            <input style={inp} value={oneLiner} onChange={e => setOneLiner(e.target.value)} placeholder="What it does from the user's perspective" />
-          </div>
-          <div style={field}>
-            <label style={lbl}>Core Mechanism</label>
-            <input style={inp} value={coreMechanism} onChange={e => setCoreMechanism(e.target.value)} placeholder="What makes it work — the key design decision" />
-          </div>
-          <div style={field}>
-            <label style={lbl}>Persona</label>
-            <input style={inp} value={persona} onChange={e => setPersona(e.target.value)} placeholder="Brief user description and context" />
-          </div>
-          <div style={field}>
-            <label style={lbl}>Scenario</label>
-            <textarea style={{ ...inp, minHeight: 72 }} value={scenario} onChange={e => setScenario(e.target.value)} placeholder="The trigger and goal — what causes the user to engage and what they need to accomplish" />
-          </div>
-        </>)}
-
-        {mode === "storyboard" && (<>
-          <div style={field}>
-            <label style={lbl}>Critical Scenes</label>
-            <textarea style={{ ...inp, minHeight: 120 }} value={criticalScenes} onChange={e => setCriticalScenes(e.target.value)} placeholder="Paste the critical scenes from your storyboard — scene titles and what happens in each" />
-          </div>
-          <div style={field}>
-            <label style={lbl}>Risk Moment <span style={{ color: T.dim, fontWeight: 400, textTransform: "none", letterSpacing: 0 }}>(optional)</span></label>
-            <input style={inp} value={riskMoment} onChange={e => setRiskMoment(e.target.value)} placeholder="The scene of highest risk from concept critique" />
-          </div>
-        </>)}
-
-        <div style={{ display: "flex", alignItems: "flex-end", gap: 12, marginBottom: 24 }}>
-          <div style={{ flex: "0 0 auto" }}>
-            <label style={lbl}>Platform</label>
-            <select style={{ ...inp, width: "auto", cursor: "pointer" }} value={platform} onChange={e => setPlatform(e.target.value)}>
-              <option value="web">Web</option>
-              <option value="iOS">iOS</option>
-              <option value="Android">Android</option>
-              <option value="responsive">Responsive</option>
-            </select>
-          </div>
-          <button
-            onClick={generate}
-            disabled={!canGenerate}
-            style={{
-              padding: "8px 20px", borderRadius: 6, marginBottom: 1,
-              fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
-              letterSpacing: "0.06em", textTransform: "uppercase", fontWeight: 600,
-              background: canGenerate ? "#F59E0B" : T.card,
-              border: `1px solid ${canGenerate ? "#F59E0B" : T.border}`,
-              color: canGenerate ? "#000" : T.dim,
-              cursor: canGenerate ? "pointer" : "not-allowed",
-              transition: "all 0.15s",
-            }}
-          >Generate Prompt</button>
-        </div>
-
-        {/* Generated output */}
-        {generated && (
-          <div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-              <span style={{ fontSize: 11, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", color: T.muted }}>
-                Figma Make Prompt
-              </span>
-              <button onClick={copy} style={{
-                padding: "4px 12px", borderRadius: 4,
-                fontSize: 10, fontFamily: "'JetBrains Mono', monospace",
-                letterSpacing: "0.06em", textTransform: "uppercase",
-                background: "transparent",
-                border: `1px solid ${copied ? "#22C55E" : T.border}`,
-                color: copied ? "#22C55E" : T.muted,
-                cursor: "pointer", transition: "all 0.2s",
-              }}>{copied ? "✓ Copied" : "Copy"}</button>
-            </div>
-            <pre style={{
-              background: T.card, border: `1px solid ${T.border}`,
-              borderRadius: 8, padding: 16,
-              fontSize: 12, lineHeight: 1.7, color: T.text,
-              fontFamily: "inherit", whiteSpace: "pre-wrap",
-              wordBreak: "break-word", margin: 0,
-            }}>{generated}</pre>
-          </div>
-        )}
-      </div>
-    </div>
-  );
 }
 
 // ── Skill Detail Page ─────────────────────────────────────────────────────────

@@ -202,22 +202,18 @@ After the storyboard is complete and stress-tested, generate a Figma Make protot
 - The Prototype phase will begin in a new conversation or with a different person
 - You want to give the prototyper a working scaffold to react to, not just a text brief
 
+> **How this works:** The storyboard was just completed in this session — Claude has all the scenes, persona context, and risk findings. Ask Claude to synthesize the prompt directly. No re-pasting required.
+
 **Claude prompt:**
-> "Convert this storyboard into a Figma Make prompt that produces a clickable flow.
+> "Using the storyboard we just completed, generate a Figma Make prompt for a clickable flow on [platform].
 >
 > The prompt should:
-> 1. Describe each scene as a screen — name it and describe what the user sees
-> 2. Specify the interaction between screens — what the user does to move forward
-> 3. Name the content — use realistic placeholder content from the persona's context
-> 4. Focus on the core flow only — include only the scenes marked as critical in the prototype brief
-> 5. Call out the risk moment — instruct Figma Make to make that screen interactive enough to test
+> 1. Describe each critical scene as a screen — name it and what the user sees
+> 2. Specify the transition — what the user does to move from one screen to the next
+> 3. Use the specific content and context from [persona]'s scenario — actual details, not placeholders
+> 4. Call out the risk moment from our critique findings — make that screen the most interactive, require the user to complete an action and see a clear outcome before advancing
 >
-> Keep the prompt under 200 words. Figma Make produces better output with focused, specific prompts.
->
-> Storyboard: [paste scenes]
-> Critical scenes for prototype: [paste from prototype brief]
-> Risk moment: [paste]
-> Platform: [web / iOS / Android]"
+> Keep it under 200 words. Focused, specific prompts produce better Figma Make output than comprehensive ones."
 
 After generating the prototype in Figma Make, record the URL and add it to the handoff block below.
 

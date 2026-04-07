@@ -29,6 +29,7 @@ surface is the #1 reason workflows stall — not skill gaps, not prompting mista
 - Talking through design decisions and getting structured recommendations
 - Running the AI Brief Generator, Brand Style Builder, and Design System Audit tools on the live site
 - Phase Handoff Blocks — generating and pasting between sessions
+- **Figma Make prompts** — after completing concept generation or storyboarding in a session, ask Claude to synthesize a Figma Make prompt from the session context. Claude already has your concept cards, persona, and scenario — just ask by concept name. Copy the output and paste directly into Figma Make. No setup required.
 
 **Not for:**
 - Operating Figma directly (use Claude Code + Figma MCP)
@@ -92,6 +93,7 @@ Open your terminal in your project directory → Run `claude` → You're in a se
 | Use the AI Brief Generator (live site) | Claude Chat |
 | Use the Design Process System (live site) | Claude Chat |
 | Generate a Phase Handoff Block | Claude Chat |
+| Generate a Figma Make prompt from a session | Claude Chat |
 | Create frames and boards directly in Figma | Claude Code + Figma MCP |
 | Scaffold components in Figma | Claude Code + Figma MCP |
 | Sync design tokens to CSS/JSON files | Claude Code |
@@ -109,6 +111,7 @@ This is the most common point of confusion. Here's the clear rule:
 | What you want | Surface | Why |
 |---|---|---|
 | **Claude to think about Figma** — naming conventions, structure, component strategy | Claude Chat | No MCP needed; pure reasoning |
+| **Claude to generate a Figma Make prompt** — synthesize session context into a ready-to-paste Make prompt | Claude Chat | Claude already has the context from the session; no MCP needed |
 | **Claude to work inside Figma** — create frames, build components, update tokens | Claude Code + Figma MCP | Figma MCP only connects via Claude Code |
 | **Claude to navigate Figma in the browser** — click around, read content | Claude Cowork | Screen awareness; but no deep Figma API access |
 

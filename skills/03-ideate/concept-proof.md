@@ -48,24 +48,18 @@ Turn written concept cards into clickable Figma Make prototypes — so concept s
 
 For each concept, Claude generates a structured Figma Make prompt that describes the core interaction clearly enough for Make to produce a useful prototype.
 
+> **How this works:** Claude already has your concept cards and persona from this session. You don't need to re-paste anything — just ask Claude to generate the prompt for a specific concept by name. Claude synthesizes from what it already knows.
+
 **Claude prompt:**
-> "Convert this concept card into a Figma Make prompt. The prompt should:
-> 1. Describe the screen(s) needed to demonstrate the core mechanism — 2–3 screens maximum
-> 2. Specify the key interaction — what the user taps/clicks and what happens
-> 3. Name the content that appears — use realistic placeholder content, not Lorem Ipsum
-> 4. Describe any state changes — what changes on screen after an action
-> 5. Stay low-fidelity — no visual style direction, no brand colors, no icon specification
+> "Using the concept cards we've developed in this session, generate a Figma Make prompt for [concept name].
 >
-> Format the output as a single, clear paragraph the designer can paste directly into Figma Make.
-> Keep it under 150 words — Make works best with focused, specific prompts.
+> The prompt should:
+> 1. Describe 2–3 screens that demonstrate the core mechanism
+> 2. Specify the key interaction — what the user does and what changes on screen
+> 3. Use realistic placeholder content drawn from [persona]'s actual context — specific names, dates, tasks
+> 4. Keep fidelity low — no visual style, no brand colors, wireframe quality only
 >
-> Concept name: [name]
-> One-liner: [what it does from the user's perspective]
-> Core mechanism: [what makes it work]
-> Key assumption: [what must be true for this to work]
-> Persona: [who is using it]
-> Scenario: [the trigger and goal]
-> Platform: [web / iOS / Android]"
+> Format as a single focused paragraph under 150 words, ready to paste directly into Figma Make."
 
 ---
 
