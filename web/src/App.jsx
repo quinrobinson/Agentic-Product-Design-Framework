@@ -1644,36 +1644,47 @@ function CopyBtn({ text, label = "Copy Prompt" }) {
   );
 }
 
+// Figma brand-color F mark (official 5-segment logo, viewBox 0 0 38 57)
 function FigmaIcon({ size = 10 }) {
+  const w = Math.round(size * (38 / 57));
   return (
-    <svg width={Math.round(size * 0.67)} height={size} viewBox="0 0 38 57" fill="currentColor" style={{ display: "inline-block", verticalAlign: "middle", flexShrink: 0 }}>
-      <path d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/>
-      <path d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 0 1-19 0z"/>
-      <path d="M19 0v19H9.5a9.5 9.5 0 1 1 0-19H19z"/>
-      <path d="M19 19h9.5a9.5 9.5 0 1 1 0 19H19V19z"/>
-      <path d="M0 9.5A9.5 9.5 0 0 1 9.5 0H19v19H9.5A9.5 9.5 0 0 1 0 9.5z"/>
+    <svg width={w} height={size} viewBox="0 0 38 57" fill="none" style={{ display: "inline-block", verticalAlign: "middle", flexShrink: 0 }}>
+      <path d="M9.5 19H19V0H9.5C4.253 0 0 4.253 0 9.5 0 14.747 4.253 19 9.5 19Z" fill="#F24E1E"/>
+      <path d="M19 0H28.5C33.747 0 38 4.253 38 9.5 38 14.747 33.747 19 28.5 19H19V0Z" fill="#FF7262"/>
+      <path d="M9.5 38H19V19H9.5C4.253 19 0 23.253 0 28.5 0 33.747 4.253 38 9.5 38Z" fill="#A259FF"/>
+      <path d="M19 28.5C19 23.253 23.253 19 28.5 19 33.747 19 38 23.253 38 28.5 38 33.747 33.747 38 28.5 38 23.253 38 19 33.747 19 28.5Z" fill="#1ABCFE"/>
+      <path d="M19 38H9.5C4.253 38 0 42.253 0 47.5 0 52.747 4.253 57 9.5 57 14.747 57 19 52.747 19 47.5V38Z" fill="#0ACF83"/>
+    </svg>
+  );
+}
+
+// Claude spark mark — 4-pointed star in Claude orange
+function ClaudeSparkIcon({ size = 10 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none" style={{ display: "inline-block", verticalAlign: "middle", flexShrink: 0 }}>
+      <path d="M8 0.5 L9.3 6.7 L15.5 8 L9.3 9.3 L8 15.5 L6.7 9.3 L0.5 8 L6.7 6.7 Z" fill="#DA7756"/>
     </svg>
   );
 }
 
 function SkillBadge({ surface }) {
-  const colors = {
-    "chat":             { bg: "rgba(34,197,94,0.1)",  border: "rgba(34,197,94,0.25)",  color: "#22C55E", label: "Chat" },
-    "chat + code":      { bg: "rgba(59,130,246,0.1)", border: "rgba(59,130,246,0.25)", color: "#3B82F6", label: "Chat + Code" },
-    "code + figma mcp": { bg: T.surface, border: T.border, color: T.muted, label: "Figma MCP" },
+  const labels = {
+    "chat":             "Chat",
+    "chat + code":      "Chat + Code",
+    "code + figma mcp": "Figma MCP",
   };
-  const s = colors[surface] || colors["chat"];
+  const label = labels[surface] || "Chat";
   const isFigma = surface === "code + figma mcp";
   return (
     <span style={{
       fontSize: 9, fontFamily: "'JetBrains Mono', monospace",
       letterSpacing: "0.08em", textTransform: "uppercase",
       padding: "2px 7px", borderRadius: 3,
-      background: s.bg, border: `1px solid ${s.border}`, color: s.color,
+      background: T.surface, border: `1px solid ${T.border}`, color: T.muted,
       display: "inline-flex", alignItems: "center", gap: 4,
     }}>
-      {isFigma && <FigmaIcon size={9} />}
-      {s.label}
+      {isFigma ? <FigmaIcon size={9} /> : <ClaudeSparkIcon size={8} />}
+      {label}
     </span>
   );
 }
@@ -3127,9 +3138,9 @@ function SkillsLibraryOverlay({ onBack }) {
   ];
 
   const surfaceColors = {
-    "chat":             { color: "#22C55E", bg: "rgba(34,197,94,0.1)",   border: "rgba(34,197,94,0.25)"  },
-    "chat + code":      { color: "#3B82F6", bg: "rgba(59,130,246,0.1)",  border: "rgba(59,130,246,0.25)" },
-    "code + figma mcp": { color: T.muted,   bg: T.surface,               border: T.border                },
+    "chat":             { color: T.muted, bg: T.surface, border: T.border },
+    "chat + code":      { color: T.muted, bg: T.surface, border: T.border },
+    "code + figma mcp": { color: T.muted, bg: T.surface, border: T.border },
   };
 
   const applyFilters = (skills) => surfaceFilter === "all" ? skills : skills.filter(s => s.surface === surfaceFilter);
@@ -3169,7 +3180,7 @@ function SkillsLibraryOverlay({ onBack }) {
 
         {/* Surface badge */}
         <span style={{ alignSelf: "flex-start", fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", padding: "2px 7px", borderRadius: 99, background: sc.bg, border: `1px solid ${sc.border}`, color: sc.color, display: "inline-flex", alignItems: "center", gap: 4 }}>
-          {skill.surface === "code + figma mcp" && <FigmaIcon size={9} />}
+          {skill.surface === "code + figma mcp" ? <FigmaIcon size={9} /> : <ClaudeSparkIcon size={8} />}
           {skill.surface === "chat" ? "Chat" : skill.surface === "chat + code" ? "Chat + Code" : "Figma MCP"}
         </span>
 
