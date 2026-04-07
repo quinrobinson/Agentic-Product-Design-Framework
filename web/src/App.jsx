@@ -3108,14 +3108,17 @@ function SkillsLibraryOverlay({ onBack }) {
     const url = dir ? `${RAW}/${dir}/${skill.file}` : `${RAW}/${skill.file}`;
     const sc = surfaceColors[skill.surface] || surfaceColors["chat"];
     const phaseColor = skill.phase ? PHASE_META[skill.phase]?.color : T.dim;
+    const phaseMeta = skill.phase ? PHASE_META[skill.phase] : null;
+    const borderDefault = phaseMeta ? phaseMeta.border : T.border;
+    const borderHover = phaseMeta ? phaseMeta.color : T.borderHover;
     return (
       <div style={{
         display: "flex", flexDirection: "column", gap: 10,
         padding: "14px 16px", background: T.surface, borderRadius: 8,
-        border: `1px solid ${T.border}`, transition: "border-color 0.15s",
+        border: `1px solid ${borderDefault}`, transition: "border-color 0.15s",
       }}
-        onMouseEnter={e => e.currentTarget.style.borderColor = T.borderHover}
-        onMouseLeave={e => e.currentTarget.style.borderColor = T.border}
+        onMouseEnter={e => e.currentTarget.style.borderColor = borderHover}
+        onMouseLeave={e => e.currentTarget.style.borderColor = borderDefault}
       >
         {/* File name + phase badge */}
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
@@ -3182,7 +3185,7 @@ function SkillsLibraryOverlay({ onBack }) {
         <div style={{ marginBottom: 20 }}>
           <Mono color={T.dim} size={13}>Framework</Mono>
         </div>
-        <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: "clamp(40px, 5vw, 72px)", fontWeight: 600, lineHeight: 1.05, color: T.text, marginBottom: 40, letterSpacing: "-0.3px" }}>Skills Library</h1>
+        <h1 style={{ fontFamily: "'Inter', sans-serif", fontSize: "clamp(28px, 3.5vw, 48px)", fontWeight: 600, lineHeight: 1.1, color: T.text, marginBottom: 40, letterSpacing: "-0.2px" }}>Skills Library</h1>
 
         {/* What is a Skill */}
         <div style={{ background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: 10, padding: "20px 24px", marginBottom: 28 }}>
