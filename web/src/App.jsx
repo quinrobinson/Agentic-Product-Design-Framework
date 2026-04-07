@@ -1644,20 +1644,37 @@ function CopyBtn({ text, label = "Copy Prompt" }) {
   );
 }
 
+function FigmaIcon({ size = 10 }) {
+  return (
+    <svg width={Math.round(size * 0.67)} height={size} viewBox="0 0 38 57" fill="currentColor" style={{ display: "inline-block", verticalAlign: "middle", flexShrink: 0 }}>
+      <path d="M19 28.5a9.5 9.5 0 1 1 19 0 9.5 9.5 0 0 1-19 0z"/>
+      <path d="M0 47.5A9.5 9.5 0 0 1 9.5 38H19v9.5a9.5 9.5 0 0 1-19 0z"/>
+      <path d="M19 0v19H9.5a9.5 9.5 0 1 1 0-19H19z"/>
+      <path d="M19 19h9.5a9.5 9.5 0 1 1 0 19H19V19z"/>
+      <path d="M0 9.5A9.5 9.5 0 0 1 9.5 0H19v19H9.5A9.5 9.5 0 0 1 0 9.5z"/>
+    </svg>
+  );
+}
+
 function SkillBadge({ surface }) {
   const colors = {
-    "chat": { bg: "rgba(34,197,94,0.1)", border: "rgba(34,197,94,0.25)", color: "#22C55E", label: "Chat" },
-    "chat + code": { bg: "rgba(59,130,246,0.1)", border: "rgba(59,130,246,0.25)", color: "#3B82F6", label: "Chat + Code" },
-    "code + figma mcp": { bg: "rgba(245,158,11,0.1)", border: "rgba(245,158,11,0.25)", color: "#F59E0B", label: "Figma MCP" },
+    "chat":             { bg: "rgba(34,197,94,0.1)",  border: "rgba(34,197,94,0.25)",  color: "#22C55E", label: "Chat" },
+    "chat + code":      { bg: "rgba(59,130,246,0.1)", border: "rgba(59,130,246,0.25)", color: "#3B82F6", label: "Chat + Code" },
+    "code + figma mcp": { bg: T.surface, border: T.border, color: T.muted, label: "Figma MCP" },
   };
   const s = colors[surface] || colors["chat"];
+  const isFigma = surface === "code + figma mcp";
   return (
     <span style={{
       fontSize: 9, fontFamily: "'JetBrains Mono', monospace",
       letterSpacing: "0.08em", textTransform: "uppercase",
       padding: "2px 7px", borderRadius: 3,
       background: s.bg, border: `1px solid ${s.border}`, color: s.color,
-    }}>{s.label}</span>
+      display: "inline-flex", alignItems: "center", gap: 4,
+    }}>
+      {isFigma && <FigmaIcon size={9} />}
+      {s.label}
+    </span>
   );
 }
 
@@ -1921,8 +1938,8 @@ function FigmaMCPCallout({ phaseId, onOpenSkill }) {
         letterSpacing: "0.08em", textTransform: "uppercase",
         padding: "2px 7px", borderRadius: 3,
         background: T.card, border: `1px solid ${T.border}`, color: T.muted,
-        display: "inline-block", marginBottom: 8,
-      }}>Figma MCP</span>
+        display: "inline-flex", alignItems: "center", gap: 4, marginBottom: 8,
+      }}><FigmaIcon size={9} />Figma MCP</span>
       <div className="figma-callout-inner">
         <span style={{ fontSize: 12, color: T.dim, lineHeight: 1.5, flex: 1 }}>{FIGMA_MCP_COPY[phaseId]}</span>
         <button
@@ -2162,7 +2179,7 @@ function PhasePath({ onOpenTool }) {
 
                 {/* Figma */}
                 <div className="how-figma" style={{ padding: "12px 14px", background: T.card, border: `1px solid ${T.border}`, borderRadius: 8 }}>
-                  <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.muted, background: T.surface, border: `1px solid ${T.border}`, padding: "2px 7px", borderRadius: 3, flexShrink: 0, display: "inline-block", marginBottom: 4 }}>Figma MCP</span>
+                  <span style={{ fontSize: 10, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", textTransform: "uppercase", color: T.muted, background: T.surface, border: `1px solid ${T.border}`, padding: "2px 7px", borderRadius: 3, flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 4, marginBottom: 4 }}><FigmaIcon size={9} />Figma MCP</span>
                   <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5, margin: 0 }}>{phase.howToUse.figma}</p>
                 </div>
 
@@ -3112,7 +3129,7 @@ function SkillsLibraryOverlay({ onBack }) {
   const surfaceColors = {
     "chat":             { color: "#22C55E", bg: "rgba(34,197,94,0.1)",   border: "rgba(34,197,94,0.25)"  },
     "chat + code":      { color: "#3B82F6", bg: "rgba(59,130,246,0.1)",  border: "rgba(59,130,246,0.25)" },
-    "code + figma mcp": { color: "#F59E0B", bg: "rgba(245,158,11,0.1)",  border: "rgba(245,158,11,0.25)" },
+    "code + figma mcp": { color: T.muted,   bg: T.surface,               border: T.border                },
   };
 
   const applyFilters = (skills) => surfaceFilter === "all" ? skills : skills.filter(s => s.surface === surfaceFilter);
@@ -3151,7 +3168,8 @@ function SkillsLibraryOverlay({ onBack }) {
         </div>
 
         {/* Surface badge */}
-        <span style={{ alignSelf: "flex-start", fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", padding: "2px 7px", borderRadius: 99, background: sc.bg, border: `1px solid ${sc.border}`, color: sc.color }}>
+        <span style={{ alignSelf: "flex-start", fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.06em", textTransform: "uppercase", padding: "2px 7px", borderRadius: 99, background: sc.bg, border: `1px solid ${sc.border}`, color: sc.color, display: "inline-flex", alignItems: "center", gap: 4 }}>
+          {skill.surface === "code + figma mcp" && <FigmaIcon size={9} />}
           {skill.surface === "chat" ? "Chat" : skill.surface === "chat + code" ? "Chat + Code" : "Figma MCP"}
         </span>
 
@@ -3906,6 +3924,34 @@ export default function App() {
                   }}>{item.cta}</span>
                 </button>
               ))}
+            </div>
+
+            {/* Design System Studio callout */}
+            <div style={{
+              marginTop: 10,
+              border: `1px solid ${T.border}`,
+              borderRadius: 10,
+              background: T.surface,
+              padding: "14px 20px",
+              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.dim, background: T.card, border: `1px solid ${T.border}`, padding: "2px 8px", borderRadius: 3 }}>Interactive Tool</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: T.text, fontFamily: "'DM Sans', sans-serif" }}>Design System Studio</span>
+                <span style={{ fontSize: 12, color: T.dim, lineHeight: 1.5 }}>Build, audit, and export a complete token-based design system with live component previews.</span>
+              </div>
+              <button
+                onClick={() => setActiveTool("design-system")}
+                style={{
+                  padding: "7px 16px", borderRadius: 7, flexShrink: 0,
+                  fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
+                  letterSpacing: "0.07em", textTransform: "uppercase",
+                  background: "transparent", border: `1px solid ${T.border}`,
+                  color: T.muted, cursor: "pointer", transition: "all 0.15s", whiteSpace: "nowrap",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderHover; e.currentTarget.style.color = T.text; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}
+              >Open Studio →</button>
             </div>
           </>
         )}
