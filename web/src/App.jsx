@@ -3397,27 +3397,76 @@ function SkillDrawer({ skill, onClose }) {
 const SKILL_GROUPS = [
   {
     key: "overview", label: "Overview",
-    patterns: [/^when to use/i, /^the core principle/i, /^what claude needs/i,
-               /^claude surface/i, /^prerequisites/i, /^how this playbook/i,
-               /^before you start/i, /^how to use/i],
+    patterns: [
+      /^when to use/i, /^the core principle/i, /^what claude needs/i,
+      /^claude surface/i, /^prerequisites/i, /^how this playbook/i,
+      /^before you start/i, /^how to use/i,
+      // Definition / rationale sections
+      /^overview/i,
+      /^why /i,                       // "Why Critique Before Prototyping"
+      /^what a /i,                    // "What a Storyboard Is", "What a Concept Proof Is"
+      /^anatomy of/i,                 // "Anatomy of a Service Blueprint"
+      /^two modes/i,                  // "Two Modes — Choose Before Starting"
+      /^the two modes/i,              // "The Two Modes — Don't Mix Them"
+      /^the problem this solves/i,    // phase-handoff.md
+      /^the full chain/i,             // skill-chaining.md
+      /^what each handoff/i,          // phase-handoff.md
+      /^how it works/i,               // phase-handoff.md
+    ],
   },
   {
     key: "workflow", label: "Workflow",
-    patterns: [/^step \d+/i, /^phase 0?\d/i],
+    patterns: [
+      /^step \d+/i, /^phase 0?\d/i,
+      // concept-critique.md body sections
+      /^the \w+ critique lenses/i,    // "The Five Critique Lenses"
+      /^before the lenses/i,          // "Before the Lenses: Proof-Informed Critique"
+      /^parallel concept proofs/i,    // "Parallel Concept Proofs for Finalists"
+      /^comparing multiple/i,         // "Comparing Multiple Concepts"
+      /^strengthening the/i,          // "Strengthening the Chosen Concept"
+      /^documenting rejected/i,       // "Documenting Rejected Concepts"
+      // service-blueprint.md
+      /^mode [ab]:/i,                 // "Mode A: Current State Blueprint"
+      /^running both modes/i,
+      /^blueprint scenario/i,
+      // numbered heuristic/audit sections (accessibility-audit, heuristic-review)
+      /^\d+\.\s/,                     // "1. Visual Accessibility", "2. Keyboard…"
+      /^heuristic evaluation/i,
+      // usability-testing.md
+      /^test planning/i,
+      /^session facilitation/i,
+      /^analyzing results/i,
+      // phase-handoff.md / skill-chaining.md
+      /^phase handoff prompts/i,
+      /^generating a handoff/i,
+      /^combining multiple/i,
+      /^receiving a handoff/i,
+    ],
   },
   {
     key: "templates", label: "Templates & Output",
-    patterns: [/^output:/i, /^building the prototype/i, /^ux copy/i,
-               /^touch &/i, /^micro-interaction/i, /^navigation pattern/i,
-               /^component spec/i, /^platform-specific/i, /^web handoff/i,
-               /^ios handoff/i, /^android handoff/i, /^developer handoff/i,
-               /^design decision/i, /^release notes/i, /^design system doc/i,
-               /^pre-delivery/i, /^accessibility audit/i, /^prototype spec/i],
+    patterns: [
+      /^output:/i, /^building the prototype/i, /^ux copy/i,
+      /^touch &/i, /^micro-interaction/i, /^navigation pattern/i,
+      /^component spec/i, /^platform-specific/i, /^web handoff/i,
+      /^ios handoff/i, /^android handoff/i, /^developer handoff/i,
+      /^design decision/i, /^release notes/i, /^design system doc/i,
+      /^pre-delivery/i, /^accessibility audit/i, /^prototype spec/i,
+      // Additional template/reference sections
+      /^storyboard variations/i,      // "Storyboard Variations — When to Use Each"
+      /^notes on figma make/i,        // "Notes on Figma Make Prompts"
+      /^task scenarios/i,             // usability-testing.md
+      /^quick reference/i,            // skill-chaining.md, phase-handoff.md
+    ],
   },
   {
     key: "handoff", label: "Quality & Handoff",
-    patterns: [/^quality checklist/i, /^quality standards/i,
-               /^phase handoff/i, /^handoff:/i, /^error handling/i],
+    patterns: [
+      /^quality checklist/i, /^quality standards/i,
+      /^phase handoff/i, /^handoff:/i, /^error handling/i,
+      /^combined handoff/i,           // "Combined Handoff: Discover → Define"
+      /^the retrospective block/i,    // skill-chaining.md
+    ],
   },
 ];
 
