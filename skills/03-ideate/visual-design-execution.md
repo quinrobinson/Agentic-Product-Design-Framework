@@ -281,6 +281,103 @@ Use a 4pt base unit. All values are multiples of 4.
 
 ---
 
+## Step 8 — Design System Instantiation (Figma Make + Claude Code MCP)
+
+After the full token set is defined (Steps 1–7), generate a living design system reference using Figma Make — with both token values *and* components rendered against them. This closes the manual copy-paste loop and validates the visual language as a working system before any screen is built.
+
+### Why components, not just tokens
+
+Tokens alone are abstract — a hex value doesn't tell you if the primary button reads correctly against the surface color, or if the error state has enough contrast in dark mode. Components make the token system tangible. If a component looks wrong here, you catch it now — not mid-prototype.
+
+### Step 8a: Generate the Figma Make Design System Reference
+
+Use this prompt to generate a design system reference page in Figma Make:
+
+**Claude prompt:**
+> "Generate a Figma Make prompt that creates a design system reference page for this visual system.
+>
+> The reference page should include:
+> 1. **Color palette** — swatches for all brand, semantic, surface, and text tokens with token names as labels
+> 2. **Typography scale** — text specimens for every size token (xs through 5xl) showing the heading and body fonts
+> 3. **Spacing scale** — a visual ruler showing each spacing step (space-1 through space-24) with labels
+> 4. **Core components** rendered using the token values:
+>    - Primary button (default, hover, disabled states)
+>    - Secondary/outline button
+>    - Text input (default, focused, error states)
+>    - Card with body text and a CTA
+>    - Navigation item (active and inactive)
+>    - Badge/tag
+>    - Alert (success, warning, error variants)
+> 5. **Light and dark mode** side by side for each component
+>
+> Format the output as a single Figma Make prompt under 250 words.
+>
+> Token set: [paste complete token output from Steps 1–7]
+> Style: [selected visual style — e.g. Minimalism, Glassmorphism]
+> Heading font: [name] | Body font: [name]"
+
+After generating in Figma Make, record the reference page URL:
+
+```
+Design system reference (Figma Make): [URL]
+Components validated: [list — button / input / card / nav / badge / alert]
+Dark mode: [validated yes/no]
+Issues found: [any token combination that looked wrong — fix before prototyping]
+```
+
+---
+
+### Step 8b: Push Tokens to Figma Variables (Claude Code MCP)
+
+After validating the token system visually, push the token values into your Figma file as Variables using Claude Code with the Figma MCP.
+
+**Requirements:**
+- Claude Code installed locally (`npm install -g @anthropic-ai/claude-code`)
+- Figma desktop app open (not browser)
+- Figma personal access token configured in MCP settings
+- Your project Figma file open
+
+**Claude Code prompt:**
+> "Using the Figma MCP, create a Variables collection in the current Figma file for this token set.
+>
+> Create collections:
+> - **Colors** — all color tokens as Color variables, organized into groups: Brand / Semantic / Surface / Text / Border
+> - **Typography** — text size and weight tokens as Number variables
+> - **Spacing** — all spacing step tokens as Number variables
+> - **Radius** — border radius tokens as Number variables
+> - **Motion** — duration tokens as Number variables
+>
+> For each token: name it using the CSS custom property name (e.g. `color/brand/primary`), set the light mode value, and where dark mode values are defined, set up a dark mode mode toggle.
+>
+> Token set: [paste complete token output]"
+
+**What this produces:** Every token from Steps 1–7 lives in Figma Variables. Designers use them from the fill/stroke picker. No copy-paste. No drift between the token spec and the Figma file.
+
+---
+
+### Step 8c: Validate Component Rendering
+
+After the reference page generates and tokens are pushed, do a quick visual validation pass before marking Visual Design complete.
+
+**Claude prompt:**
+> "Review the design system reference page screenshot and identify any token combination that needs adjustment.
+>
+> Check specifically:
+> - Primary button text contrast against brand primary background
+> - Input border visibility against surface secondary background
+> - Error state text and icon visibility in both light and dark mode
+> - Card content legibility against surface secondary
+> - Navigation active state distinguishability from inactive
+>
+> For each issue found: name the tokens involved, the contrast ratio (if measurable), and the fix.
+>
+> Reference page: [paste screenshot or describe what you see]
+> Token set: [paste]"
+
+Fix any issues in the token set before moving to Prototype. The Prototype phase opens with a validated, populated Figma component library — not a blank file.
+
+---
+
 ## Pre-Delivery Visual QA
 
 - [ ] One style system applied throughout (no mixing)
@@ -344,10 +441,17 @@ At the close of Visual Design Execution, generate this block. Combine it with th
 - Icon library: [Library name + stroke width]
 - Dark mode: [Supported yes/no — tokens defined yes/no]
 
+### Design system instantiation (Figma Make + Claude Code MCP)
+- **Reference page URL:** [Figma Make design system reference — or "not generated"]
+- **Components validated:** [button / input / card / nav / badge / alert — or "pending"]
+- **Figma Variables pushed:** [yes / no / partial]
+- **Issues resolved:** [list any token adjustments made after reference page review — or "none"]
+
 ### What Prototype Should Enforce
 [1–2 sentences on the most important visual rules to get right in the prototype]
 
 ---
 *Paste these tokens as context when opening the Prototyping skill.*
+*If Figma Variables were pushed, the Prototype phase can use tokens directly from the Figma Variables picker.*
 *Claude will apply them consistently across all screens and components.*
 ```

@@ -220,6 +220,34 @@ After running 2–3 angles, you should have 15–30 raw concepts. Before cluster
 
 ---
 
+## Step 5: Generate Concept Proofs (Figma Make)
+
+Before moving to Idea Clustering or Concept Critique, turn the most promising concept cards into throwaway interactive prototypes using Figma Make. This makes the concept selection decision tangible — stakeholders click through options instead of reading about them.
+
+**When to run this step:**
+- You have 15+ documented concept cards and are ready to identify candidates for critique
+- Stakeholders will be involved in concept selection
+- The team is divided on a direction and needs something to react to
+
+**How to run it:**
+
+Use `concept-proof.md` to generate a Figma Make prompt for each concept candidate (typically the 3–5 strongest cards after a first-pass review). Each prompt takes 5–10 minutes in Figma Make to produce a clickable proof.
+
+Record each prototype URL alongside the concept card before moving to clustering or critique:
+
+```
+**[Concept Name]**
+One-liner: [paste]
+Core mechanism: [paste]
+Figma Make prototype: [URL — add after generating in Figma Make]
+```
+
+**This step is optional but strongly recommended** when multiple stakeholders are evaluating concepts or when the team has more than 3 viable directions. Skip it when the team is aligned on a direction and moving quickly.
+
+> **Figma Make tip:** Keep prompts to 2–3 screens and focus on the core mechanism. Visual fidelity doesn't matter at this stage — the mechanism is what needs to come through.
+
+---
+
 ## When You're Stuck
 
 If concept generation stalls — ideas all feel similar or the team keeps circling — use one of these prompts:
@@ -283,6 +311,13 @@ Generate this block at the close of Concept Generation. Combine with Define hand
 
 ### Concepts that feel risky but interesting
 1. [Name] — [what the risk is]
+
+### Concept proofs (Figma Make) — if generated
+| Concept | Prototype URL | First impression |
+|---|---|---|
+| [Name] | [URL] | [1 sentence — what the proof revealed] |
+| [Name] | [URL] | [1 sentence] |
+| [Name] | [URL] | [1 sentence] |
 
 ### What's missing
 [Directions that weren't explored — angles that ran out of time, constraints that weren't inverted, domains that weren't tried]

@@ -2,6 +2,7 @@ import { synthesizeResearch } from "./synthesizeResearch.js";
 import { frameProblem } from "./frameProblem.js";
 import { mapJourney } from "./mapJourney.js";
 import { generateConcepts } from "./generateConcepts.js";
+import { generateConceptProof } from "./generateConceptProof.js";
 import { clusterIdeas } from "./clusterIdeas.js";
 import { writeUXCopy } from "./writeUXCopy.js";
 import { mapUserFlow } from "./mapUserFlow.js";
@@ -21,6 +22,7 @@ export const tools = [
   frameProblem,
   mapJourney,
   generateConcepts,
+  generateConceptProof,
   clusterIdeas,
   writeUXCopy,
   mapUserFlow,

@@ -193,6 +193,38 @@ The storyboard represents the happy path. Stress-test it before it becomes the p
 
 ---
 
+## Step 5: Generate the Storyboard-to-Prototype Bridge (Figma Make)
+
+After the storyboard is complete and stress-tested, generate a Figma Make prototype from the narrative. This is the interactive bridge between the storyboard and the full Prototype phase — it lets the team react to the flow before any design work begins.
+
+**When to run this step:**
+- The storyboard is locked and stress-tested
+- The Prototype phase will begin in a new conversation or with a different person
+- You want to give the prototyper a working scaffold to react to, not just a text brief
+
+**Claude prompt:**
+> "Convert this storyboard into a Figma Make prompt that produces a clickable flow.
+>
+> The prompt should:
+> 1. Describe each scene as a screen — name it and describe what the user sees
+> 2. Specify the interaction between screens — what the user does to move forward
+> 3. Name the content — use realistic placeholder content from the persona's context
+> 4. Focus on the core flow only — include only the scenes marked as critical in the prototype brief
+> 5. Call out the risk moment — instruct Figma Make to make that screen interactive enough to test
+>
+> Keep the prompt under 200 words. Figma Make produces better output with focused, specific prompts.
+>
+> Storyboard: [paste scenes]
+> Critical scenes for prototype: [paste from prototype brief]
+> Risk moment: [paste]
+> Platform: [web / iOS / Android]"
+
+After generating the prototype in Figma Make, record the URL and add it to the handoff block below.
+
+> **Fidelity note:** This Figma Make prototype is a **scaffold**, not a deliverable. The Prototype phase will replace it with a fully-built prototype. The scaffold's job is to show the flow — not to look finished.
+
+---
+
 ## Using the Storyboard to Brief Prototypers
 
 A storyboard is only as useful as the briefing it enables. Use Claude to translate it into a prototype brief.
@@ -287,6 +319,11 @@ Generate this block at the close of Storyboarding. This is the primary handoff f
 **Scope:** [The specific flow — not the full concept]
 **Critical scenes to include:** [Scene numbers and titles]
 **Leave out:** [What doesn't need to be in v1]
+
+### Storyboard bridge prototype (Figma Make)
+**URL:** [Figma Make prototype URL — or "not generated"]
+**Fidelity:** Scaffold only — shows flow structure, not final design
+**What it demonstrates:** [1 sentence — which part of the storyboard is interactive]
 
 ### What the prototype needs to answer
 1. [Question — linked to top risk from critique]

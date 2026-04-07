@@ -44,6 +44,26 @@ A concept that survives rigorous critique is a better starting point for prototy
 
 ---
 
+## Before the Lenses: Proof-Informed Critique
+
+If Figma Make concept proofs were generated in `concept-proof.md`, start here before running the formal critique lenses. Proofs surface interaction problems that text descriptions never reveal — spend 5 minutes clicking each proof before critiquing on paper.
+
+**Claude prompt:**
+> "We have Figma Make proofs for these concepts. Before I run the five critique lenses, help me do a quick proof-informed review.
+>
+> For each concept and its prototype URL, identify:
+> 1. **The interaction that surprised you** — what did clicking reveal that the written concept card didn't communicate?
+> 2. **The first friction point** — where does the interaction feel unclear or forced?
+> 3. **The moment of highest value** — which interaction most clearly delivers the concept's core mechanism?
+> 4. **What the proof can't show** — what aspect of the concept still needs written critique to evaluate?
+>
+> Concepts + prototype URLs: [paste from concept-proof.md handoff]
+> Persona: [paste]"
+
+Use this output to focus the formal critique lenses — prioritize the risks the proof surfaced rather than running all five lenses at equal depth.
+
+---
+
 ## The Five Critique Lenses
 
 Run all five lenses on each concept. Each surfaces a different category of risk.
@@ -257,6 +277,7 @@ Generate this block at the close of Concept Critique. Paste it when opening Stor
 **One-liner:** [what it does from the user's perspective]
 **Core mechanism:** [what makes it work]
 **Strategic bet:** [what must be true for this to succeed]
+**Concept proof URL:** [Figma Make prototype URL — or "not generated"]
 
 ### Why this concept (not the alternatives)
 [2–3 sentences — what the critique revealed that made this the right choice]
@@ -280,6 +301,9 @@ Generate this block at the close of Concept Critique. Paste it when opening Stor
 
 ### What storyboarding should focus on
 [Which aspect of the concept needs to be visualized first — the moment of highest value, the moment of highest risk, or the core interaction that defines the concept]
+
+### What the proof revealed (if generated)
+[1–2 sentences — what clicking the Figma Make proof surfaced that the written critique didn't catch, and how it shaped the concept selection or modifications]
 
 ---
 *Paste this block when opening Storyboarding.*
