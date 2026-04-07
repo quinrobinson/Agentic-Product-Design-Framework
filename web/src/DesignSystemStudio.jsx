@@ -1109,7 +1109,6 @@ export default function DesignSystemStudio() {
 
   // ── Topbar ────────────────────────────────────────────────────────────────
   function renderTopbar() {
-    const labels = { overview: "Overview", themes: "Themes", tokens: "Tokens", component: "Components", preview: "Preview", export: "Export CSS", figma: "Figma MCP" };
     return (
       <div style={{ height: APP.topbar, background: APP.topbarBg, borderBottom: `1px solid ${APP.topbarBorder}`, display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", flexShrink: 0, zIndex: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -1119,16 +1118,12 @@ export default function DesignSystemStudio() {
             ))}
           </div>
           <button onClick={() => go("overview")} style={{ fontSize: 11, fontFamily: APP.mono, color: APP.topbarDim, background: "none", border: "none", cursor: "pointer", padding: 0 }}>Design System Studio</button>
-          {activeNav.type !== "overview" && (
+          {activeNav.type === "component" && activeComp && (
             <>
               <span style={{ color: APP.topbarBorder, fontSize: 14 }}>/</span>
-              <span style={{ fontSize: 11, fontFamily: APP.mono, color: APP.topbarText }}>{labels[activeNav.type] || ""}</span>
-              {activeNav.type === "component" && activeComp && (
-                <>
-                  <span style={{ color: APP.topbarBorder, fontSize: 14 }}>/</span>
-                  <span style={{ fontSize: 11, fontFamily: APP.mono, color: APP.topbarDim }}>{activeComp.name}</span>
-                </>
-              )}
+              <span style={{ fontSize: 11, fontFamily: APP.mono, color: APP.topbarText }}>Components</span>
+              <span style={{ color: APP.topbarBorder, fontSize: 14 }}>/</span>
+              <span style={{ fontSize: 11, fontFamily: APP.mono, color: APP.topbarDim }}>{activeComp.name}</span>
             </>
           )}
         </div>
@@ -1148,6 +1143,47 @@ export default function DesignSystemStudio() {
             Export CSS
           </button>
         </div>
+      </div>
+    );
+  }
+
+  // ── Primary Nav Bar ───────────────────────────────────────────────────────
+  function renderNavbar() {
+    const navItems = [
+      { type: "overview", label: "Overview", icon: null },
+      { type: "themes", label: "Themes", icon: null },
+      { type: "preview", label: "Preview", icon: null },
+      { type: "export", label: "Export", icon: null },
+      { type: "figma", label: "Figma MCP", icon: (
+        <svg width="13" height="13" viewBox="0 0 38 57" fill="none" style={{ display: "block", flexShrink: 0 }}>
+          <path d="M19 28.5C19 22.7 23.7 18 29.5 18S40 22.7 40 28.5 35.3 39 29.5 39 19 34.3 19 28.5z" fill="#1ABCFE"/>
+          <path d="M0 47C0 41.2 4.7 36.5 10.5 36.5H19V47c0 5.8-4.7 10.5-10.5 10.5A10.5 10.5 0 0 1 0 47z" fill="#0ACF83"/>
+          <path d="M19 0v18.5h9.5C34.3 18.5 39 13.8 39 8A9.5 9.5 0 0 0 28.5 0H19z" fill="#FF7262"/>
+          <path d="M0 8c0 5.8 4.7 10.5 10.5 10.5H19V0H10.5A10.5 10.5 0 0 0 0 8z" fill="#F24E1E"/>
+          <path d="M0 28.5C0 34.3 4.7 39 10.5 39H19V18H10.5C4.7 18 0 22.7 0 28.5z" fill="#A259FF"/>
+        </svg>
+      )},
+    ];
+    return (
+      <div style={{ height: 44, background: APP.topbarBg, borderBottom: `1px solid ${APP.topbarBorder}`, display: "flex", alignItems: "center", padding: "0 20px", gap: 2, flexShrink: 0 }}>
+        {navItems.map(({ type, label, icon }) => {
+          const isActive = activeNav.type === type || (type === "overview" && activeNav.type === "overview");
+          return (
+            <button key={type} onClick={() => go(type)} style={{
+              display: "flex", alignItems: "center", gap: 6,
+              padding: "5px 14px", borderRadius: 6, border: "none",
+              background: isActive ? "#1E1E1E" : "transparent",
+              color: isActive ? "#F5F5F5" : APP.topbarDim,
+              fontSize: 12, fontFamily: APP.sans, cursor: "pointer",
+              fontWeight: isActive ? 500 : 400,
+              borderBottom: isActive ? "2px solid #2563EB" : "2px solid transparent",
+              transition: "color 0.1s, background 0.1s",
+            }}>
+              {icon}
+              {label}
+            </button>
+          );
+        })}
       </div>
     );
   }
@@ -1175,9 +1211,6 @@ export default function DesignSystemStudio() {
     return (
       <div style={{ width: APP.sidebar, background: APP.sidebarBg, borderRight: `1px solid ${APP.sidebarBorder}`, overflowY: "auto", flexShrink: 0 }}>
         <div style={{ padding: "8px 0" }}>
-          {navBtn("overview", null, "Overview")}
-          {navBtn("themes", null, "Themes")}
-          <div style={{ height: 1, background: APP.sidebarBorder, margin: "6px 0" }} />
           {sectionHead("Tokens")}
           {navBtn("tokens", "color", "Color", true)}
           {navBtn("tokens", "typography", "Typography", true)}
@@ -1190,10 +1223,6 @@ export default function DesignSystemStudio() {
               {COMPONENTS.filter(c => c.cat === cat).map(c => navBtn("component", c.id, c.name, true))}
             </div>
           ))}
-          <div style={{ height: 1, background: APP.sidebarBorder, margin: "6px 0" }} />
-          {navBtn("preview", null, "In-Context Preview")}
-          {navBtn("export", null, "Export CSS")}
-          {navBtn("figma", null, "Figma MCP")}
         </div>
       </div>
     );
@@ -1277,7 +1306,7 @@ export default function DesignSystemStudio() {
           </div>
           <div style={{ marginBottom: 44 }}>
             <div style={{ fontSize: 10, fontFamily: APP.mono, color: "#555", textTransform: "uppercase", letterSpacing: 2, marginBottom: 14 }}>How it works</div>
-            <div style={{ display: "flex", gap: 6 }}>
+            <div style={{ display: "flex", gap: 20 }}>
               {[
                 { nav: ["themes", null], step: "01", label: "Themes", desc: "Choose a foundation" },
                 { nav: ["tokens", "color"], step: "02", label: "Tokens", desc: "Customize every detail" },
@@ -1290,7 +1319,7 @@ export default function DesignSystemStudio() {
                   <div style={{ fontSize: 9, fontWeight: 600, color: "#555", fontFamily: APP.mono, marginBottom: 8 }}>{s.step}</div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: "#F5F5F5", marginBottom: 4 }}>{s.label}</div>
                   <div style={{ fontSize: 11, color: "#777", lineHeight: 1.3 }}>{s.desc}</div>
-                  {i < 5 && <div style={{ position: "absolute", right: -5, top: "50%", transform: "translateY(-50%)", fontSize: 10, color: "#444" }}>›</div>}
+                  {i < 5 && <div style={{ position: "absolute", right: -12, top: "50%", transform: "translateY(-50%)", fontSize: 10, color: "#444" }}>›</div>}
                 </div>
               ))}
             </div>
@@ -1995,6 +2024,7 @@ and a copy-paste remediation prompt for each finding.`;
       <link href={fontsUrl} rel="stylesheet" />
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
       {renderTopbar()}
+      {renderNavbar()}
       <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
         {renderSidebar()}
         <main style={{ flex: 1, overflowY: "auto", background: activeNav.type === "overview" ? "#0F0F0F" : APP.canvasBg }}>
