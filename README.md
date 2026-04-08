@@ -34,6 +34,30 @@ The [live site](https://quinrobinson.github.io/Agentic-Product-Design-Framework)
 
 ---
 
+## Claude Code Setup (MCP + Automation)
+
+Claude Chat with a skill file gets you 80% of the framework. Claude Code with the MCP server gets you the rest — autonomous phase execution, automatic artifact persistence, and context injection across sessions.
+
+**Three steps:**
+
+```bash
+# 1. Build the MCP server
+cd mcp && npm install && npm run build && cd ..
+
+# 2. Set up your project context
+cp .apdf/context.json.example .apdf/context.json
+# Fill in project_name, phase, persona, problem_statement
+
+# 3. Make hooks executable
+chmod +x .claude/hooks/*.sh
+```
+
+The `.claude/settings.json` already points Claude Code at `./mcp/dist/index.js` and wires up the four hooks. Once the server is built and `context.json` is filled in, open Claude Code in this directory — the 18 APDF tools will appear automatically and hooks will fire on every tool call.
+
+See [`/mcp/README.md`](./mcp/README.md) for the full tool reference, verification steps, and troubleshooting.
+
+---
+
 ## Kickoff Prompt
 
 **Not sure where to start? Paste this into a new Claude conversation.**

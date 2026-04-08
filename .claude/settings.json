@@ -1,4 +1,10 @@
 {
+  "mcpServers": {
+    "apdf": {
+      "command": "node",
+      "args": ["./mcp/dist/index.js"]
+    }
+  },
   "hooks": {
     "PostToolUse": [
       {
