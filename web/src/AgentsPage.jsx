@@ -159,7 +159,7 @@ function MapCell({ cell }) {
 
   return (
     <div style={{ borderRadius: 6, padding: 20, minHeight: 120, background: cellBg, border: `1px solid ${cellBorder}`, display: "flex", flexDirection: "column", gap: 10 }}>
-      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 500, color: labelColor, display: "flex", alignItems: "center", gap: 5 }}>
+      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.1em", fontWeight: 500, color: labelColor, display: "flex", alignItems: "center", gap: 5 }}>
         {isPrimary
           ? <IconCircleFilled size={12} style={{ flexShrink: 0 }} />
           : <IconCircleHalf size={12} style={{ flexShrink: 0, opacity: 0.75 }} />}
