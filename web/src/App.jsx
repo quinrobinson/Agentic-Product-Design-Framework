@@ -3952,20 +3952,22 @@ export default function App() {
           <button onClick={() => setShowSkillsLibrary(true)} style={{
             fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
             letterSpacing: "0.06em", textTransform: "uppercase",
-            color: T.dim, background: "none", border: "none",
-            cursor: "pointer", transition: "color 0.15s", padding: 0,
+            color: T.muted, background: "transparent", border: `1px solid ${T.border}`,
+            borderRadius: 6, padding: "5px 12px",
+            cursor: "pointer", transition: "all 0.15s",
           }}
-            onMouseEnter={e => e.target.style.color = T.muted}
-            onMouseLeave={e => e.target.style.color = T.dim}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderHover; e.currentTarget.style.color = T.text; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}
           >Skills Library</button>
           <button onClick={() => { setShowAgentsPage(true); setActivePath(null); }} style={{
             fontSize: 11, fontFamily: "'JetBrains Mono', monospace",
             letterSpacing: "0.06em", textTransform: "uppercase",
-            color: T.dim, background: "none", border: "none",
-            cursor: "pointer", transition: "color 0.15s", padding: 0,
+            color: T.muted, background: "transparent", border: `1px solid ${T.border}`,
+            borderRadius: 6, padding: "5px 12px",
+            cursor: "pointer", transition: "all 0.15s",
           }}
-            onMouseEnter={e => e.target.style.color = T.muted}
-            onMouseLeave={e => e.target.style.color = T.dim}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderHover; e.currentTarget.style.color = T.text; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.muted; }}
           >Agents</button>
           <div style={{ width: 1, height: 12, background: T.border }} />
           {[["GitHub", REPO], ["Figma", FIGMA_URL], ["Deck", PPTX_URL]].map(([label, href]) => (
