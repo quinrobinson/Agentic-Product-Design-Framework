@@ -189,58 +189,74 @@ function MapCell({ cell }) {
 
 // ── Surface Map ──────────────────────────────────────────────────────────────
 function AgentSurfaceMap({ onAgentClick, onSetupClick }) {
-  const colStyle = { display: "grid", gridTemplateColumns: "200px 1fr 1fr 1fr", gap: 2 };
+  const specialists = AGENTS.filter(a => a.id !== "orchestrator");
+  const orchestrator = AGENTS.find(a => a.id === "orchestrator");
+  // label col + 5 specialists + orchestrator
+  const gridCols = "110px repeat(5, 1fr) 1fr";
+  const minW = 860;
 
   return (
     <div style={{ overflowX: "auto" }}>
-      {/* Column headers */}
-      <div style={{ ...colStyle, marginBottom: 2, minWidth: 700 }}>
-        <div style={{ padding: "14px 20px" }} />
-        {["chat", "code", "cowork"].map(sk => (
-          <div key={sk} style={{ padding: "14px 20px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, fontWeight: 500, letterSpacing: "0.08em", textTransform: "uppercase", color: T.dim }}>
-            {SURFACES[sk].label}
-          </div>
-        ))}
-      </div>
 
-      {/* Agent rows */}
-      <div style={{ minWidth: 700 }}>
-        {AGENTS.map((agent) => {
-          const roleColor = ROLES[agent.id];
-          const isOrchestrator = agent.id === "orchestrator";
+      {/* Agent column headers */}
+      <div style={{ display: "grid", gridTemplateColumns: gridCols, gap: 2, marginBottom: 2, minWidth: minW }}>
+        <div /> {/* corner */}
+        {specialists.map(agent => {
+          const rc = ROLES[agent.id];
           return (
-            <div key={agent.id}>
-              {isOrchestrator && (
-                <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "32px 0 6px", fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: T.dim, textTransform: "uppercase", letterSpacing: "0.1em" }}>
-                  Orchestration layer
-                  <div style={{ flex: 1, height: 1, background: T.border }} />
-                </div>
-              )}
-              <div style={{ ...colStyle, marginBottom: 2 }}>
-                {/* Clickable role card */}
-                <div
-                  onClick={() => onAgentClick(agent)}
-                  style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 6, padding: 20, display: "flex", flexDirection: "column", gap: 6, position: "relative", overflow: "hidden", cursor: "pointer", transition: "border-color 0.15s" }}
-                  onMouseEnter={e => e.currentTarget.style.borderColor = T.borderHover}
-                  onMouseLeave={e => e.currentTarget.style.borderColor = T.border}
-                >
-                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: roleColor }} />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: roleColor, marginTop: 2 }}>{agent.name}</span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: T.dim }}>{agent.role}</span>
-                  <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: T.dim, marginTop: "auto", opacity: 0.5 }}>View →</span>
-                </div>
-                {["chat", "code", "cowork"].map(sk => (
-                  <MapCell key={sk} cell={agent.mapCells[sk]} />
-                ))}
-              </div>
+            <div
+              key={agent.id}
+              onClick={() => onAgentClick(agent)}
+              style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: "6px 6px 0 0", padding: "12px 14px", cursor: "pointer", transition: "border-color 0.15s", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", gap: 4 }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = T.borderHover}
+              onMouseLeave={e => e.currentTarget.style.borderColor = T.border}
+            >
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: rc }} />
+              <span style={{ fontSize: 12, fontWeight: 600, color: rc, marginTop: 2, lineHeight: 1.3 }}>{agent.name}</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: T.dim, opacity: 0.55, marginTop: "auto" }}>View →</span>
             </div>
           );
         })}
+        {/* Orchestrator header — subtle left separator */}
+        {(() => {
+          const rc = ROLES[orchestrator.id];
+          return (
+            <div
+              onClick={() => onAgentClick(orchestrator)}
+              style={{ background: T.surface, border: `1px solid ${T.border}`, borderLeft: `1px solid rgba(255,255,255,0.08)`, borderRadius: "6px 6px 0 0", padding: "12px 14px", cursor: "pointer", transition: "border-color 0.15s", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", gap: 4, marginLeft: 8 }}
+              onMouseEnter={e => e.currentTarget.style.borderColor = T.borderHover}
+              onMouseLeave={e => e.currentTarget.style.borderColor = T.border}
+            >
+              <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: rc }} />
+              <span style={{ fontSize: 12, fontWeight: 600, color: rc, marginTop: 2, lineHeight: 1.3 }}>{orchestrator.name}</span>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 9, color: T.dim, opacity: 0.55, marginTop: "auto" }}>View →</span>
+            </div>
+          );
+        })()}
       </div>
 
+      {/* Surface rows */}
+      {["chat", "code", "cowork"].map(surface => (
+        <div key={surface} style={{ display: "grid", gridTemplateColumns: gridCols, gap: 2, marginBottom: 2, minWidth: minW }}>
+          {/* Row label */}
+          <div style={{ display: "flex", alignItems: "flex-start", padding: "16px 14px 16px 0" }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: T.dim, letterSpacing: "0.08em", textTransform: "uppercase", lineHeight: 1.4 }}>
+              {SURFACES[surface].label}
+            </span>
+          </div>
+          {/* Specialist cells */}
+          {specialists.map(agent => (
+            <MapCell key={agent.id} cell={agent.mapCells[surface]} />
+          ))}
+          {/* Orchestrator cell — matching left separation */}
+          <div style={{ marginLeft: 8 }}>
+            <MapCell cell={orchestrator.mapCells[surface]} />
+          </div>
+        </div>
+      ))}
+
       {/* Map note cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2, marginTop: 32, minWidth: 700 }}>
-        {/* Static cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 2, marginTop: 32, minWidth: minW }}>
         {[
           { title: "Primary vs Occasional", body: <><strong style={{ color: T.text, fontWeight: 500 }}>Primary</strong> means the agent lives here — it's where the bulk of its work happens and where it should be invoked first. <strong style={{ color: T.text, fontWeight: 500 }}>Occasional</strong> means the agent can extend into this surface for specific tasks, but it's not the home base.</> },
           { title: "The key insight", body: <>Skills tell Claude <strong style={{ color: T.text, fontWeight: 500 }}>what to do</strong>. Tools give Claude <strong style={{ color: T.text, fontWeight: 500 }}>how to act</strong>. Agents define <strong style={{ color: T.text, fontWeight: 500 }}>who Claude is</strong> in a given context. The surface determines <strong style={{ color: T.text, fontWeight: 500 }}>where that work happens</strong>. Four layers, one framework.</> },
@@ -250,7 +266,6 @@ function AgentSurfaceMap({ onAgentClick, onSetupClick }) {
             <p style={{ fontSize: 13, color: T.dim, lineHeight: 1.7 }}>{n.body}</p>
           </div>
         ))}
-        {/* Interactive setup card */}
         <div
           onClick={onSetupClick}
           style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 6, padding: 24, cursor: "pointer", transition: "border-color 0.15s", display: "flex", flexDirection: "column", justifyContent: "space-between" }}
