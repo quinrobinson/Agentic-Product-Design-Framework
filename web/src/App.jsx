@@ -21,7 +21,7 @@ import InsightReportGenerator from "./InsightReportGenerator";
 import ComponentSpecGenerator from "./ComponentSpecGenerator";
 import DesignQALogger from "./DesignQALogger";
 import AgentsPage from "./AgentsPage";
-import { IconStack3, IconPackage } from "@tabler/icons-react";
+import { IconStack3, IconCubeUnfolded, IconPackage } from "@tabler/icons-react";
 
 function IconIsometricStairs({ size = 24, strokeWidth = 0.3, style }) {
   return (
@@ -4056,7 +4056,7 @@ export default function App() {
                   color: "#22C55E",
                   desc: "I know where I am in the project. Show me tools and guides for that phase.",
                   cta: "Choose a phase →",
-                  Icon: IconIsometricStairs,
+                  Icon: IconStack3,
                   iconSize: 190, iconPos: { bottom: -20, right: -24 },
                 },
                 {
@@ -4065,7 +4065,7 @@ export default function App() {
                   color: "#8B5CF6",
                   desc: "I have a mission — a project or challenge I need to run. Show me a path through the framework.",
                   cta: "Browse scenarios →",
-                  Icon: IconStack3,
+                  Icon: IconCubeUnfolded,
                   iconSize: 190, iconPos: { bottom: -20, right: -24 },
                 },
                 {
