@@ -4032,6 +4032,7 @@ export default function App() {
                   desc: "I know where I am in the project. Show me tools and guides for that phase.",
                   cta: "Choose a phase →",
                   Icon: IconTimeline,
+                  iconSize: 238, iconRight: -32,
                 },
                 {
                   id: "ways",
@@ -4040,6 +4041,7 @@ export default function App() {
                   desc: "I have a mission — a project or challenge I need to run. Show me a path through the framework.",
                   cta: "Browse scenarios →",
                   Icon: IconRoute,
+                  iconSize: 190, iconRight: -24,
                 },
                 {
                   id: "deliverable",
@@ -4048,6 +4050,7 @@ export default function App() {
                   desc: "I know what I need to hand off. Find the fastest path to that output.",
                   cta: "Find a deliverable →",
                   Icon: IconPackage,
+                  iconSize: 190, iconRight: -24,
                 },
               ].map((item) => (
                 <button
@@ -4066,7 +4069,7 @@ export default function App() {
                   onMouseEnter={e => e.currentTarget.style.background = T.card}
                   onMouseLeave={e => e.currentTarget.style.background = T.surface}
                 >
-                  <item.Icon size={190} strokeWidth={0.3} style={{ position: "absolute", bottom: -20, right: -24, color: "#ffffff", opacity: 0.075, pointerEvents: "none" }} />
+                  <item.Icon size={item.iconSize} strokeWidth={0.3} style={{ position: "absolute", bottom: -20, right: item.iconRight, color: "#ffffff", opacity: 0.075, pointerEvents: "none" }} />
                   <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
                     <div style={{ width: 6, height: 6, borderRadius: "50%", background: T.dim }} />
                     <span style={{
