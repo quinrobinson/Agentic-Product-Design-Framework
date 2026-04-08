@@ -21,6 +21,7 @@ import InsightReportGenerator from "./InsightReportGenerator";
 import ComponentSpecGenerator from "./ComponentSpecGenerator";
 import DesignQALogger from "./DesignQALogger";
 import AgentsPage from "./AgentsPage";
+import { IconTimeline, IconRoute, IconPackage } from "@tabler/icons-react";
 
 // ── Tokens ──────────────────────────────────────────────────────────────────
 const T = {
@@ -4030,6 +4031,7 @@ export default function App() {
                   color: "#22C55E",
                   desc: "I know where I am in the project. Show me tools and guides for that phase.",
                   cta: "Choose a phase →",
+                  Icon: IconTimeline,
                 },
                 {
                   id: "ways",
@@ -4037,6 +4039,7 @@ export default function App() {
                   color: "#8B5CF6",
                   desc: "I have a mission — a project or challenge I need to run. Show me a path through the framework.",
                   cta: "Browse scenarios →",
+                  Icon: IconRoute,
                 },
                 {
                   id: "deliverable",
@@ -4044,6 +4047,7 @@ export default function App() {
                   color: "#F59E0B",
                   desc: "I know what I need to hand off. Find the fastest path to that output.",
                   cta: "Find a deliverable →",
+                  Icon: IconPackage,
                 },
               ].map((item) => (
                 <button
@@ -4056,11 +4060,13 @@ export default function App() {
                     cursor: "pointer", transition: "background 0.15s",
                     borderBottom: "2px solid transparent",
                     display: "flex", flexDirection: "column",
+                    position: "relative", overflow: "hidden",
                   }}
                   aria-label={item.label}
                   onMouseEnter={e => e.currentTarget.style.background = T.card}
                   onMouseLeave={e => e.currentTarget.style.background = T.surface}
                 >
+                  <item.Icon size={72} style={{ position: "absolute", bottom: -8, right: -8, color: item.color, opacity: 0.1, pointerEvents: "none" }} />
                   <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginBottom: 10 }}>
                     <div style={{ width: 6, height: 6, borderRadius: "50%", background: T.dim }} />
                     <span style={{
@@ -4088,7 +4094,7 @@ export default function App() {
               display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-                <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.dim, background: T.card, border: `1px solid ${T.border}`, padding: "2px 8px", borderRadius: 3 }}>Interactive Tool</span>
+                <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.text, background: T.card, border: `1px solid ${T.border}`, padding: "2px 8px", borderRadius: 3 }}>Interactive Tool</span>
                 <span style={{ fontSize: 13, fontWeight: 600, color: T.text, fontFamily: "'DM Sans', sans-serif" }}>Design System Studio</span>
                 <span style={{ fontSize: 12, color: T.dim, lineHeight: 1.5 }}>Build, audit, and export a complete token-based design system with live component previews.</span>
               </div>
@@ -4116,7 +4122,7 @@ export default function App() {
               display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, flexWrap: "wrap",
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-                <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.dim, background: T.card, border: `1px solid ${T.border}`, padding: "2px 8px", borderRadius: 3 }}>New</span>
+                <span style={{ fontSize: 9, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.1em", textTransform: "uppercase", color: T.text, background: T.card, border: `1px solid ${T.border}`, padding: "2px 8px", borderRadius: 3 }}>New</span>
                 <span style={{ fontSize: 13, fontWeight: 600, color: T.text, fontFamily: "'DM Sans', sans-serif" }}>Agents</span>
                 <span style={{ fontSize: 12, color: T.dim, lineHeight: 1.5 }}>Six role-based Claude agents — Researcher, Strategist, Designer, and more — each pre-configured with skills and MCP tools.</span>
               </div>
